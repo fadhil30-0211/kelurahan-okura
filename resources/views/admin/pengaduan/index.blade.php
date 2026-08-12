@@ -87,6 +87,17 @@
                             <td class="px-5 py-3.5 text-right">
                                 <a href="{{ route('admin.pengaduan.show', $item) }}" class="text-xs font-medium text-emerald-600 hover:underline">Tangani</a>
                             </td>
+
+                        {{-- Tambahkan di admin/pengaduan/index.blade.php, kolom status --}}
+                        <td class="px-5 py-3.5">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $item->statusBadgeColor() }}">
+                                {{ ucfirst($item->status) }}
+                            </span>
+                            @if (! $item->notif_terakhir_dikirim)
+                                <span class="block text-[10px] text-amber-600 mt-1">⚠ Belum dinotif</span>
+                            @endif
+                        </td>
+
                         </tr>
                     @empty
                         <tr><td colspan="6" class="text-center py-10 text-slate-400 text-sm">Belum ada pengaduan masuk.</td></tr>

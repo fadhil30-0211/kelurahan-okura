@@ -81,4 +81,15 @@ class LayananSurat extends Model
             default     => 'bg-slate-50 text-slate-700',
         };
     }
+
+    public function nomorWhatsApp(): string
+    {
+        $nomor = preg_replace('/[^0-9]/', '', $this->no_hp);
+
+        if (str_starts_with($nomor, '0')) {
+            $nomor = '62' . substr($nomor, 1);
+        }
+
+        return $nomor;
+    }
 }

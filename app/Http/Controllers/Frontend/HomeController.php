@@ -21,8 +21,9 @@ class HomeController extends Controller
         $anggaranTahunIni = Anggaran::tahun(now()->year)->get();
         $emergencyContacts = \App\Models\EmergencyContact::active()->get();
         $pengumumanDarurat = \App\Models\Pengumuman::active()->where('kategori', 'darurat')->latest()->first();
+        $pengumumanTerbaru = \App\Models\Pengumuman::active()->latest()->take(3)->get();
 
-        return view('frontend.index', compact('banners', 'wisatas', 'umkms', 'anggaranTahunIni', 'emergencyContacts', 'pengumumanDarurat'));
+        return view('frontend.index', compact('banners', 'wisatas', 'umkms', 'anggaranTahunIni', 'pengumumanTerbaru'));
     }
 
     public function profil()

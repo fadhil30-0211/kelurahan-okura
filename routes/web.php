@@ -1,6 +1,8 @@
 <?php
 
-// routes/web.php
+use Illuminate\Support\Facades\Route;
+
+// Import Controllers - Frontend
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\WisataController;
 use App\Http\Controllers\Frontend\UmkmController;
@@ -12,9 +14,15 @@ use App\Http\Controllers\Frontend\JanjiTemuController;
 use App\Http\Controllers\Frontend\ResiController;
 use App\Http\Controllers\Frontend\UniversalTrackingController;
 use App\Http\Controllers\Frontend\PendaftaranController;
+use App\Http\Controllers\Frontend\PengumumanController as FrontendPengumumanController;
+use App\Http\Controllers\Frontend\GaleriController as FrontendGaleriController;
+use App\Http\Controllers\Frontend\AgendaController as FrontendAgendaController;
+use App\Http\Controllers\Frontend\SurveiKepuasanController as FrontendSurveiKepuasanController;
 
+// Import Controllers - Auth
 use App\Http\Controllers\Auth\LoginController;
 
+// Import Controllers - Admin
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BeritaController;
 use App\Http\Controllers\Admin\PengumumanController;
@@ -30,17 +38,28 @@ use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HeroBannerController;
 use App\Http\Controllers\Admin\SurveiKepuasanController;
 use App\Http\Controllers\Admin\EmergencyContactController;
-
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\SocialPostController;
 
 /*
 |--------------------------------------------------------------------------
 | FRONTEND ROUTES
 |--------------------------------------------------------------------------
 */
+
+// Home & General
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/profil', [HomeController::class, 'profil'])->name('profil');
 Route::get('/cari', [SearchController::class, 'index'])->name('search');
+
+// Pengumuman
+Route::prefix('pengumuman')->name('pengumuman.')->group(function () {
+    Route::get('/', [FrontendPengumumanController::class, 'index'])->name('index');
+    Route::get('/{pengumuman}', [FrontendPengumumanController::class, 'show'])->name('show');
+});
+
+// Galeri & Agenda
+Route::get('/galeri', [FrontendGaleriController::class, 'index'])->name('galeri.index');
+Route::get('/agenda', [FrontendAgendaController::class, 'index'])->name('agenda.index');
 
 // Janji Temu
 Route::get('/janji-temu', [JanjiTemuController::class, 'create'])->name('janji-temu.create');
@@ -51,21 +70,25 @@ Route::get('/resi/{kodeTiket}', [ResiController::class, 'show'])->name('resi.sho
 Route::get('/resi/{kodeTiket}/download', [ResiController::class, 'download'])->name('resi.download');
 Route::post('/lacak', [UniversalTrackingController::class, 'track'])->name('tracking.universal');
 
+// Wisata
 Route::prefix('wisata')->name('wisata.')->group(function () {
     Route::get('/', [WisataController::class, 'index'])->name('index');
     Route::get('/{slug}', [WisataController::class, 'show'])->name('show');
 });
 
+// UMKM
 Route::prefix('umkm')->name('umkm.')->group(function () {
     Route::get('/', [UmkmController::class, 'index'])->name('index');
     Route::get('/{id}', [UmkmController::class, 'show'])->name('show');
 });
 
+// Berita
 Route::prefix('berita')->name('berita.')->group(function () {
     Route::get('/', [FrontendBeritaController::class, 'index'])->name('index');
     Route::get('/{slug}', [FrontendBeritaController::class, 'show'])->name('show');
 });
 
+// Layanan Surat
 Route::prefix('layanan')->name('layanan.')->group(function () {
     Route::get('/', [LayananSuratController::class, 'index'])->name('index');
     Route::get('/ajukan/{jenis?}', [LayananSuratController::class, 'create'])->name('create');
@@ -74,6 +97,7 @@ Route::prefix('layanan')->name('layanan.')->group(function () {
     Route::post('/lacak', [LayananSuratController::class, 'track'])->name('track');
 });
 
+// Pengaduan
 Route::prefix('pengaduan')->name('pengaduan.')->group(function () {
     Route::get('/', [PengaduanController::class, 'create'])->name('create');
     Route::post('/', [PengaduanController::class, 'store'])->name('store');
@@ -81,6 +105,7 @@ Route::prefix('pengaduan')->name('pengaduan.')->group(function () {
     Route::post('/lacak', [PengaduanController::class, 'track'])->name('track');
 });
 
+// Pendaftaran
 Route::prefix('daftar')->name('pendaftaran.')->group(function () {
     Route::get('/wisata', [PendaftaranController::class, 'createWisata'])->name('wisata.create');
     Route::post('/wisata', [PendaftaranController::class, 'storeWisata'])->name('wisata.store');
@@ -120,9 +145,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/hero-banner-reorder', [HeroBannerController::class, 'reorder'])->name('hero-banner.reorder');
 
     // Social Post
-    Route::get('/social-post', [\App\Http\Controllers\Admin\SocialPostController::class, 'index'])->name('social-post.index');
-    Route::post('/social-post', [\App\Http\Controllers\Admin\SocialPostController::class, 'store'])->name('social-post.store');
-    Route::delete('/social-post/{socialPost}', [\App\Http\Controllers\Admin\SocialPostController::class, 'destroy'])->name('social-post.destroy');
+    Route::get('/social-post', [SocialPostController::class, 'index'])->name('social-post.index');
+    Route::post('/social-post', [SocialPostController::class, 'store'])->name('social-post.store');
+    Route::delete('/social-post/{socialPost}', [SocialPostController::class, 'destroy'])->name('social-post.destroy');
 
     // Multi-photo Gallery
     Route::prefix('gallery/{type}/{id}')->name('gallery.')->group(function () {
@@ -145,14 +170,26 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/layanan-surat', [AdminLayananSuratController::class, 'index'])->name('layanan-surat.index');
     Route::get('/layanan-surat/{layananSurat}', [AdminLayananSuratController::class, 'show'])->name('layanan-surat.show');
 
-    // Akses UPDATE / Approval (Bisa diakses oleh semua admin yang sudah login)
+    // Akses UPDATE / Approval
     Route::put('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'update'])->name('pengaduan.update');
     Route::put('/layanan-surat/{layananSurat}', [AdminLayananSuratController::class, 'update'])->name('layanan-surat.update');
     Route::put('/wisata-approve/{wisata}', [AdminWisataController::class, 'approve'])->name('wisata.approve');
     Route::put('/umkm-approve/{umkm}', [AdminUmkmController::class, 'approve'])->name('umkm.approve');
 
+    // Mark Notified (AJAX)
+    Route::post('/pengaduan/{pengaduan}/mark-notified', function (\App\Models\Pengaduan $pengaduan) {
+        $pengaduan->update(['notif_terakhir_dikirim' => now()]);
+        return response()->json(['success' => true]);
+    })->name('pengaduan.mark-notified');
+
+    Route::post('/layanan-surat/{layananSurat}/mark-notified', function (\App\Models\LayananSurat $layananSurat) {
+        $layananSurat->update(['notif_terakhir_dikirim' => now()]);
+        return response()->json(['success' => true]);
+    })->name('layanan-surat.mark-notified');
+
     // Survei Kepuasan
     Route::get('/survei-kepuasan', [SurveiKepuasanController::class, 'index'])->name('survei.index');
+    Route::post('/survei-kepuasan', [FrontendSurveiKepuasanController::class, 'store'])->name('survei.store');
 
     // Data sensitif — khusus super_admin
     Route::middleware('super_admin')->group(function () {

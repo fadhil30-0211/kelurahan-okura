@@ -18,7 +18,13 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-5">
             <div>
                 <p class="text-xs text-slate-400">Nama Pelapor</p>
-                <p class="text-slate-700 font-medium">{{ $pengaduan->nama_pelapor }}</p>
+                <p class="text-slate-700 font-medium">
+                    @if ($pengaduan->is_anonim ?? false)
+                        🔒 Anonim
+                    @else
+                        {{ $pengaduan->nama_pelapor }}
+                    @endif
+                </p>
             </div>
             <div>
                 <p class="text-xs text-slate-400">No. HP</p>
@@ -82,6 +88,33 @@
                     </a>
                 </div>
             </form>
+        </div>
+
+        {{-- ================= NOTIFIKASI WHATSAPP KE PELAPOR ================= --}}
+        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-6">
+            <div class="flex items-start gap-3">
+                <svg class="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.86 9.86 0 004.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2zm0 18.13a8.2 8.2 0 01-4.18-1.14l-.3-.18-3.11.82.83-3.04-.2-.31a8.22 8.22 0 01-1.26-4.37c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 012.41 5.83c0 4.54-3.7 8.21-8.26 8.21z"/>
+                </svg>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-emerald-800 text-sm mb-1">Beri Tahu Pelapor</h3>
+                    <p class="text-xs text-emerald-700 mb-4">
+                        Kirim update status terkini ke {{ $pengaduan->is_anonim ? 'pelapor' : $pengaduan->nama_pelapor }} melalui WhatsApp. Pesan sudah disiapkan otomatis sesuai status saat ini — Anda bisa mengedit sebelum mengirim.
+                    </p>
+                    <a href="https://wa.me/{{ $pengaduan->nomorWhatsApp() }}?text={{ urlencode(\App\Helpers\NotifikasiHelper::pesanPengaduan($pengaduan)) }}"
+                       target="_blank"
+                       onclick="fetch('{{ route('admin.pengaduan.mark-notified', $pengaduan) }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } })"
+                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition">
+                        Kirim Notifikasi via WhatsApp
+                    </a>
+
+                    @if ($pengaduan->notif_terakhir_dikirim)
+                        <p class="text-xs text-emerald-600 mt-2">
+                            ✓ Notifikasi terakhir dikirim: {{ $pengaduan->notif_terakhir_dikirim->diffForHumans() }}
+                        </p>
+                    @endif
+                </div>
+            </div>
         </div>
     @else
         <div class="bg-slate-50 rounded-2xl border border-slate-100 p-6 text-center text-sm text-slate-400">

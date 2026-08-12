@@ -205,6 +205,21 @@
             </a>
         </div>
 
+        {{-- Update card "Berita Terbaru" di frontend/index.blade.php jadi card "Pengumuman Terbaru" --}}
+        <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
+            <h3 class="font-semibold text-slate-800 mb-2">📢 Pengumuman Terbaru</h3>
+            @forelse ($pengumumanTerbaru as $item)
+                <a href="{{ route('pengumuman.show', $item) }}" class="block text-xs text-slate-500 hover:text-emerald-600 py-1 truncate">
+                    • {{ $item->judul }}
+                </a>
+            @empty
+                <p class="text-xs text-slate-400">Belum ada pengumuman aktif.</p>
+            @endforelse
+            <a href="{{ route('pengumuman.index') }}" class="inline-block mt-3 text-emerald-600 text-sm font-medium hover:underline">
+                Lihat Semua →
+            </a>
+        </div>
+
         {{-- Card: Transparansi --}}
         <div class="bg-amber-50 rounded-2xl shadow-md p-6 border border-amber-100">
             <h3 class="font-semibold text-amber-800 mb-2">📊 Transparansi Anggaran</h3>
