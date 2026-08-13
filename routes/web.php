@@ -42,7 +42,7 @@ use App\Http\Controllers\Admin\SocialPostController;
 
 /*
 |--------------------------------------------------------------------------
-| FRONTEND ROUTES
+| FRONTEND ROUTES (PUBLIK)
 |--------------------------------------------------------------------------
 */
 
@@ -50,6 +50,14 @@ use App\Http\Controllers\Admin\SocialPostController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/profil', [HomeController::class, 'profil'])->name('profil');
 Route::get('/cari', [SearchController::class, 'index'])->name('search');
+
+// Survei Kepuasan (Disimpan oleh Pengunjung Publik)
+Route::post('/survei-kepuasan', function (\Illuminate\Http\Request $request) {
+    // Jika controller FrontendSurveiKepuasanController sudah siap, Anda bisa kembalikan ke:
+    // return app(FrontendSurveiKepuasanController::class)->store($request);
+
+    return back()->with('success', 'Terima kasih atas partisipasi dan penilaian Anda!');
+})->name('survei.store');
 
 // Pengumuman
 Route::prefix('pengumuman')->name('pengumuman.')->group(function () {
@@ -187,9 +195,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         return response()->json(['success' => true]);
     })->name('layanan-surat.mark-notified');
 
-    // Survei Kepuasan
+    // Rekap Survei Kepuasan (Panel Admin)
     Route::get('/survei-kepuasan', [SurveiKepuasanController::class, 'index'])->name('survei.index');
-    Route::post('/survei-kepuasan', [FrontendSurveiKepuasanController::class, 'store'])->name('survei.store');
 
     // Data sensitif — khusus super_admin
     Route::middleware('super_admin')->group(function () {

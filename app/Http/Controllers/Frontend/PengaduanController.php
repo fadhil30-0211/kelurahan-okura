@@ -38,8 +38,8 @@ class PengaduanController extends Controller
 
         $pengaduan = Pengaduan::create($validated);
 
+        // BAGIAN YANG DIPERBAIKI: Menghapus perantaian ganda ->route()
         return redirect()
-            ->route('pengaduan.create')
             ->route('resi.show', $pengaduan->kode_tiket)
             ->with('success', "Pengaduan berhasil dikirim! Kode tiket Anda: {$pengaduan->kode_tiket}. Simpan kode ini untuk melacak status.")
             ->with('kode_tiket', $pengaduan->kode_tiket);

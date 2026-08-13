@@ -25,7 +25,6 @@
              }
          }">
 
-    {{-- Slides --}}
     <div class="absolute inset-0">
         @forelse ($banners as $i => $banner)
             <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -34,7 +33,6 @@
                 <div class="absolute inset-0 bg-gradient-to-b from-[#0B1F3A]/80 via-[#0B1F3A]/60 to-[#0B1F3A]/90"></div>
             </div>
         @empty
-            {{-- Fallback kalau belum ada banner sama sekali --}}
             <div class="absolute inset-0">
                 <img src="{{ asset('images/hero-okura.jpg') }}" alt="Okura" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-b from-[#0B1F3A]/80 via-[#0B1F3A]/60 to-[#0B1F3A]/90"></div>
@@ -42,7 +40,6 @@
         @endforelse
     </div>
 
-    {{-- Navigation Arrows (hanya tampil kalau lebih dari 1 banner) --}}
     @if ($banners->count() > 1)
         <button @click="prev()" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur flex items-center justify-center text-white transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -51,7 +48,6 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
-        {{-- Dots Indicator --}}
         <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
             @foreach ($banners as $i => $banner)
                 <button @click="goTo({{ $i }})" :class="current === {{ $i }} ? 'w-8 bg-amber-400' : 'w-2 bg-white/40'" class="h-2 rounded-full transition-all duration-300"></button>
@@ -59,7 +55,6 @@
         </div>
     @endif
 
-    {{-- Konten Overlay --}}
     <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-32 sm:pt-28 pb-10" x-data="{ counted: false }" x-intersect="counted = true">
         <span class="inline-block px-4 py-1.5 mb-5 rounded-full bg-amber-400/20 text-amber-300 text-sm font-medium border border-amber-400/30">
             Portal Resmi Kelurahan
@@ -76,9 +71,7 @@
             Menyajikan pelayanan, informasi, dan potensi wisata & UMKM warga secara cepat, transparan, dan modern.
         </p>
 
-        {{-- Universal Quick Search & Tracking Bar (2 Tab) --}}
         <div id="lacak" class="mt-8 max-w-xl mx-auto" x-data="{ tab: window.location.hash === '#lacak' ? 'lacak' : 'cari' }">
-            {{-- Tab Switcher --}}
             <div class="flex bg-white/10 backdrop-blur rounded-xl p-1 mb-3 max-w-xs mx-auto">
                 <button @click="tab = 'cari'"
                         :class="tab === 'cari' ? 'bg-white text-emerald-700' : 'text-white/70'"
@@ -92,7 +85,6 @@
                 </button>
             </div>
 
-            {{-- Form Cari Informasi --}}
             <form x-show="tab === 'cari'" action="{{ route('search') }}" method="GET">
                 <div class="flex items-center bg-white/95 backdrop-blur rounded-2xl shadow-lg p-2">
                     <svg class="w-5 h-5 text-slate-400 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,7 +98,6 @@
                 </div>
             </form>
 
-            {{-- Form Lacak Pengajuan (Universal) --}}
             <form x-show="tab === 'lacak'" x-cloak action="{{ route('tracking.universal') }}" method="POST">
                 @csrf
                 <div class="flex items-center bg-white/95 backdrop-blur rounded-2xl shadow-lg p-2">
@@ -125,7 +116,6 @@
             </form>
         </div>
 
-        {{-- Live Counter --}}
         <div class="mt-12 mb-6 grid grid-cols-3 gap-4 max-w-lg mx-auto">
             <div class="text-center" x-data="{ val: 0 }" x-init="if (counted) { let t = setInterval(() => { val += 89; if (val >= 5342) { val = 5342; clearInterval(t); } }, 15) }">
                 <p class="text-2xl sm:text-3xl font-bold text-amber-300" x-text="val.toLocaleString('id-ID')"></p>
@@ -196,16 +186,7 @@
             </a>
         </div>
 
-        {{-- Card: Berita Terbaru --}}
-        <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
-            <h3 class="font-semibold text-slate-800 mb-2">📰 Berita Terbaru</h3>
-            <p class="text-xs text-slate-500">Update kegiatan dan agenda kelurahan.</p>
-            <a href="{{ route('berita.index') }}" class="inline-block mt-3 text-emerald-600 text-sm font-medium hover:underline">
-                Lihat Semua →
-            </a>
-        </div>
-
-        {{-- Update card "Berita Terbaru" di frontend/index.blade.php jadi card "Pengumuman Terbaru" --}}
+        {{-- Card: Pengumuman Terbaru --}}
         <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
             <h3 class="font-semibold text-slate-800 mb-2">📢 Pengumuman Terbaru</h3>
             @forelse ($pengumumanTerbaru as $item)
@@ -220,10 +201,14 @@
             </a>
         </div>
 
-        {{-- Card: Transparansi --}}
+        {{-- Card: Transparansi Anggaran (CHART BENERAN) --}}
         <div class="bg-amber-50 rounded-2xl shadow-md p-6 border border-amber-100">
-            <h3 class="font-semibold text-amber-800 mb-2">📊 Transparansi Anggaran</h3>
-            <p class="text-xs text-amber-700">Lihat rincian penggunaan dana kelurahan.</p>
+            <h3 class="font-semibold text-amber-800 mb-2">📊 Transparansi Anggaran {{ now()->year }}</h3>
+            @if ($anggaranTahunIni->count())
+                <canvas id="chartAnggaranHome" height="120"></canvas>
+            @else
+                <p class="text-xs text-amber-700">Data anggaran belum tersedia untuk tahun ini. Silakan input data di menu Admin &rarr; Anggaran.</p>
+            @endif
         </div>
     </div>
 </section>
@@ -250,6 +235,7 @@
                     <div class="h-48 overflow-hidden">
                         <img src="{{ $wisata->thumbnail ? asset('storage/' . $wisata->thumbnail) : asset('images/placeholder.jpg') }}"
                              alt="{{ $wisata->nama }}"
+                             loading="lazy"
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     </div>
                     <div class="p-5">
@@ -284,6 +270,7 @@
                class="rounded-2xl bg-white shadow-md hover:shadow-xl transition p-4 border border-slate-100">
                 <div class="h-28 rounded-xl overflow-hidden mb-3">
                     <img src="{{ $umkm->foto ? asset('storage/' . $umkm->foto) : asset('images/placeholder.jpg') }}"
+                         loading="lazy"
                          class="w-full h-full object-cover" alt="{{ $umkm->nama_usaha }}">
                 </div>
                 <h3 class="font-semibold text-sm text-slate-800 truncate">{{ $umkm->nama_usaha }}</h3>
@@ -291,12 +278,13 @@
             </a>
         @empty
             <p class="text-sm text-slate-400 col-span-4 text-center py-10">Belum ada data UMKM.</p>
-            <section class="max-w-2xl mx-auto px-4 sm:px-6 py-16">
-                @include('frontend.partials.widget-survei')
-            </section>
         @endforelse
     </div>
+</section>
 
+{{-- ================= WIDGET SURVEI KEPUASAN ================= --}}
+<section class="max-w-2xl mx-auto px-4 sm:px-6 py-16">
+    @include('frontend.partials.widget-survei')
 </section>
 
 {{-- ================= FLOATING WHATSAPP BUTTON ================= --}}
@@ -315,7 +303,7 @@
     // Inisialisasi Leaflet Map (Peta Interaktif)
     document.addEventListener('DOMContentLoaded', function () {
         if (document.getElementById('peta-kelurahan')) {
-            const map = L.map('peta-kelurahan').setView([0.6183, 101.5854], 13); // koordinat Okura, Rumbai Pesisir
+            const map = L.map('peta-kelurahan').setView([0.6183, 101.5854], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
@@ -323,4 +311,31 @@
         }
     });
 </script>
+
+{{-- Chart Transparansi Anggaran --}}
+@if ($anggaranTahunIni->count())
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('chartAnggaranHome');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: @json($anggaranTahunIni->pluck('kategori')),
+                    datasets: [{
+                        data: @json($anggaranTahunIni->pluck('jumlah')),
+                        backgroundColor: '#D97706',
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { ticks: { callback: (v) => 'Rp' + (v/1000000) + 'jt' } } }
+                }
+            });
+        }
+    });
+</script>
+@endif
 @endpush
