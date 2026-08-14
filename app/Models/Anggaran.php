@@ -9,6 +9,9 @@ class Anggaran extends Model
 {
     use HasFactory;
 
+    // Tambahkan baris ini agar Laravel tidak mencari tabel 'anggarans'
+    protected $table = 'anggarans';
+
     protected $fillable = ['tahun', 'kategori', 'jumlah', 'keterangan', 'user_id'];
 
     protected function casts(): array

@@ -4,6 +4,7 @@
 
 @section('content')
 <div class="space-y-5">
+    {{-- Summary Cards --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         @php
             $cards = [
@@ -23,6 +24,7 @@
         @endforeach
     </div>
 
+    {{-- Filter & Export --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <form method="GET" class="flex flex-col sm:flex-row gap-2 flex-1">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari kode tiket / nama pelapor..."
@@ -47,6 +49,7 @@
         </div>
     </div>
 
+    {{-- Table --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -66,7 +69,7 @@
                             <td class="px-5 py-3.5 font-mono text-xs text-slate-600">{{ $item->kode_tiket }}</td>
                             <td class="px-5 py-3.5 text-slate-700 max-w-xs truncate">{{ $item->judul_aduan }}</td>
 
-                            {{-- Kolom Pelapor dengan Fitur Anonim --}}
+                            {{-- Pelapor --}}
                             <td class="px-5 py-3.5">
                                 @if ($item->is_anonim)
                                     <span class="inline-flex items-center gap-1 text-slate-500 font-medium">
@@ -79,25 +82,31 @@
                             </td>
 
                             <td class="px-5 py-3.5 text-slate-600 capitalize">{{ $item->kategori }}</td>
+
+                            {{-- Status + Warning Notif --}}
                             <td class="px-5 py-3.5">
                                 <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $item->statusBadgeColor() }}">
                                     {{ ucfirst($item->status) }}
                                 </span>
+                                @if (! $item->notif_terakhir_dikirim)
+                                    <span class="block text-[10px] text-amber-600 mt-1">⚠ Belum dinotif</span>
+                                @endif
                             </td>
+
+                            {{-- Kolom Aksi (Tangani & Hapus) --}}
                             <td class="px-5 py-3.5 text-right">
-                                <a href="{{ route('admin.pengaduan.show', $item) }}" class="text-xs font-medium text-emerald-600 hover:underline">Tangani</a>
+                                <div class="flex items-center justify-end gap-3">
+                                    <a href="{{ route('admin.pengaduan.show', $item) }}" class="text-xs font-medium text-emerald-600 hover:underline">Tangani</a>
+
+                                    @if (auth()->user()->canApprove())
+                                        <form action="{{ route('admin.pengaduan.destroy', $item) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data pengaduan ini? Tindakan ini tidak bisa dibatalkan.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-xs font-medium text-red-600 hover:underline">Hapus</button>
+                                        </form>
+                                    @endif
+                                </div>
                             </td>
-
-                        {{-- Tambahkan di admin/pengaduan/index.blade.php, kolom status --}}
-                        <td class="px-5 py-3.5">
-                            <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $item->statusBadgeColor() }}">
-                                {{ ucfirst($item->status) }}
-                            </span>
-                            @if (! $item->notif_terakhir_dikirim)
-                                <span class="block text-[10px] text-amber-600 mt-1">⚠ Belum dinotif</span>
-                            @endif
-                        </td>
-
                         </tr>
                     @empty
                         <tr><td colspan="6" class="text-center py-10 text-slate-400 text-sm">Belum ada pengaduan masuk.</td></tr>

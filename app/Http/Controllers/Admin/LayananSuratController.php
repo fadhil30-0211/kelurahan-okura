@@ -62,4 +62,22 @@ class LayananSuratController extends Controller
             ->route('admin.layanan-surat.show', $layananSurat)
             ->with('success', 'Status layanan surat berhasil diperbarui.');
     }
+
+    public function destroy(LayananSurat $layananSurat)
+{
+    if ($layananSurat->berkas_persyaratan) {
+        foreach ($layananSurat->berkas_persyaratan as $berkas) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($berkas);
+        }
+    }
+
+    if ($layananSurat->file_hasil) {
+        \Illuminate\Support\Facades\Storage::disk('public')->delete($layananSurat->file_hasil);
+    }
+
+    $layananSurat->delete();
+
+    return redirect()->route('admin.layanan-surat.index')
+        ->with('success', 'Data layanan surat berhasil dihapus.');
+}
 }

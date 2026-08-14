@@ -17,7 +17,6 @@ use App\Http\Controllers\Frontend\PendaftaranController;
 use App\Http\Controllers\Frontend\PengumumanController as FrontendPengumumanController;
 use App\Http\Controllers\Frontend\GaleriController as FrontendGaleriController;
 use App\Http\Controllers\Frontend\AgendaController as FrontendAgendaController;
-use App\Http\Controllers\Frontend\SurveiKepuasanController as FrontendSurveiKepuasanController;
 
 // Import Controllers - Auth
 use App\Http\Controllers\Auth\LoginController;
@@ -29,14 +28,13 @@ use App\Http\Controllers\Admin\PengumumanController;
 use App\Http\Controllers\Admin\PegawaiController;
 use App\Http\Controllers\Admin\WisataController as AdminWisataController;
 use App\Http\Controllers\Admin\UmkmController as AdminUmkmController;
-use App\Http\Controllers\Admin\PengaduanController as AdminPengaduanController;
+use App\Http\Controllers\Admin\AdminPengaduanController; // Pastikan menggunakan AdminPengaduanController
 use App\Http\Controllers\Admin\LayananSuratController as AdminLayananSuratController;
 use App\Http\Controllers\Admin\GaleriController;
 use App\Http\Controllers\Admin\AgendaController;
 use App\Http\Controllers\Admin\AnggaranController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HeroBannerController;
-use App\Http\Controllers\Admin\SurveiKepuasanController;
 use App\Http\Controllers\Admin\EmergencyContactController;
 use App\Http\Controllers\Admin\SocialPostController;
 
@@ -50,14 +48,6 @@ use App\Http\Controllers\Admin\SocialPostController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/profil', [HomeController::class, 'profil'])->name('profil');
 Route::get('/cari', [SearchController::class, 'index'])->name('search');
-
-// Survei Kepuasan (Disimpan oleh Pengunjung Publik)
-Route::post('/survei-kepuasan', function (\Illuminate\Http\Request $request) {
-    // Jika controller FrontendSurveiKepuasanController sudah siap, Anda bisa kembalikan ke:
-    // return app(FrontendSurveiKepuasanController::class)->store($request);
-
-    return back()->with('success', 'Terima kasih atas partisipasi dan penilaian Anda!');
-})->name('survei.store');
 
 // Pengumuman
 Route::prefix('pengumuman')->name('pengumuman.')->group(function () {
@@ -105,7 +95,7 @@ Route::prefix('layanan')->name('layanan.')->group(function () {
     Route::post('/lacak', [LayananSuratController::class, 'track'])->name('track');
 });
 
-// Pengaduan
+// Pengaduan Frontend
 Route::prefix('pengaduan')->name('pengaduan.')->group(function () {
     Route::get('/', [PengaduanController::class, 'create'])->name('create');
     Route::post('/', [PengaduanController::class, 'store'])->name('store');
@@ -169,18 +159,21 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/anggaran', [AnggaranController::class, 'store'])->name('anggaran.store');
     Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy'])->name('anggaran.destroy');
 
-    // Inbox Pengaduan & Layanan Surat
-    Route::get('/pengaduan', [AdminPengaduanController::class, 'index'])->name('pengaduan.index');
-    Route::get('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'show'])->name('pengaduan.show');
+    // Inbox Pengaduan Admin
     Route::get('/pengaduan-export/excel', [AdminPengaduanController::class, 'exportExcel'])->name('pengaduan.export.excel');
     Route::get('/pengaduan-export/pdf', [AdminPengaduanController::class, 'exportPdf'])->name('pengaduan.export.pdf');
+    Route::get('/pengaduan', [AdminPengaduanController::class, 'index'])->name('pengaduan.index');
+    Route::get('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'show'])->name('pengaduan.show');
+    Route::put('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'update'])->name('pengaduan.update');
+    Route::delete('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'destroy'])->name('pengaduan.destroy');
 
+    // Inbox Layanan Surat Admin
     Route::get('/layanan-surat', [AdminLayananSuratController::class, 'index'])->name('layanan-surat.index');
     Route::get('/layanan-surat/{layananSurat}', [AdminLayananSuratController::class, 'show'])->name('layanan-surat.show');
-
-    // Akses UPDATE / Approval
-    Route::put('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'update'])->name('pengaduan.update');
     Route::put('/layanan-surat/{layananSurat}', [AdminLayananSuratController::class, 'update'])->name('layanan-surat.update');
+    Route::delete('/layanan-surat/{layananSurat}', [AdminLayananSuratController::class, 'destroy'])->name('layanan-surat.destroy');
+
+    // Akses Approval
     Route::put('/wisata-approve/{wisata}', [AdminWisataController::class, 'approve'])->name('wisata.approve');
     Route::put('/umkm-approve/{umkm}', [AdminUmkmController::class, 'approve'])->name('umkm.approve');
 
@@ -195,11 +188,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         return response()->json(['success' => true]);
     })->name('layanan-surat.mark-notified');
 
-    // Rekap Survei Kepuasan (Panel Admin)
-    Route::get('/survei-kepuasan', [SurveiKepuasanController::class, 'index'])->name('survei.index');
-
     // Data sensitif — khusus super_admin
     Route::middleware('super_admin')->group(function () {
         Route::resource('pegawai', PegawaiController::class);
+        Route::get('/pengaturan', [\App\Http\Controllers\Admin\SiteSettingController::class, 'index'])->name('pengaturan.index');
+        Route::put('/pengaturan', [\App\Http\Controllers\Admin\SiteSettingController::class, 'update'])->name('pengaturan.update');
     });
 });

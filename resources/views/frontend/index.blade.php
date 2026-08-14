@@ -116,16 +116,17 @@
             </form>
         </div>
 
+        {{-- Live Counter — sekarang pakai data sungguhan dari database & pengaturan admin --}}
         <div class="mt-12 mb-6 grid grid-cols-3 gap-4 max-w-lg mx-auto">
-            <div class="text-center" x-data="{ val: 0 }" x-init="if (counted) { let t = setInterval(() => { val += 89; if (val >= 5342) { val = 5342; clearInterval(t); } }, 15) }">
+            <div class="text-center" x-data="{ val: 0, target: {{ $jumlahPenduduk }} }" x-effect="if (counted && val === 0 && target > 0) { let step = Math.max(1, Math.ceil(target / 80)); let t = setInterval(() => { val += step; if (val >= target) { val = target; clearInterval(t); } }, 15) }">
                 <p class="text-2xl sm:text-3xl font-bold text-amber-300" x-text="val.toLocaleString('id-ID')"></p>
                 <p class="text-xs sm:text-sm text-slate-300 mt-1">Jumlah Penduduk</p>
             </div>
-            <div class="text-center" x-data="{ val: 0 }" x-init="if (counted) { let t = setInterval(() => { val += 1; if (val >= 12) { val = 12; clearInterval(t); } }, 80) }">
+            <div class="text-center" x-data="{ val: 0, target: {{ $jumlahWisata }} }" x-effect="if (counted && val === 0 && target > 0) { let t = setInterval(() => { val += 1; if (val >= target) { val = target; clearInterval(t); } }, 80) }">
                 <p class="text-2xl sm:text-3xl font-bold text-amber-300" x-text="val"></p>
                 <p class="text-xs sm:text-sm text-slate-300 mt-1">Destinasi Wisata</p>
             </div>
-            <div class="text-center" x-data="{ val: 0 }" x-init="if (counted) { let t = setInterval(() => { val += 2; if (val >= 48) { val = 48; clearInterval(t); } }, 30) }">
+            <div class="text-center" x-data="{ val: 0, target: {{ $jumlahUmkm }} }" x-effect="if (counted && val === 0 && target > 0) { let t = setInterval(() => { val += 1; if (val >= target) { val = target; clearInterval(t); } }, 40) }">
                 <p class="text-2xl sm:text-3xl font-bold text-amber-300" x-text="val"></p>
                 <p class="text-xs sm:text-sm text-slate-300 mt-1">UMKM Terdaftar</p>
             </div>
@@ -201,7 +202,7 @@
             </a>
         </div>
 
-        {{-- Card: Transparansi Anggaran (CHART BENERAN) --}}
+        {{-- Card: Transparansi Anggaran (CHART) --}}
         <div class="bg-amber-50 rounded-2xl shadow-md p-6 border border-amber-100">
             <h3 class="font-semibold text-amber-800 mb-2">📊 Transparansi Anggaran {{ now()->year }}</h3>
             @if ($anggaranTahunIni->count())
@@ -280,11 +281,6 @@
             <p class="text-sm text-slate-400 col-span-4 text-center py-10">Belum ada data UMKM.</p>
         @endforelse
     </div>
-</section>
-
-{{-- ================= WIDGET SURVEI KEPUASAN ================= --}}
-<section class="max-w-2xl mx-auto px-4 sm:px-6 py-16">
-    @include('frontend.partials.widget-survei')
 </section>
 
 {{-- ================= FLOATING WHATSAPP BUTTON ================= --}}

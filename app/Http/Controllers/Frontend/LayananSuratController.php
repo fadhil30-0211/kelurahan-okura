@@ -8,8 +8,8 @@ use Illuminate\Http\Request;
 
 class LayananSuratController extends Controller
 {
-        // Daftar jenis surat yang bisa diajukan, dengan syarat masing-masing
-        public array $jenisSurat = [
+    // Daftar jenis surat yang bisa diajukan, dengan syarat masing-masing
+    public array $jenisSurat = [
         'sktm' => [
             'label' => 'Surat Keterangan Tidak Mampu (SKTM)',
             'syarat' => ['KTP', 'KK', 'Surat Pengantar RT/RW'],
@@ -76,8 +76,8 @@ class LayananSuratController extends Controller
 
         $surat = LayananSurat::create($validated);
 
+        // PERBAIKAN: Arahkan langsung ke halaman resi/detail tiket setelah berhasil
         return redirect()
-            ->route('layanan.index')
             ->route('resi.show', $surat->kode_tiket)
             ->with('success', "Pengajuan berhasil dikirim! Kode tiket Anda: {$surat->kode_tiket}. Simpan kode ini untuk melacak status.")
             ->with('kode_tiket', $surat->kode_tiket);

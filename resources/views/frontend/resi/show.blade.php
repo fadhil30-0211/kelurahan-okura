@@ -81,9 +81,9 @@
         }">
 
         <div class="mt-6">
-            @include('frontend.partials.widget-survei')
+
         </div>
-        
+
             <a href="{{ route('resi.download', $item->kode_tiket) }}"
                class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold">
                 Download PDF

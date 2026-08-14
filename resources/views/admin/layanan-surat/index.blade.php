@@ -39,6 +39,7 @@
         </form>
     </div>
 
+    {{-- Tabel Pengajuan Surat --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -67,8 +68,20 @@
                                 </span>
                             </td>
                             <td class="px-5 py-3.5 text-slate-500 text-xs">{{ $item->created_at->format('d M Y') }}</td>
+
+                            {{-- Kolom Aksi (Proses & Hapus) --}}
                             <td class="px-5 py-3.5 text-right">
-                                <a href="{{ route('admin.layanan-surat.show', $item) }}" class="text-xs font-medium text-emerald-600 hover:underline">Proses</a>
+                                <div class="flex items-center justify-end gap-3">
+                                    <a href="{{ route('admin.layanan-surat.show', $item) }}" class="text-xs font-medium text-emerald-600 hover:underline">Proses</a>
+
+                                    @if (auth()->user()->canApprove())
+                                        <form action="{{ route('admin.layanan-surat.destroy', $item) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data pengajuan surat ini? Tindakan ini tidak bisa dibatalkan.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-xs font-medium text-red-600 hover:underline">Hapus</button>
+                                        </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

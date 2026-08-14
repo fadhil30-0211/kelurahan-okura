@@ -61,8 +61,10 @@
     @if (auth()->user()->canApprove())
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
             <h3 class="font-semibold text-slate-800 mb-4">Tanggapi Pengaduan</h3>
+
             <form action="{{ route('admin.pengaduan.update', $pengaduan) }}" method="POST" class="space-y-4">
-                @csrf @method('PUT')
+                @csrf
+                @method('PUT')
 
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Ubah Status</label>
@@ -79,18 +81,29 @@
                               class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none resize-none">{{ old('tanggapan_admin', $pengaduan->tanggapan_admin) }}</textarea>
                 </div>
 
-                <div class="flex items-center gap-3 pt-2">
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold">
-                        Simpan Tanggapan
-                    </button>
-                    <a href="{{ route('admin.pengaduan.index') }}" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50">
-                        Kembali
-                    </a>
+                <div class="flex items-center justify-between pt-2">
+                    <div class="flex items-center gap-3">
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold">
+                            Simpan Tanggapan
+                        </button>
+                        <a href="{{ route('admin.pengaduan.index') }}" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50">
+                            Kembali
+                        </a>
+                    </div>
                 </div>
             </form>
+
+            <div class="flex justify-end -mt-10">
+                <form action="{{ route('admin.pengaduan.destroy', $pengaduan) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data pengaduan ini? Tindakan ini tidak bisa dibatalkan.')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-sm font-semibold transition">
+                        Hapus Pengaduan
+                    </button>
+                </form>
+            </div>
         </div>
 
-        {{-- ================= NOTIFIKASI WHATSAPP KE PELAPOR ================= --}}
         <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-6">
             <div class="flex items-start gap-3">
                 <svg class="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
