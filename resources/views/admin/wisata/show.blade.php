@@ -1,13 +1,11 @@
-{{-- resources/views/admin/wisata/create.blade.php --}}
 @extends('layouts.admin')
 @section('page-title', 'Tambah Wisata')
 
-@push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-@endpush
-
 @section('content')
-<div class="max-w-2xl">
+<!-- Import Leaflet CSS langsung di sini agar tidak hilang -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<div class="max-w-2xl mx-auto p-4">
     <form action="{{ route('admin.wisata.store') }}" method="POST" enctype="multipart/form-data"
           class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 space-y-5">
         @csrf
@@ -58,19 +56,18 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">Kontak</label>
-                <input type="text" name="kontak" value="{{ old('kontak') }}" placeholder="08xxxxxxxxxx"
-                       class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">Status <span class="text-red-500">*</span></label>
-                <select name="status" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                    <option value="aktif" {{ old('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
-                    <option value="nonaktif" {{ old('status') == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
-                </select>
-            </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Kontak</label>
+            <input type="text" name="kontak" value="{{ old('kontak') }}" placeholder="08xxxxxxxxxx"
+                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Status <span class="text-red-500">*</span></label>
+            <select name="status" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                <option value="aktif" {{ old('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                <option value="nonaktif" {{ old('status') == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+            </select>
         </div>
 
         <div>
@@ -101,6 +98,7 @@
         const map = L.map('peta-pilih-lokasi').setView([initialLat, initialLng], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+        // Fix leaflet container size render
         setTimeout(() => { map.invalidateSize(); }, 300);
 
         let marker;

@@ -38,7 +38,7 @@
             <h2 class="text-2xl font-bold text-[#0B1F3A] mb-5">Sejarah & Geografis</h2>
             <div class="bg-white rounded-2xl p-8 border border-slate-100 shadow-md">
                 <p class="text-sm text-slate-600 leading-relaxed mb-4">
-                    Kelurahan Tebing Tinggi Okura merupakan salah satu kelurahan di Kecamatan Rumbai Pesisir, Kota Pekanbaru,
+                    Kelurahan Tebing Tinggi Okura merupakan salah satu kelurahan di Kecamatan Rumbai Timur, Kota Pekanbaru,
                     yang terletak di tepian Sungai Siak dengan potensi alam dan budaya yang khas.
                 </p>
                 <div id="peta-profil" class="w-full h-72 rounded-xl"></div>

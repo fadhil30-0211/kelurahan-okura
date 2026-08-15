@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pegawai;
+use App\Traits\CompressesImages;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class PegawaiController extends Controller
 {
+    use CompressesImages;
+
     public function index(Request $request)
     {
         $pegawais = Pegawai::when($request->search, fn ($q) => $q->where('nama', 'like', "%{$request->search}%"))
@@ -33,15 +36,15 @@ class PegawaiController extends Controller
             'email'              => 'nullable|email|max:255',
             'no_hp'              => 'nullable|string|max:20',
             'urutan'             => 'nullable|integer|min:0',
-            'foto'               => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'foto'               => 'required|image|mimes:jpg,jpeg,png,webp|max:10240', // Batas dinaikkan ke 10MB
             'is_active'          => 'boolean',
         ]);
 
         $validated['is_active'] = $request->boolean('is_active');
-        $validated['urutan'] = $validated['urutan'] ?? 0;
+        $validated['urutan']    = $validated['urutan'] ?? 0;
 
         if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('pegawai', 'public');
+            $validated['foto'] = $this->storeCompressedImage($request->file('foto'), 'pegawai');
         }
 
         Pegawai::create($validated);
@@ -64,18 +67,18 @@ class PegawaiController extends Controller
             'email'              => 'nullable|email|max:255',
             'no_hp'              => 'nullable|string|max:20',
             'urutan'             => 'nullable|integer|min:0',
-            'foto'               => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'foto'               => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240', // Batas dinaikkan ke 10MB
             'is_active'          => 'boolean',
         ]);
 
         $validated['is_active'] = $request->boolean('is_active');
-        $validated['urutan'] = $validated['urutan'] ?? 0;
+        $validated['urutan']    = $validated['urutan'] ?? 0;
 
         if ($request->hasFile('foto')) {
             if ($pegawai->foto) {
                 Storage::disk('public')->delete($pegawai->foto);
             }
-            $validated['foto'] = $request->file('foto')->store('pegawai', 'public');
+            $validated['foto'] = $this->storeCompressedImage($request->file('foto'), 'pegawai');
         }
 
         $pegawai->update($validated);
