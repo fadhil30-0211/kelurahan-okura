@@ -49,9 +49,11 @@ class WisataController extends Controller
         return redirect()->route('admin.wisata.index')->with('success', 'Data wisata berhasil ditambahkan.');
     }
 
-    public function edit(Wisata $wisata)
+    public function edit(Wisata $wisatum) // Jika menggunakan Route Model Binding
     {
-        return view('admin.wisata.edit', compact('wisata'));
+        return view('admin.wisata.edit', [
+            'wisata' => $wisatum
+        ]);
     }
 
     public function update(Request $request, Wisata $wisata)
@@ -94,4 +96,6 @@ class WisataController extends Controller
         return redirect()->route('admin.wisata.index')
             ->with('success', "Wisata \"{$wisata->nama}\" berhasil disetujui dan kini tayang di halaman publik.");
     }
+
+
 }

@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             PegawaiSeeder::class,
             WisataSeeder::class,
             UmkmSeeder::class,
+            LurahSeeder::class,
         ]);
     }
 }
