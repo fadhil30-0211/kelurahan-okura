@@ -11,25 +11,15 @@ class Pengaduan extends Model
     use HasFactory;
 
     protected $fillable = [
-        'kode_tiket',
-        'nama_pelapor',
-        'nik',
-        'no_hp',
-        'email',
-        'is_anonim',
-        'kategori',
-        'judul_aduan',
-        'isi_aduan',
-        'lampiran',
-        'status',
-        'tanggapan_admin',
-        'ditangani_oleh',
-        'tanggal_tanggapan',
-    ];
+    'kode_tiket', 'nama_pelapor', 'nik', 'no_hp', 'email', 'is_anonim',
+    'kategori', 'judul_aduan', 'isi_aduan', 'lampiran', 'status',
+    'tanggapan_admin', 'ditangani_oleh', 'tanggal_tanggapan',
+];
 
     protected function casts(): array
     {
         return [
+            'is_anonim'         => 'boolean',
             'tanggal_tanggapan' => 'datetime',
         ];
     }

@@ -3,7 +3,7 @@
 @section('title', 'Ajukan Surat')
 
 @section('content')
-<section class="pt-28 pb-16 bg-slate-50 min-h-screen">
+<section class="pt-28 pb-16 bg-slate-50 min-h-screen" x-data="{ selectedJenis: '{{ old('jenis_surat', $jenis) }}', jenisSuratData: @js($jenisSurat) }">
     <div class="max-w-2xl mx-auto px-4 sm:px-6">
         <div class="text-center mb-8">
             <h1 class="text-2xl sm:text-3xl font-bold text-[#0B1F3A]" style="font-family: 'Plus Jakarta Sans', sans-serif;">
@@ -26,16 +26,26 @@
 
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Jenis Surat <span class="text-red-500">*</span></label>
-                <select name="jenis_surat" required
+                <select name="jenis_surat" required x-model="selectedJenis"
                         class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
                     <option value="">-- Pilih Jenis Surat --</option>
                     @foreach ($jenisSurat as $key => $surat)
-                        <option value="{{ $key }}" {{ (old('jenis_surat', $jenis) == $key) ? 'selected' : '' }}>
+                        <option value="{{ $key }}">
                             {{ $surat['label'] }}
                         </option>
                     @endforeach
                 </select>
                 @error('jenis_surat') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+
+                <!-- Link Download Template Dinamis Berdasarkan Pilihan -->
+                <template x-if="selectedJenis && jenisSuratData[selectedJenis]?.template">
+                    <div class="mt-2">
+                        <a :href="'/' + jenisSuratData[selectedJenis].template" download
+                           class="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-medium hover:underline">
+                            📄 Download template formulir untuk jenis surat ini
+                        </a>
+                    </div>
+                </template>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -84,15 +94,5 @@
             </p>
         </form>
     </div>
-
-            {{-- Tambahkan setelah dropdown jenis_surat di create.blade.php --}}
-        <div x-data="{ jenisSurat: @js($jenisSurat) }">
-            <template x-if="$refs.jenisSelect && $refs.jenisSelect.value">
-                <a :href="'/' + jenisSurat[$refs.jenisSelect.value]?.template" download
-                class="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-medium hover:underline mt-1">
-                    📄 Download template formulir jenis surat ini
-                </a>
-            </template>
-        </div>
 </section>
 @endsection

@@ -23,11 +23,8 @@ class UmkmController extends Controller
 
     public function show($id)
     {
-        // Cari data UMKM berdasarkan ID, jika tidak ada baru throw 404
-        $umkm = Umkm::findOrFail($id);
-
-        // Jika ingin tetap membatasi hanya UMKM aktif yang boleh dilihat publik:
-        // abort_if(!$umkm->is_active, 404, 'UMKM ini belum aktif atau belum disetujui.');
+        // Cari data UMKM beserta galeri fotonya
+        $umkm = Umkm::with('galleries')->findOrFail($id);
 
         $umkmLainnya = Umkm::active()
             ->where('id', '!=', $umkm->id)
@@ -40,8 +37,8 @@ class UmkmController extends Controller
             'umkmLainnya'    => $umkmLainnya,
             'seoTitle'       => $umkm->nama_usaha . ' — UMKM Okura',
             'seoDescription' => Str::limit(strip_tags($umkm->deskripsi), 160),
-            'seoImage'       => $umkm->foto_produk
-                                ? Storage::url($umkm->foto_produk)
+            'seoImage'       => $umkm->foto
+                                ? Storage::url($umkm->foto)
                                 : asset('images/placeholder.jpg'),
         ]);
     }

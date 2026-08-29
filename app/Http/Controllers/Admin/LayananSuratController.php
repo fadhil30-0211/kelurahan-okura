@@ -80,4 +80,36 @@ class LayananSuratController extends Controller
     return redirect()->route('admin.layanan-surat.index')
         ->with('success', 'Data layanan surat berhasil dihapus.');
 }
+
+public array $jenisSurat = [
+    'sktm' => [
+        'label' => 'Surat Keterangan Tidak Mampu (SKTM)',
+        'syarat' => ['KTP', 'KK', 'Surat Pengantar RT/RW'],
+    ],
+    'sku' => [
+        'label' => 'Surat Keterangan Usaha (SKU)',
+        'syarat' => ['KTP', 'KK', 'Foto Usaha'],
+    ],
+    'domisili' => [
+        'label' => 'Surat Keterangan Domisili',
+        'syarat' => ['KTP', 'KK'],
+    ],
+    'kelahiran' => [
+        'label' => 'Surat Pengantar Kelahiran',
+        'syarat' => ['KK', 'Surat Keterangan Lahir dari Bidan/RS'],
+    ],
+    'nikah' => [
+        'label' => 'Surat Pengantar Nikah',
+        'syarat' => ['KTP', 'KK', 'Akta Kelahiran', 'Surat Pengantar RT/RW'],
+    ],
+    'ahli_waris' => [
+        'label' => 'Surat Keterangan Ahli Waris',
+        'syarat' => ['KTP Seluruh Ahli Waris', 'KK', 'Surat Kematian', 'Surat Pengantar RT/RW'],
+    ],
+    'skck' => [
+        'label' => 'Surat Pengantar SKCK',
+        'syarat' => ['KTP', 'KK', 'Pas Foto 4x6'],
+    ],
+];
+
 }

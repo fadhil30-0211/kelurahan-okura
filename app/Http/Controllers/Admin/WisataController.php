@@ -49,53 +49,53 @@ class WisataController extends Controller
         return redirect()->route('admin.wisata.index')->with('success', 'Data wisata berhasil ditambahkan.');
     }
 
-    public function edit(Wisata $wisatum) // Jika menggunakan Route Model Binding
-    {
-        return view('admin.wisata.edit', [
-            'wisata' => $wisatum
-        ]);
+    // 1. Method Edit
+public function edit(Wisata $wisata) // <--- Pastikan $wisata
+{
+    return view('admin.wisata.edit', compact('wisata'));
+}
+
+// 2. Method Update
+public function update(Request $request, Wisata $wisata) // <--- Pastikan $wisata
+{
+    $validated = $request->validate([
+        'nama'             => 'required|string|max:255',
+        'deskripsi'        => 'required|string',
+        'alamat'           => 'required|string',
+        'latitude'         => 'nullable|numeric|between:-90,90',
+        'longitude'        => 'nullable|numeric|between:-180,180',
+        'thumbnail'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        'harga_tiket'      => 'nullable|string|max:100',
+        'jam_operasional'  => 'nullable|string|max:100',
+        'kontak'           => 'nullable|string|max:100',
+        'status'           => 'required|in:aktif,nonaktif',
+    ]);
+
+    if ($request->hasFile('thumbnail')) {
+        if ($wisata->thumbnail) \Illuminate\Support\Facades\Storage::disk('public')->delete($wisata->thumbnail);
+        $validated['thumbnail'] = $request->file('thumbnail')->store('wisata', 'public');
     }
 
-    public function update(Request $request, Wisata $wisata)
-    {
-        $validated = $request->validate([
-            'nama'             => 'required|string|max:255',
-            'deskripsi'        => 'required|string',
-            'alamat'           => 'required|string',
-            'latitude'         => 'nullable|numeric|between:-90,90',
-            'longitude'        => 'nullable|numeric|between:-180,180',
-            'thumbnail'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'harga_tiket'      => 'nullable|string|max:100',
-            'jam_operasional'  => 'nullable|string|max:100',
-            'kontak'           => 'nullable|string|max:100',
-            'status'           => 'required|in:aktif,nonaktif',
-        ]);
+    $wisata->update($validated);
 
-        if ($request->hasFile('thumbnail')) {
-            if ($wisata->thumbnail) Storage::disk('public')->delete($wisata->thumbnail);
-            $validated['thumbnail'] = $request->file('thumbnail')->store('wisata', 'public');
-        }
+    return redirect()->route('admin.wisata.index')->with('success', 'Data wisata berhasil diperbarui.');
+}
 
-        $wisata->update($validated);
+// 3. Method Destroy
+public function destroy(Wisata $wisata) // <--- Pastikan $wisata
+{
+    if ($wisata->thumbnail) \Illuminate\Support\Facades\Storage::disk('public')->delete($wisata->thumbnail);
+    $wisata->delete();
 
-        return redirect()->route('admin.wisata.index')->with('success', 'Data wisata berhasil diperbarui.');
-    }
+    return redirect()->route('admin.wisata.index')->with('success', 'Data wisata berhasil dihapus.');
+}
 
-    public function destroy(Wisata $wisata)
-    {
-        if ($wisata->thumbnail) Storage::disk('public')->delete($wisata->thumbnail);
-        $wisata->delete();
+// 4. Method Approve
+public function approve(Wisata $wisata) // <--- Pastikan $wisata
+{
+    $wisata->update(['status' => 'aktif']);
 
-        return redirect()->route('admin.wisata.index')->with('success', 'Data wisata berhasil dihapus.');
-    }
-
-        public function approve(Wisata $wisata)
-    {
-        $wisata->update(['status' => 'aktif']);
-
-        return redirect()->route('admin.wisata.index')
-            ->with('success', "Wisata \"{$wisata->nama}\" berhasil disetujui dan kini tayang di halaman publik.");
-    }
-
-
+    return redirect()->route('admin.wisata.index')
+        ->with('success', "Wisata \"{$wisata->nama}\" berhasil disetujui.");
+}
 }

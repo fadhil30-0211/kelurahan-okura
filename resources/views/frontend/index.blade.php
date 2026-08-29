@@ -5,10 +5,53 @@
 
 @section('content')
 
+@php
+    // Normalisasi $banners
+    $bannersData = isset($banners) && is_iterable($banners) ? collect($banners) : collect();
+    $bannerCount = $bannersData->count();
+
+    // Normalisasi $settings
+    if (isset($settings)) {
+        $mapInput = is_array($settings) ? ($settings['google_maps_embed_url'] ?? null) : ($settings->google_maps_embed_url ?? null);
+        $lat = is_array($settings) ? ($settings['latitude'] ?? null) : ($settings->latitude ?? null);
+        $lng = is_array($settings) ? ($settings['longitude'] ?? null) : ($settings->longitude ?? null);
+        $zoom = is_array($settings) ? ($settings['map_zoom'] ?? 16) : ($settings->map_zoom ?? 16);
+        $nomorWa = is_array($settings) ? ($settings['nomor_hp'] ?? '081234567890') : ($settings->nomor_hp ?? '081234567890');
+    } else {
+        $mapInput = null;
+        $lat = null;
+        $lng = null;
+        $zoom = 16;
+        $nomorWa = '081234567890';
+    }
+
+    // 1. Ambil URL iframe jika ada
+    if ($mapInput && preg_match('/src="([^"]+)"/', $mapInput, $matches)) {
+        $mapUrl = $matches[1];
+    } else {
+        $mapUrl = $mapInput;
+    }
+
+    // 2. Otomatis ubah mode Satelit (!5e1) ke Peta Biasa (!5e0) untuk menghilangkan pesan error Google
+    if (!empty($mapUrl)) {
+        $mapUrl = str_replace('!5e1', '!5e0', $mapUrl);
+    } else {
+        // Backup jika database kosong
+        $mapUrl = "https://maps.google.com/maps?q=Kantor+Lurah+Tebing+Tinggi+Okura&t=&z=16&ie=UTF8&iwloc=&output=embed";
+    }
+
+    // Format Nomor WhatsApp
+    $nomorWaClean = preg_replace('/[^0-9]/', '', $nomorWa);
+    if (str_starts_with($nomorWaClean, '0')) {
+        $nomorWaClean = '62' . substr($nomorWaClean, 1);
+    }
+@endphp
+
 {{-- ================= HERO SECTION — CAROUSEL DINAMIS ================= --}}
 <section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden"
-         x-data="{
-             slides: {{ $banners->count() ? $banners->count() : 1 }},
+         x-data='{
+             slides: {{ $bannerCount > 0 ? $bannerCount : 1 }},
+             banners: @json($bannersData),
              current: 0,
              autoplay: null,
              init() {
@@ -20,16 +63,25 @@
              prev() { this.current = (this.current - 1 + this.slides) % this.slides },
              goTo(i) {
                  this.current = i;
-                 clearInterval(this.autoplay);
+                 if (this.autoplay) clearInterval(this.autoplay);
                  if (this.slides > 1) this.autoplay = setInterval(() => this.next(), 6000);
              }
-         }">
+         }'>
 
-    <div class="absolute inset-0">
-        @forelse ($banners as $i => $banner)
-            <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+    {{-- Banner Images & Background Overlay --}}
+    <div class="absolute inset-0 z-0">
+        @forelse ($bannersData as $i => $banner)
+            <div x-show="current === {{ $i }}"
+                 x-transition:enter="transition ease-out duration-700"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
                  class="absolute inset-0">
-                <img src="{{ asset('storage/'.$banner->gambar) }}" alt="{{ $banner->judul }}" class="w-full h-full object-cover">
+                <img src="{{ asset('storage/' . ($banner->gambar ?? $banner['gambar'] ?? '')) }}"
+                     alt="{{ $banner->judul ?? $banner['judul'] ?? 'Hero Banner' }}"
+                     class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-b from-[#0B1F3A]/80 via-[#0B1F3A]/60 to-[#0B1F3A]/90"></div>
             </div>
         @empty
@@ -40,59 +92,99 @@
         @endforelse
     </div>
 
-    @if ($banners->count() > 1)
-        <button @click="prev()" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur flex items-center justify-center text-white transition">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        </button>
-        <button @click="next()" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur flex items-center justify-center text-white transition">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    {{-- Carousel Controls --}}
+    @if ($bannerCount > 1)
+        {{-- Tombol Previous --}}
+        <button @click="prev()"
+                aria-label="Previous Slide"
+                class="absolute left-2 sm:left-4 top-[50%] sm:top-[51%] -translate-y-1/2 z-20 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-white/30 via-white/10 to-white/5 backdrop-blur-md border border-white/40 hover:border-white/70 shadow-lg shadow-black/25 flex items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95 focus:outline-none group">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 drop-shadow group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+            </svg>
         </button>
 
-        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-            @foreach ($banners as $i => $banner)
-                <button @click="goTo({{ $i }})" :class="current === {{ $i }} ? 'w-8 bg-amber-400' : 'w-2 bg-white/40'" class="h-2 rounded-full transition-all duration-300"></button>
+        {{-- Tombol Next --}}
+        <button @click="next()"
+                aria-label="Next Slide"
+                class="absolute right-2 sm:right-4 top-[50%] sm:top-[51%] -translate-y-1/2 z-20 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-white/30 via-white/10 to-white/5 backdrop-blur-md border border-white/40 hover:border-white/70 shadow-lg shadow-black/25 flex items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95 focus:outline-none group">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 drop-shadow group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+            </svg>
+        </button>
+
+        {{-- Indikator Dots Carousel --}}
+        <div class="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-20 flex gap-2 p-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-md">
+            @foreach ($bannersData as $i => $banner)
+                <button @click="goTo({{ $i }})"
+                        aria-label="Go to slide {{ $i + 1 }}"
+                        :class="current === {{ $i }} ? 'w-8 bg-amber-400 shadow-sm shadow-amber-400/50' : 'w-2 bg-white/50 hover:bg-white/80'"
+                        class="h-2 rounded-full transition-all duration-300 focus:outline-none"></button>
             @endforeach
         </div>
     @endif
 
-    <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-32 sm:pt-28 pb-10" x-data="{ counted: false }" x-intersect="counted = true">
-        <span class="inline-block px-4 py-1.5 mb-5 rounded-full bg-amber-400/20 text-amber-300 text-sm font-medium border border-amber-400/30">
+    <div class="relative z-10 max-w-4xl mx-auto px-12 sm:px-16 text-center pt-32 sm:pt-28 pb-24 sm:pb-28">
+        <span class="inline-block px-4 py-1.5 mb-5 rounded-full bg-amber-400/20 text-amber-300 text-sm font-medium border border-amber-400/30 shadow-sm backdrop-blur">
             Portal Resmi Kelurahan
         </span>
 
+        {{-- Judul Dinamis --}}
         <h1 class="text-4xl sm:text-6xl font-bold text-white leading-tight tracking-tight" style="font-family: 'Plus Jakarta Sans', sans-serif;">
-            @if ($banners->isNotEmpty() && $banners->first()->judul)
-                <span x-text="{{ json_encode($banners->pluck('judul')) }}[current] || '{{ $banners->first()->judul }}'"></span>
+            @if ($bannerCount > 0)
+                <span x-text="banners[current]?.judul || 'Tebing Tinggi Okura'">Tebing Tinggi Okura</span>
             @else
                 Tebing Tinggi Okura
             @endif
         </h1>
-        <p class="mt-4 text-lg sm:text-xl text-slate-200 max-w-2xl mx-auto">
-            Menyajikan pelayanan, informasi, dan potensi wisata & UMKM warga secara cepat, transparan, dan modern.
+
+        {{-- Subjudul Dinamis --}}
+        <p class="mt-4 text-lg sm:text-xl text-slate-200 max-w-2xl mx-auto leading-relaxed">
+            @if ($bannerCount > 0)
+                <span x-text="banners[current]?.subjudul || 'Menyajikan pelayanan, informasi, dan potensi wisata & UMKM warga secara cepat, transparan, dan modern.'">
+                    Menyajikan pelayanan, informasi, dan potensi wisata & UMKM warga secara cepat, transparan, dan modern.
+                </span>
+            @else
+                Menyajikan pelayanan, informasi, dan potensi wisata & UMKM warga secara cepat, transparan, dan modern.
+            @endif
         </p>
 
+        {{-- Tombol Aksi Dinamis --}}
+        @if ($bannerCount > 0)
+            <template x-if="banners[current]?.tombol_teks">
+                <div class="mt-6">
+                    <a :href="banners[current]?.tombol_link || '#'"
+                       x-text="banners[current]?.tombol_teks"
+                       class="inline-block px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-semibold text-sm transition shadow-lg hover:shadow-amber-400/20">
+                    </a>
+                </div>
+            </template>
+        @endif
+
+        {{-- Form Pencarian & Lacak Pengaduan (Semi-Liquid Glass Style) --}}
         <div id="lacak" class="mt-8 max-w-xl mx-auto" x-data="{ tab: window.location.hash === '#lacak' ? 'lacak' : 'cari' }">
-            <div class="flex bg-white/10 backdrop-blur rounded-xl p-1 mb-3 max-w-xs mx-auto">
+            <div class="flex bg-white/10 backdrop-blur-md rounded-xl p-1 mb-3 max-w-xs mx-auto border border-white/20 shadow-inner">
                 <button @click="tab = 'cari'"
-                        :class="tab === 'cari' ? 'bg-white text-emerald-700' : 'text-white/70'"
-                        class="flex-1 py-1.5 rounded-lg text-xs font-semibold transition">
+                        type="button"
+                        :class="tab === 'cari' ? 'bg-white/25 text-white shadow-sm border border-white/25 font-bold' : 'text-white/70 hover:text-white'"
+                        class="flex-1 py-1.5 rounded-lg text-xs transition">
                     Cari Informasi
                 </button>
                 <button @click="tab = 'lacak'"
-                        :class="tab === 'lacak' ? 'bg-white text-emerald-700' : 'text-white/70'"
-                        class="flex-1 py-1.5 rounded-lg text-xs font-semibold transition">
-                    Lacak Pengajuan
+                        type="button"
+                        :class="tab === 'lacak' ? 'bg-white/25 text-white shadow-sm border border-white/25 font-bold' : 'text-white/70 hover:text-white'"
+                        class="flex-1 py-1.5 rounded-lg text-xs transition">
+                    Lacak Pengaduan
                 </button>
             </div>
 
             <form x-show="tab === 'cari'" action="{{ route('search') }}" method="GET">
-                <div class="flex items-center bg-white/95 backdrop-blur rounded-2xl shadow-lg p-2">
-                    <svg class="w-5 h-5 text-slate-400 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center bg-white/15 backdrop-blur-md rounded-2xl shadow-xl p-2 border border-white/30 transition-all duration-300 focus-within:bg-white/25 focus-within:border-white/50 focus-within:ring-4 focus-within:ring-white/10">
+                    <svg class="w-5 h-5 text-white/70 ml-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
                     </svg>
                     <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari: Syarat SKTM, Wisata Sungai Siak, UMKM..."
-                           class="flex-1 px-3 py-2.5 bg-transparent focus:outline-none text-slate-700 text-sm sm:text-base">
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition">
+                           class="flex-1 px-3 py-2 bg-transparent focus:outline-none text-white text-sm sm:text-base placeholder-white/70">
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold text-sm transition shadow-md active:scale-95 shrink-0">
                         Cari
                     </button>
                 </div>
@@ -100,41 +192,41 @@
 
             <form x-show="tab === 'lacak'" x-cloak action="{{ route('tracking.universal') }}" method="POST">
                 @csrf
-                <div class="flex items-center bg-white/95 backdrop-blur rounded-2xl shadow-lg p-2">
-                    <svg class="w-5 h-5 text-slate-400 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center bg-white/15 backdrop-blur-md rounded-2xl shadow-xl p-2 border border-white/30 transition-all duration-300 focus-within:bg-white/25 focus-within:border-white/50 focus-within:ring-4 focus-within:ring-white/10">
+                    <svg class="w-5 h-5 text-white/70 ml-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                     <input type="text" name="kode_tiket" placeholder="Masukkan kode tiket, contoh: ADU-20260809-001"
-                           class="flex-1 px-3 py-2.5 bg-transparent focus:outline-none text-slate-700 text-sm sm:text-base font-mono">
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition">
+                           class="flex-1 px-3 py-2 bg-transparent focus:outline-none text-white text-sm sm:text-base font-mono placeholder-white/70">
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold text-sm transition shadow-md active:scale-95 shrink-0">
                         Lacak
                     </button>
                 </div>
                 @error('kode_tiket')
-                    <p class="text-xs text-red-300 mt-2 text-center bg-red-900/30 rounded-lg py-1.5">{{ $message }}</p>
+                    <p class="text-xs text-red-300 mt-2 text-center bg-red-900/40 border border-red-500/30 rounded-lg py-1.5 px-3 backdrop-blur-md">{{ $message }}</p>
                 @enderror
             </form>
         </div>
 
-        {{-- Live Counter — sekarang pakai data sungguhan dari database & pengaturan admin --}}
-        <div class="mt-12 mb-6 grid grid-cols-3 gap-4 max-w-lg mx-auto">
-            <div class="text-center" x-data="{ val: 0, target: {{ $jumlahPenduduk }} }" x-effect="if (counted && val === 0 && target > 0) { let step = Math.max(1, Math.ceil(target / 80)); let t = setInterval(() => { val += step; if (val >= target) { val = target; clearInterval(t); } }, 15) }">
-                <p class="text-2xl sm:text-3xl font-bold text-amber-300" x-text="val.toLocaleString('id-ID')"></p>
+        {{-- Live Counter --}}
+        <div class="mt-12 mb-2 grid grid-cols-3 gap-4 max-w-lg mx-auto">
+            <div class="text-center" x-data="{ val: 0, target: {{ $jumlahPenduduk ?? 0 }} }" x-init="if (target > 0) { let step = Math.max(1, Math.ceil(target / 80)); let t = setInterval(() => { val += step; if (val >= target) { val = target; clearInterval(t); } }, 15) }">
+                <p class="text-2xl sm:text-3xl font-bold text-amber-300" x-text="val.toLocaleString('id-ID')">{{ number_format($jumlahPenduduk ?? 0, 0, ',', '.') }}</p>
                 <p class="text-xs sm:text-sm text-slate-300 mt-1">Jumlah Penduduk</p>
             </div>
-            <div class="text-center" x-data="{ val: 0, target: {{ $jumlahWisata }} }" x-effect="if (counted && val === 0 && target > 0) { let t = setInterval(() => { val += 1; if (val >= target) { val = target; clearInterval(t); } }, 80) }">
-                <p class="text-2xl sm:text-3xl font-bold text-amber-300" x-text="val"></p>
+            <div class="text-center" x-data="{ val: 0, target: {{ $jumlahWisata ?? 0 }} }" x-init="if (target > 0) { let t = setInterval(() => { val += 1; if (val >= target) { val = target; clearInterval(t); } }, 80) }">
+                <p class="text-2xl sm:text-3xl font-bold text-amber-300" x-text="val">{{ $jumlahWisata ?? 0 }}</p>
                 <p class="text-xs sm:text-sm text-slate-300 mt-1">Destinasi Wisata</p>
             </div>
-            <div class="text-center" x-data="{ val: 0, target: {{ $jumlahUmkm }} }" x-effect="if (counted && val === 0 && target > 0) { let t = setInterval(() => { val += 1; if (val >= target) { val = target; clearInterval(t); } }, 40) }">
-                <p class="text-2xl sm:text-3xl font-bold text-amber-300" x-text="val"></p>
+            <div class="text-center" x-data="{ val: 0, target: {{ $jumlahUmkm ?? 0 }} }" x-init="if (target > 0) { let t = setInterval(() => { val += 1; if (val >= target) { val = target; clearInterval(t); } }, 40) }">
+                <p class="text-2xl sm:text-3xl font-bold text-amber-300" x-text="val">{{ $jumlahUmkm ?? 0 }}</p>
                 <p class="text-xs sm:text-sm text-slate-300 mt-1">UMKM Terdaftar</p>
             </div>
         </div>
     </div>
 </section>
 
-{{-- ================= QUICK ACCESS CARDS (Melayang) ================= --}}
+{{-- ================= QUICK ACCESS CARDS ================= --}}
 <section class="relative z-20 -mt-10 px-4 sm:px-6">
     <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
         @php
@@ -149,10 +241,10 @@
         @foreach ($quickLinks as $link)
             <a href="{{ route($link['route']) }}"
                class="group bg-white rounded-2xl shadow-md hover:shadow-xl p-5 transition-all duration-300 hover:-translate-y-1 border border-slate-100">
-                <div class="w-12 h-12 rounded-xl {{ $link['color'] }} flex items-center justify-center text-2xl mb-3">
+                <div class="w-12 h-12 rounded-xl {{ $link['color'] }} flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform">
                     {{ $link['icon'] }}
                 </div>
-                <h3 class="font-semibold text-slate-800 text-sm sm:text-base">{{ $link['label'] }}</h3>
+                <h3 class="font-semibold text-slate-800 text-sm sm:text-base group-hover:text-emerald-600 transition-colors">{{ $link['label'] }}</h3>
                 <p class="text-xs text-slate-500 mt-1">{{ $link['desc'] }}</p>
             </a>
         @endforeach
@@ -169,53 +261,94 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4">
-        {{-- Card besar: Peta --}}
-        <div class="md:col-span-2 md:row-span-2 bg-white rounded-2xl shadow-md p-6 border border-slate-100">
-            <h3 class="font-semibold text-slate-800 mb-3">📍 Peta Wilayah</h3>
-            <div id="peta-kelurahan" class="w-full h-64 md:h-80 rounded-xl bg-slate-100"></div>
-            <p class="text-xs text-slate-500 mt-3">Kelurahan Tebing Tinggi Okura, Kec. Rumbai Pesisir, Pekanbaru.</p>
-        </div>
-
-        {{-- Card: Visi Misi --}}
-        <div class="md:col-span-2 bg-[#0B1F3A] rounded-2xl shadow-md p-6 text-white">
-            <h3 class="font-semibold mb-2">🎯 Visi Kelurahan</h3>
-            <p class="text-sm text-slate-200 leading-relaxed">
-                Mewujudkan kelurahan yang mandiri, sejahtera, dan berdaya saing berbasis potensi lokal dan pelayanan prima.
+        {{-- Peta Wilayah Dinamis --}}
+        <div class="md:col-span-2 md:row-span-2 bg-white rounded-2xl shadow-md p-6 border border-slate-100 flex flex-col justify-between">
+            <div>
+                <h3 class="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                    <span>📍</span> Peta Wilayah
+                </h3>
+                <div class="w-full h-64 md:h-80 rounded-xl overflow-hidden border border-slate-100 bg-slate-50 shadow-inner">
+                    <iframe
+                        width="100%"
+                        height="100%"
+                        style="border:0;"
+                        loading="lazy"
+                        allowfullscreen
+                        referrerpolicy="no-referrer-when-downgrade"
+                        src="{{ $mapUrl }}">
+                    </iframe>
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 mt-3 flex items-center gap-1">
+                <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Kelurahan Tebing Tinggi Okura, Kec. Rumbai Timur, Pekanbaru.
             </p>
-            <a href="{{ route('profil') }}" class="inline-block mt-4 text-amber-300 text-sm font-medium hover:underline">
-                Selengkapnya →
-            </a>
         </div>
 
-        {{-- Card: Pengumuman Terbaru --}}
-        <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
-            <h3 class="font-semibold text-slate-800 mb-2">📢 Pengumuman Terbaru</h3>
-            @forelse ($pengumumanTerbaru as $item)
-                <a href="{{ route('pengumuman.show', $item) }}" class="block text-xs text-slate-500 hover:text-emerald-600 py-1 truncate">
-                    • {{ $item->judul }}
+        {{-- Visi Misi --}}
+        <div class="md:col-span-2 bg-[#0B1F3A] rounded-2xl shadow-md p-6 text-white flex flex-col justify-between relative overflow-hidden">
+            <div class="relative z-10">
+                <h3 class="font-semibold mb-2 flex items-center gap-2 text-amber-300">
+                    <span>🎯</span> Visi Kelurahan
+                </h3>
+                <p class="text-sm text-slate-200 leading-relaxed">
+                    Terwujudnya Kelurahan Tebing Tinggi Okura sebagai Pusat Pariwisata, Pertanian, Perikanan dan Pusat Kebudayaan Melayu di Kota Pekanbaru.
+
+                </p>
+            </div>
+            <div class="relative z-10 pt-4">
+                <a href="{{ route('profil') }}" class="inline-flex items-center gap-1 text-amber-300 text-sm font-medium hover:text-amber-200 transition">
+                    Selengkapnya <span>→</span>
                 </a>
-            @empty
-                <p class="text-xs text-slate-400">Belum ada pengumuman aktif.</p>
-            @endforelse
-            <a href="{{ route('pengumuman.index') }}" class="inline-block mt-3 text-emerald-600 text-sm font-medium hover:underline">
-                Lihat Semua →
-            </a>
+            </div>
         </div>
 
-        {{-- Card: Transparansi Anggaran (CHART) --}}
-        <div class="bg-amber-50 rounded-2xl shadow-md p-6 border border-amber-100">
-            <h3 class="font-semibold text-amber-800 mb-2">📊 Transparansi Anggaran {{ now()->year }}</h3>
-            @if ($anggaranTahunIni->count())
-                <canvas id="chartAnggaranHome" height="120"></canvas>
-            @else
-                <p class="text-xs text-amber-700">Data anggaran belum tersedia untuk tahun ini. Silakan input data di menu Admin &rarr; Anggaran.</p>
-            @endif
+        {{-- Pengumuman Terbaru --}}
+        <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100 flex flex-col justify-between">
+            <div>
+                <h3 class="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                    <span>📢</span> Pengumuman Terbaru
+                </h3>
+                <div class="space-y-2">
+                    @forelse ($pengumumanTerbaru ?? [] as $item)
+                        <a href="{{ route('pengumuman.show', $item) }}" class="block text-xs text-slate-600 hover:text-emerald-600 py-1 border-b border-slate-50 last:border-0 truncate transition-colors">
+                            • {{ $item->judul ?? $item['judul'] ?? '-' }}
+                        </a>
+                    @empty
+                        <p class="text-xs text-slate-400 italic">Belum ada pengumuman aktif.</p>
+                    @endforelse
+                </div>
+            </div>
+            <div class="pt-3">
+                <a href="{{ route('pengumuman.index') }}" class="inline-flex items-center gap-1 text-emerald-600 text-sm font-medium hover:underline">
+                    Lihat Semua <span>→</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- Chart Anggaran --}}
+        <div class="bg-amber-50/80 rounded-2xl shadow-md p-6 border border-amber-100 flex flex-col justify-between">
+            <div>
+                <h3 class="font-semibold text-amber-900 mb-2 flex items-center gap-2">
+                    <span>📊</span> Transparansi Anggaran {{ date('Y') }}
+                </h3>
+                @php
+                    $anggaranList = isset($anggaranTahunIni) && is_iterable($anggaranTahunIni) ? collect($anggaranTahunIni) : collect();
+                @endphp
+                @if ($anggaranList->isNotEmpty())
+                    <div class="mt-2">
+                        <canvas id="chartAnggaranHome" class="w-full max-h-32"></canvas>
+                    </div>
+                @else
+                    <p class="text-xs text-amber-700/80 mt-2 italic">Data anggaran belum tersedia untuk tahun ini.</p>
+                @endif
+            </div>
         </div>
     </div>
 </section>
 
 {{-- ================= WISATA OKURA ================= --}}
-<section class="bg-slate-50 py-16">
+<section class="bg-slate-50 py-16 border-t border-slate-100">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
         <div class="flex items-end justify-between mb-8">
             <div>
@@ -224,29 +357,42 @@
                     Potensi Wisata Okura
                 </h2>
             </div>
-            <a href="{{ route('wisata.index') }}" class="hidden sm:block text-emerald-600 font-medium text-sm hover:underline">
-                Lihat Semua →
+            <a href="{{ route('wisata.index') }}" class="hidden sm:inline-flex items-center gap-1 text-emerald-600 font-medium text-sm hover:underline">
+                Lihat Semua <span>→</span>
             </a>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse ($wisatas ?? [] as $wisata)
-                <a href="{{ route('wisata.show', $wisata->slug) }}"
-                   class="group rounded-2xl overflow-hidden bg-white shadow-md hover:shadow-xl transition-all duration-300 border border-slate-100">
-                    <div class="h-48 overflow-hidden">
-                        <img src="{{ $wisata->thumbnail ? asset('storage/' . $wisata->thumbnail) : asset('images/placeholder.jpg') }}"
-                             alt="{{ $wisata->nama }}"
+                @php
+                    $wisataObj = (object) $wisata;
+                @endphp
+                <a href="{{ route('wisata.show', $wisataObj->slug ?? '#') }}"
+                   class="group rounded-2xl overflow-hidden bg-white shadow-md hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col">
+                    <div class="h-48 overflow-hidden bg-slate-100 relative">
+                        <img src="{{ !empty($wisataObj->thumbnail) ? asset('storage/' . $wisataObj->thumbnail) : asset('images/placeholder.jpg') }}"
+                             alt="{{ $wisataObj->nama ?? 'Wisata' }}"
                              loading="lazy"
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     </div>
-                    <div class="p-5">
-                        <h3 class="font-semibold text-slate-800">{{ $wisata->nama }}</h3>
-                        <p class="text-xs text-slate-500 mt-1 line-clamp-2">{{ $wisata->deskripsi }}</p>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-semibold text-slate-800 group-hover:text-emerald-600 transition-colors">{{ $wisataObj->nama ?? '-' }}</h3>
+                            <p class="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">{{ $wisataObj->deskripsi ?? '' }}</p>
+                        </div>
                     </div>
                 </a>
             @empty
-                <p class="text-sm text-slate-400 col-span-3 text-center py-10">Belum ada data wisata.</p>
+                <div class="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-12 bg-white rounded-2xl border border-dashed border-slate-200">
+                    <p class="text-sm text-slate-400">Belum ada data wisata yang ditampilkan.</p>
+                </div>
             @endforelse
+        </div>
+
+        <div class="mt-8 text-center sm:hidden">
+            <a href="{{ route('wisata.index') }}" class="inline-flex items-center gap-1 text-emerald-600 font-medium text-sm hover:underline">
+                Lihat Semua Wisata <span>→</span>
+            </a>
         </div>
     </div>
 </section>
@@ -260,56 +406,48 @@
                 UMKM Warga Okura
             </h2>
         </div>
-        <a href="{{ route('umkm.index') }}" class="hidden sm:block text-emerald-600 font-medium text-sm hover:underline">
-            Lihat Semua →
+        <a href="{{ route('umkm.index') }}" class="hidden sm:inline-flex items-center gap-1 text-emerald-600 font-medium text-sm hover:underline">
+            Lihat Semua <span>→</span>
         </a>
     </div>
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
         @forelse ($umkms ?? [] as $umkm)
-            <a href="{{ route('umkm.show', $umkm->id) }}"
-               class="rounded-2xl bg-white shadow-md hover:shadow-xl transition p-4 border border-slate-100">
-                <div class="h-28 rounded-xl overflow-hidden mb-3">
-                    <img src="{{ $umkm->foto ? asset('storage/' . $umkm->foto) : asset('images/placeholder.jpg') }}"
+            @php
+                $umkmObj = (object) $umkm;
+            @endphp
+            <a href="{{ route('umkm.show', $umkmObj->id ?? '#') }}"
+               class="group rounded-2xl bg-white shadow-md hover:shadow-xl transition-all duration-300 p-4 border border-slate-100 flex flex-col">
+                <div class="h-28 rounded-xl overflow-hidden mb-3 bg-slate-100">
+                    <img src="{{ !empty($umkmObj->foto) ? asset('storage/' . $umkmObj->foto) : asset('images/placeholder.jpg') }}"
                          loading="lazy"
-                         class="w-full h-full object-cover" alt="{{ $umkm->nama_usaha }}">
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                         alt="{{ $umkmObj->nama_usaha ?? 'UMKM' }}">
                 </div>
-                <h3 class="font-semibold text-sm text-slate-800 truncate">{{ $umkm->nama_usaha }}</h3>
-                <p class="text-xs text-slate-500 mt-0.5">{{ $umkm->kategori }}</p>
+                <h3 class="font-semibold text-sm text-slate-800 truncate group-hover:text-emerald-600 transition-colors">{{ $umkmObj->nama_usaha ?? '-' }}</h3>
+                <p class="text-xs text-slate-500 mt-0.5 truncate">{{ $umkmObj->kategori ?? 'UMKM' }}</p>
             </a>
         @empty
-            <p class="text-sm text-slate-400 col-span-4 text-center py-10">Belum ada data UMKM.</p>
+            <div class="col-span-2 lg:col-span-4 text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <p class="text-sm text-slate-400">Belum ada data UMKM yang ditampilkan.</p>
+            </div>
         @endforelse
     </div>
-</section>
 
-{{-- ================= FLOATING WHATSAPP BUTTON ================= --}}
-<a href="https://wa.me/6281234567890?text=Halo%20Admin%20Kelurahan%20Tebing%20Tinggi%20Okura"
-   target="_blank"
-   class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-emerald-500 shadow-xl hover:bg-emerald-600 transition-all hover:scale-110">
-    <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.86 9.86 0 004.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2zm0 18.13a8.2 8.2 0 01-4.18-1.14l-.3-.18-3.11.82.83-3.04-.2-.31a8.22 8.22 0 01-1.26-4.37c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 012.41 5.83c0 4.54-3.7 8.21-8.26 8.21z"/>
-    </svg>
-</a>
+    <div class="mt-8 text-center sm:hidden">
+        <a href="{{ route('umkm.index') }}" class="inline-flex items-center gap-1 text-emerald-600 font-medium text-sm hover:underline">
+            Lihat Semua UMKM <span>→</span>
+        </a>
+    </div>
+</section>
 
 @endsection
 
 @push('scripts')
-<script>
-    // Inisialisasi Leaflet Map (Peta Interaktif)
-    document.addEventListener('DOMContentLoaded', function () {
-        if (document.getElementById('peta-kelurahan')) {
-            const map = L.map('peta-kelurahan').setView([0.6183, 101.5854], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
-            L.marker([0.6183, 101.5854]).addTo(map).bindPopup('Kantor Lurah Tebing Tinggi Okura');
-        }
-    });
-</script>
-
-{{-- Chart Transparansi Anggaran --}}
-@if ($anggaranTahunIni->count())
+@php
+    $anggaranChartData = isset($anggaranTahunIni) && is_iterable($anggaranTahunIni) ? collect($anggaranTahunIni) : collect();
+@endphp
+@if ($anggaranChartData->isNotEmpty())
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -318,16 +456,24 @@
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: @json($anggaranTahunIni->pluck('kategori')),
+                    labels: @json($anggaranChartData->pluck('kategori')),
                     datasets: [{
-                        data: @json($anggaranTahunIni->pluck('jumlah')),
+                        data: @json($anggaranChartData->pluck('jumlah')),
                         backgroundColor: '#D97706',
                         borderRadius: 6,
                     }]
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { y: { ticks: { callback: (v) => 'Rp' + (v/1000000) + 'jt' } } }
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: (v) => 'Rp' + (v >= 1000000 ? (v/1000000) + 'jt' : v.toLocaleString('id-ID'))
+                            }
+                        }
+                    }
                 }
             });
         }

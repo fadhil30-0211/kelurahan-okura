@@ -36,18 +36,21 @@ class LayananSurat extends Model
         return $this->belongsTo(User::class, 'diproses_oleh');
     }
 
-    public static function generateKodeTiket(): string
+    public static function generateKodeTiket(string $jenisSuratLabel = ''): string
 {
     $tanggal = now()->format('Ymd');
-    // Prefix beda per jenis surat, sesuai prompt: SKT-, SKU-
+
     $prefixMap = [
         'Surat Keterangan Tidak Mampu (SKTM)' => 'SKT',
         'Surat Keterangan Usaha (SKU)' => 'SKU',
         'Surat Keterangan Domisili' => 'DOM',
         'Surat Pengantar Kelahiran' => 'LHR',
+        'Surat Pengantar Nikah' => 'NKH',
+        'Surat Keterangan Ahli Waris' => 'AHW',
+        'Surat Pengantar SKCK' => 'SKC',
     ];
 
-    return self::generateKodeDenganPrefix($prefixMap[func_get_args()[0] ?? ''] ?? 'SRT', $tanggal);
+    return self::generateKodeDenganPrefix($prefixMap[$jenisSuratLabel] ?? 'SRT', $tanggal);
 }
 
     protected static function generateKodeDenganPrefix(string $prefix, string $tanggal): string
@@ -92,4 +95,5 @@ class LayananSurat extends Model
 
         return $nomor;
     }
+
 }

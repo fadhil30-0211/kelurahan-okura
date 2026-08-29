@@ -24,7 +24,7 @@ class UniversalTrackingController extends Controller
         $prefix === 'JTM' => JanjiTemu::where('kode_tiket', $kodeTiket)->exists(),
         $prefix === 'WIS' => \App\Models\Wisata::where('kode_tiket', $kodeTiket)->exists(),
         $prefix === 'UMK' => \App\Models\Umkm::where('kode_tiket', $kodeTiket)->exists(),
-        in_array($prefix, ['SKT', 'SKU', 'DOM', 'LHR', 'SRT']) =>
+        in_array($prefix, ['SKT', 'SKU', 'DOM', 'LHR', 'NKH', 'AHW', 'SKC', 'SRT']) =>
             LayananSurat::where('kode_tiket', $kodeTiket)->exists(),
         default => false,
     };

@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->string('no_hp')->nullable();
+            $table->string('pesan_wa')->nullable();
             $table->string('foto')->nullable();
             $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
             $table->timestamps();

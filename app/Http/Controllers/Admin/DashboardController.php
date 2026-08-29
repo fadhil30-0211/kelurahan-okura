@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Berita;
 use App\Models\LayananSurat;
 use App\Models\Pengaduan;
+use App\Models\SiteSetting; // Ditambahkan untuk akses database pengaturan
 use App\Models\Umkm;
 use App\Models\Wisata;
+use Illuminate\Http\Request; // Ditambahkan untuk menangani input dari form
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -59,5 +61,32 @@ class DashboardController extends Controller
             'pengaduanTerbaru',
             'suratTerbaru'
         ));
+    }
+
+    // ==========================================
+    // DITAMBAHKAN: FUNGSI UNTUK PENGATURAN WEBSITE
+    // ==========================================
+
+    // 1. Menampilkan Halaman Form Pengaturan
+    public function pengaturan()
+    {
+        // Mengambil semua setting dari DB dalam format array ['key' => 'value']
+        $settings = SiteSetting::pluck('value', 'key')->toArray();
+
+        return view('admin.pengaturan.index', compact('settings'));
+    }
+
+    // 2. Menyimpan/Memperbarui Data Pengaturan (Penduduk & Peta)
+    public function updatePengaturan(Request $request)
+    {
+        // Menyimpan semua input secara otomatis (jumlah_penduduk, google_maps_embed_url, latitude, longitude, map_zoom)
+        foreach ($request->except(['_token', '_method']) as $key => $value) {
+            SiteSetting::updateOrCreate(
+                ['key' => $key],
+                ['value' => $value ?? '']
+            );
+        }
+
+        return back()->with('success', 'Pengaturan berhasil disimpan!');
     }
 }

@@ -17,6 +17,7 @@
             </p>
         </div>
 
+        {{-- Pesan Sukses --}}
         @if (session('kode_tiket'))
             <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 mb-6 text-center">
                 <p class="text-sm text-emerald-700 mb-1">Pengaduan berhasil dikirim! Kode tiket Anda:</p>
@@ -25,6 +26,23 @@
                 <a href="{{ route('pengaduan.track.form') }}" class="inline-block mt-3 text-xs font-semibold text-emerald-700 underline hover:text-emerald-800">
                     Lacak status sekarang →
                 </a>
+            </div>
+        @endif
+
+        {{-- Alert Error Global jika Validasi Gagal --}}
+        @if ($errors->any())
+            <div class="bg-red-50 border border-red-200 rounded-2xl p-5 mb-6">
+                <div class="flex items-center gap-2 text-red-800 font-semibold text-sm mb-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Gagal Mengirim Pengaduan:</span>
+                </div>
+                <ul class="list-disc list-inside text-xs text-red-700 space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
 
@@ -54,7 +72,7 @@
                     @error('nama_pelapor') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                {{-- No. HP / WA (Tetap Ada) --}}
+                {{-- No. HP / WA --}}
                 <div :class="anonim ? 'sm:col-span-2' : ''">
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">No. HP / WhatsApp <span class="text-red-500">*</span></label>
                     <input type="text" name="no_hp" value="{{ old('no_hp') }}" required placeholder="08xxxxxxxxxx"

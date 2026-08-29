@@ -49,7 +49,9 @@
         <div>
             <label class="block text-sm font-medium text-slate-700 mb-1.5">Thumbnail</label>
             <div class="flex items-center gap-4 mb-2">
-                <img src="{{ asset('storage/'.$berita->thumbnail) }}" class="w-16 h-16 rounded-lg object-cover border border-slate-200" alt="">
+                @if($berita->thumbnail)
+                    <img src="{{ asset('storage/'.$berita->thumbnail) }}" class="w-16 h-16 rounded-lg object-cover border border-slate-200" alt="">
+                @endif
                 <p class="text-xs text-slate-400">Kosongkan jika tidak ingin mengganti thumbnail.</p>
             </div>
             <input type="file" name="thumbnail" accept="image/*"
@@ -61,11 +63,12 @@
             <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold">
                 Perbarui Berita
             </button>
-            {{-- Tambahkan di edit.blade.php masing-masing, dekat tombol submit --}}
-            <a href="{{ route('admin.gallery.index', ['wisata', $wisata->id]) }}"
-            class="px-5 py-2.5 rounded-xl border border-emerald-200 text-emerald-600 text-sm font-medium hover:bg-emerald-50">
+
+            <a href="{{ route('admin.gallery.index', ['type' => 'berita', 'id' => $berita->id]) }}"
+               class="px-5 py-2.5 rounded-xl border border-emerald-200 text-emerald-600 text-sm font-medium hover:bg-emerald-50">
                 📷 Kelola Galeri Foto
             </a>
+
             <a href="{{ route('admin.berita.index') }}" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50">
                 Batal
             </a>

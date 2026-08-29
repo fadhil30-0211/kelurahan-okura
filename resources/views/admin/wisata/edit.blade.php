@@ -9,8 +9,10 @@
 <div class="max-w-2xl">
     <form action="{{ route('admin.wisata.update', $wisata) }}" method="POST" enctype="multipart/form-data"
           class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 space-y-5">
-        @csrf @method('PUT')
+        @csrf
+        @method('PUT')
 
+        {{-- Nama Wisata --}}
         <div>
             <label class="block text-sm font-medium text-slate-700 mb-1.5">Nama Wisata <span class="text-red-500">*</span></label>
             <input type="text" name="nama" value="{{ old('nama', $wisata->nama) }}" required
@@ -18,6 +20,7 @@
             @error('nama') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
         </div>
 
+        {{-- Deskripsi --}}
         <div>
             <label class="block text-sm font-medium text-slate-700 mb-1.5">Deskripsi <span class="text-red-500">*</span></label>
             <textarea name="deskripsi" rows="4" required
@@ -25,6 +28,7 @@
             @error('deskripsi') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
         </div>
 
+        {{-- Alamat --}}
         <div>
             <label class="block text-sm font-medium text-slate-700 mb-1.5">Alamat <span class="text-red-500">*</span></label>
             <input type="text" name="alamat" value="{{ old('alamat', $wisata->alamat) }}" required
@@ -32,35 +36,47 @@
             @error('alamat') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
         </div>
 
+        {{-- Lokasi Peta & Koordinat --}}
         <div>
             <label class="block text-sm font-medium text-slate-700 mb-1.5">Lokasi di Peta</label>
             <div id="peta-pilih-lokasi" class="w-full h-64 rounded-xl border border-slate-200 mb-3 bg-slate-100"></div>
             <div class="grid grid-cols-2 gap-4">
-                <input type="text" id="latitude" name="latitude" value="{{ old('latitude', $wisata->latitude) }}" placeholder="Latitude"
-                       class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                <input type="text" id="longitude" name="longitude" value="{{ old('longitude', $wisata->longitude) }}" placeholder="Longitude"
-                       class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                <div>
+                    <input type="text" id="latitude" name="latitude" value="{{ old('latitude', $wisata->latitude) }}" placeholder="Latitude"
+                           class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    @error('latitude') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <input type="text" id="longitude" name="longitude" value="{{ old('longitude', $wisata->longitude) }}" placeholder="Longitude"
+                           class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    @error('longitude') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
             </div>
         </div>
 
+        {{-- Harga Tiket & Jam Operasional --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Harga Tiket</label>
                 <input type="text" name="harga_tiket" value="{{ old('harga_tiket', $wisata->harga_tiket) }}"
                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                @error('harga_tiket') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Jam Operasional</label>
                 <input type="text" name="jam_operasional" value="{{ old('jam_operasional', $wisata->jam_operasional) }}"
                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                @error('jam_operasional') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
             </div>
         </div>
 
+        {{-- Kontak & Status --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Kontak</label>
-                <input type="text" name="kontak" value="{{ old('kontak', $wisata->kontak) }}"
+                <input type="text" name="kontak" value="{{ old('kontak', $wisata->kontak) }}" placeholder="e.g. 081234567890"
                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                @error('kontak') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Status <span class="text-red-500">*</span></label>
@@ -68,14 +84,16 @@
                     <option value="aktif" {{ old('status', $wisata->status) == 'aktif' ? 'selected' : '' }}>Aktif</option>
                     <option value="nonaktif" {{ old('status', $wisata->status) == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                 </select>
+                @error('status') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
             </div>
         </div>
 
+        {{-- Thumbnail --}}
         <div>
             <label class="block text-sm font-medium text-slate-700 mb-1.5">Thumbnail</label>
             <div class="flex items-center gap-4 mb-2">
                 <img src="{{ $wisata->thumbnail ? asset('storage/'.$wisata->thumbnail) : asset('images/placeholder.jpg') }}"
-                     class="w-16 h-16 rounded-lg object-cover border border-slate-200" alt="">
+                     class="w-16 h-16 rounded-lg object-cover border border-slate-200" alt="Preview Thumbnail">
                 <p class="text-xs text-slate-400">Kosongkan jika tidak ingin mengganti thumbnail.</p>
             </div>
             <input type="file" name="thumbnail" accept="image/*"
@@ -83,13 +101,19 @@
             @error('thumbnail') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
         </div>
 
+        {{-- Tombol Aksi --}}
         <div class="flex items-center gap-3 pt-2">
-            <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold">Perbarui</button>
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors">
+                Perbarui Data
+            </button>
             <a href="{{ route('admin.gallery.index', ['wisata', $wisata->id]) }}"
-               class="px-5 py-2.5 rounded-xl border border-emerald-200 text-emerald-600 text-sm font-medium hover:bg-emerald-50">
+               class="px-5 py-2.5 rounded-xl border border-emerald-200 text-emerald-600 text-sm font-medium hover:bg-emerald-50 transition-colors">
                 📷 Kelola Galeri Foto
             </a>
-            <a href="{{ route('admin.wisata.index') }}" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50">Batal</a>
+            <a href="{{ route('admin.wisata.index') }}"
+               class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">
+                Batal
+            </a>
         </div>
     </form>
 </div>

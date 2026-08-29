@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->string('harga_tiket')->nullable();
             $table->string('jam_operasional')->nullable();
             $table->string('kontak')->nullable();
+            $table->string('pesan_wa')->nullable();
             $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
             $table->timestamps();
         });

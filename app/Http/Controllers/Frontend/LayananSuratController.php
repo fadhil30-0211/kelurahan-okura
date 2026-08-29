@@ -13,22 +13,30 @@ class LayananSuratController extends Controller
         'sktm' => [
             'label' => 'Surat Keterangan Tidak Mampu (SKTM)',
             'syarat' => ['KTP', 'KK', 'Surat Pengantar RT/RW'],
-            'template' => 'templates/sktm-template.pdf',
         ],
         'sku' => [
             'label' => 'Surat Keterangan Usaha (SKU)',
             'syarat' => ['KTP', 'KK', 'Foto Usaha'],
-            'template' => 'templates/sku-template.pdf',
         ],
         'domisili' => [
             'label' => 'Surat Keterangan Domisili',
             'syarat' => ['KTP', 'KK'],
-            'template' => 'templates/domisili-template.pdf',
         ],
         'kelahiran' => [
             'label' => 'Surat Pengantar Kelahiran',
             'syarat' => ['KK', 'Surat Keterangan Lahir dari Bidan/RS'],
-            'template' => 'templates/kelahiran-template.pdf',
+        ],
+        'nikah' => [
+            'label' => 'Surat Pengantar Nikah',
+            'syarat' => ['KTP', 'KK', 'Akta Kelahiran', 'Surat Pengantar RT/RW'],
+        ],
+        'ahli_waris' => [
+            'label' => 'Surat Keterangan Ahli Waris',
+            'syarat' => ['KTP Seluruh Ahli Waris', 'KK', 'Surat Kematian', 'Surat Pengantar RT/RW'],
+        ],
+        'skck' => [
+            'label' => 'Surat Pengantar SKCK',
+            'syarat' => ['KTP', 'KK', 'Pas Foto 4x6'],
         ],
     ];
 
@@ -61,9 +69,11 @@ class LayananSuratController extends Controller
             'nik.size' => 'NIK harus terdiri dari 16 digit.',
         ]);
 
-        $validated['kode_tiket'] = LayananSurat::generateKodeTiket();
+        $labelJenisSurat = $this->jenisSurat[$validated['jenis_surat']]['label'];
+
+        $validated['kode_tiket'] = LayananSurat::generateKodeTiket($labelJenisSurat);
         $validated['status'] = 'diajukan';
-        $validated['jenis_surat'] = $this->jenisSurat[$validated['jenis_surat']]['label'];
+        $validated['jenis_surat'] = $labelJenisSurat;
 
         // Upload multi-file persyaratan
         $berkasPaths = [];
@@ -76,16 +86,12 @@ class LayananSuratController extends Controller
 
         $surat = LayananSurat::create($validated);
 
-        // PERBAIKAN: Arahkan langsung ke halaman resi/detail tiket setelah berhasil
-        return redirect()
-            ->route('resi.show', $surat->kode_tiket)
-            ->with('success', "Pengajuan berhasil dikirim! Kode tiket Anda: {$surat->kode_tiket}. Simpan kode ini untuk melacak status.")
-            ->with('kode_tiket', $surat->kode_tiket);
+        return redirect()->route('resi.show', $surat->kode_tiket);
     }
 
     public function trackForm()
     {
-        return view('frontend.layanan.track');
+        return redirect()->route('home')->with('info', 'Gunakan kolom "Lacak Pengajuan" di halaman utama untuk melacak status.');
     }
 
     public function track(Request $request)
@@ -105,6 +111,6 @@ class LayananSuratController extends Controller
                 ->withErrors(['kode_tiket' => 'Kode tiket atau NIK tidak ditemukan. Periksa kembali data Anda.']);
         }
 
-        return view('frontend.layanan.track-result', compact('surat'));
+        return redirect()->route('resi.show', $surat->kode_tiket);
     }
 }

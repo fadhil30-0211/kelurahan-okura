@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Gallery;
 use App\Models\Umkm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -35,19 +36,33 @@ class UmkmController extends Controller
             'no_hp'         => 'nullable|string|max:20',
             'foto'          => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
             'status'        => 'required|in:aktif,nonaktif',
+            'galleries.*'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         if ($request->hasFile('foto')) {
             $validated['foto'] = $request->file('foto')->store('umkm', 'public');
         }
 
-        Umkm::create($validated);
+        $umkm = Umkm::create($validated);
+
+        // PROSES UPLOAD GALERI FOTO (MULTIPLE)
+        if ($request->hasFile('galleries')) {
+            foreach ($request->file('galleries') as $index => $file) {
+                $path = $file->store('umkm-galleries', 'public');
+                $umkm->galleries()->create([
+                    'path'   => $path,
+                    'urutan' => $index + 1,
+                ]);
+            }
+        }
 
         return redirect()->route('admin.umkm.index')->with('success', 'Data UMKM berhasil ditambahkan.');
     }
 
     public function edit(Umkm $umkm)
     {
+        // Load relasi galleries agar bisa ditampilkan di form edit
+        $umkm->load('galleries');
         return view('admin.umkm.edit', compact('umkm'));
     }
 
@@ -64,6 +79,7 @@ class UmkmController extends Controller
             'no_hp'         => 'nullable|string|max:20',
             'foto'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'status'        => 'required|in:aktif,nonaktif',
+            'galleries.*'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         if ($request->hasFile('foto')) {
@@ -73,14 +89,44 @@ class UmkmController extends Controller
 
         $umkm->update($validated);
 
+        // PROSES TAMBAH GALERI FOTO BARU
+        if ($request->hasFile('galleries')) {
+            $lastOrder = $umkm->galleries()->max('urutan') ?? 0;
+            foreach ($request->file('galleries') as $index => $file) {
+                $path = $file->store('umkm-galleries', 'public');
+                $umkm->galleries()->create([
+                    'path'   => $path,
+                    'urutan' => $lastOrder + $index + 1,
+                ]);
+            }
+        }
+
         return redirect()->route('admin.umkm.index')->with('success', 'Data UMKM berhasil diperbarui.');
     }
 
     public function destroy(Umkm $umkm)
     {
         if ($umkm->foto) Storage::disk('public')->delete($umkm->foto);
+
+        // HAPUS SEMUA FILE GALERI TERKAIT PADA STORAGE & DB
+        foreach ($umkm->galleries as $gallery) {
+            if ($gallery->path) Storage::disk('public')->delete($gallery->path);
+            $gallery->delete();
+        }
+
         $umkm->delete();
 
         return redirect()->route('admin.umkm.index')->with('success', 'Data UMKM berhasil dihapus.');
+    }
+
+    // METHOD KHUSUS UNTUK HAPUS SATU FOTO GALERI DARI EDIT FORM
+    public function deleteGallery(Gallery $gallery)
+    {
+        if ($gallery->path) {
+            Storage::disk('public')->delete($gallery->path);
+        }
+        $gallery->delete();
+
+        return redirect()->back()->with('success', 'Foto galeri berhasil dihapus.');
     }
 }

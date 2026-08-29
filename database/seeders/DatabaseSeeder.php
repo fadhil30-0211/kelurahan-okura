@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             WisataSeeder::class,
             UmkmSeeder::class,
             LurahSeeder::class,
+            SettingSeeder::class,
         ]);
     }
 }

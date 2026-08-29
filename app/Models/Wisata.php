@@ -10,6 +10,7 @@ class Wisata extends Model
     use HasFactory;
 
     protected $fillable = [
+        'kode_tiket', // <-- Ditambahkan agar method generateKodeTiket() bisa disimpan
         'nama',
         'slug',
         'deskripsi',
@@ -18,6 +19,7 @@ class Wisata extends Model
         'longitude',
         'thumbnail',
         'galeri',
+        'pesan_wa',
         'harga_tiket',
         'jam_operasional',
         'kontak',
@@ -38,6 +40,11 @@ class Wisata extends Model
         return $query->where('status', 'aktif');
     }
 
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';
@@ -49,23 +56,21 @@ class Wisata extends Model
     }
 
     public static function generateKodeTiket(): string
-{
-    $tanggal = now()->format('Ymd');
-    $prefix = "WIS-{$tanggal}-";
-    $terakhir = self::where('kode_tiket', 'like', "{$prefix}%")->orderByDesc('kode_tiket')->first();
-    $urutan = $terakhir ? ((int) substr($terakhir->kode_tiket, -3)) + 1 : 1;
-    return $prefix . str_pad($urutan, 3, '0', STR_PAD_LEFT);
-}
+    {
+        $tanggal = now()->format('Ymd');
+        $prefix = "WIS-{$tanggal}-";
+        $terakhir = self::where('kode_tiket', 'like', "{$prefix}%")->orderByDesc('kode_tiket')->first();
+        $urutan = $terakhir ? ((int) substr($terakhir->kode_tiket, -3)) + 1 : 1;
+        return $prefix . str_pad($urutan, 3, '0', STR_PAD_LEFT);
+    }
 
-public function statusBadgeColor(): string
-{
-    return match ($this->status) {
-        'pending' => 'bg-amber-50 text-amber-700',
-        'aktif' => 'bg-emerald-50 text-emerald-700',
-        'nonaktif' => 'bg-slate-100 text-slate-500',
-        default => 'bg-slate-50 text-slate-700',
-    };
-}
-
-public function scopePending($query) { return $query->where('status', 'pending'); }
+    public function statusBadgeColor(): string
+    {
+        return match ($this->status) {
+            'pending' => 'bg-amber-50 text-amber-700',
+            'aktif' => 'bg-emerald-50 text-emerald-700',
+            'nonaktif' => 'bg-slate-100 text-slate-500',
+            default => 'bg-slate-50 text-slate-700',
+        };
+    }
 }

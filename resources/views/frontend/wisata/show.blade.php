@@ -29,7 +29,7 @@
                     <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{{ $wisata->deskripsi }}</p>
                 </div>
 
-                {{-- Ganti blok galeri lama di frontend/wisata/show.blade.php --}}
+                {{-- Galeri Foto --}}
                 @if ($wisata->galleries->count())
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6" x-data="{ open: false, activeIndex: 0, photos: {{ $wisata->galleries->pluck('path')->map(fn($p) => asset('storage/'.$p))->toJson() }} }">
                         <h2 class="font-semibold text-slate-800 mb-3">Galeri Foto ({{ $wisata->galleries->count() }})</h2>
@@ -51,9 +51,26 @@
                     </div>
                 @endif
 
+                {{-- PETA LOKASI GOOGLE MAPS --}}
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                    <h2 class="font-semibold text-slate-800 mb-3">Lokasi</h2>
-                    <div id="peta-wisata-detail" class="w-full h-64 rounded-xl"></div>
+                    <h2 class="font-semibold text-slate-800 mb-3">Lokasi Destinasi</h2>
+                    <div id="peta-wisata-detail" class="w-full h-64 rounded-xl overflow-hidden border border-slate-200">
+                        @if ($wisata->latitude && $wisata->longitude)
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                style="border:0;"
+                                loading="lazy"
+                                allowfullscreen
+                                referrerpolicy="no-referrer-when-downgrade"
+                                src="https://maps.google.com/maps?q={{ $wisata->latitude }},{{ $wisata->longitude }}&hl=id&z=16&output=embed">
+                            </iframe>
+                        @else
+                            <div class="flex items-center justify-center h-full bg-slate-50">
+                                <p class="text-xs text-slate-400">Koordinat lokasi belum tersedia.</p>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -74,11 +91,14 @@
                             <p class="text-sm font-semibold text-slate-800">{{ $wisata->kontak }}</p>
                         </div>
                     @endif
-                    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20bertanya%20tentang%20{{ urlencode($wisata->nama) }}"
-                       target="_blank"
-                       class="block text-center py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition">
-                        Tanya via WhatsApp
-                    </a>
+
+                    @if ($wisata->kontak)
+                        <a href="https://wa.me/62{{ ltrim($wisata->kontak, '0') }}?text=Halo,%20saya%20ingin%20bertanya%20tentang%20{{ urlencode($wisata->nama) }}"
+                           target="_blank"
+                           class="block text-center py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition">
+                            Tanya via WhatsApp
+                        </a>
+                    @endif
                 </div>
 
                 @if ($wisataLainnya->count())
@@ -103,17 +123,3 @@
     </div>
 </section>
 @endsection
-
-@push('scripts')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-    @if ($wisata->latitude && $wisata->longitude)
-        const map = L.map('peta-wisata-detail').setView([{{ $wisata->latitude }}, {{ $wisata->longitude }}], 15);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        L.marker([{{ $wisata->latitude }}, {{ $wisata->longitude }}]).addTo(map).bindPopup('{{ $wisata->nama }}');
-    @else
-        document.getElementById('peta-wisata-detail').innerHTML = '<p class="text-xs text-slate-400 text-center py-24">Koordinat lokasi belum tersedia.</p>';
-    @endif
-</script>
-@endpush

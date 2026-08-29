@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Schema;
 use App\Models\EmergencyContact;
 use App\Models\Pengumuman;
+use App\Models\Setting;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,9 +24,33 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer('layouts.frontend', function ($view) {
-            $view->with('emergencyContacts', EmergencyContact::active()->get());
-            $view->with('pengumumanDarurat', Pengumuman::active()->where('kategori', 'darurat')->latest()->first());
+        // Menggunakan View::composer untuk layout frontend agar data darurat & setting selalu tersedia
+        View::composer(['layouts.frontend', 'frontend.*'], function ($view) {
+            // Ambil data setting aman dari error jika tabel belum ada / kosong
+            $siteSetting = null;
+            if (Schema::hasTable('settings')) {
+                $siteSetting = Setting::first();
+            }
+
+            // Ambil kontak darurat yang aktif
+            $emergencyContacts = collect();
+            if (Schema::hasTable('emergency_contacts')) {
+                $emergencyContacts = EmergencyContact::active()->get();
+            }
+
+            // Ambil pengumuman darurat aktif terbaru
+            $pengumumanDarurat = null;
+            if (Schema::hasTable('pengumumans')) {
+                $pengumumanDarurat = Pengumuman::active()->where('kategori', 'darurat')->latest()->first();
+            }
+
+            // Kirim variabel ke view (menyediakan $settings & $siteSetting sekaligus agar kompatibel)
+            $view->with([
+                'settings'          => $siteSetting,
+                'siteSetting'       => $siteSetting,
+                'emergencyContacts' => $emergencyContacts,
+                'pengumumanDarurat' => $pengumumanDarurat,
+            ]);
         });
     }
 }

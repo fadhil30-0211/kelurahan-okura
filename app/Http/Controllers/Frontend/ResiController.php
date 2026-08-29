@@ -17,19 +17,19 @@ class ResiController extends Controller
      * Return null kalau tidak ketemu di semua tabel.
      */
     protected function resolveTiket(string $kodeTiket): ?array
-    {
-        $prefix = strtoupper(substr($kodeTiket, 0, 3));
+{
+    $prefix = strtoupper(substr($kodeTiket, 0, 3));
 
-        return match (true) {
-            $prefix === 'ADU' => $this->wrap('pengaduan', \App\Models\Pengaduan::where('kode_tiket', $kodeTiket)->first()),
-            $prefix === 'JTM' => $this->wrap('janji_temu', \App\Models\JanjiTemu::where('kode_tiket', $kodeTiket)->first()),
-            $prefix === 'WIS' => $this->wrap('wisata', \App\Models\Wisata::where('kode_tiket', $kodeTiket)->first()),
-            $prefix === 'UMK' => $this->wrap('umkm', \App\Models\Umkm::where('kode_tiket', $kodeTiket)->first()),
-            in_array($prefix, ['SKT', 'SKU', 'DOM', 'LHR', 'SRT']) =>
-                $this->wrap('layanan_surat', \App\Models\LayananSurat::where('kode_tiket', $kodeTiket)->first()),
-            default => null,
-        };
-    }
+    return match (true) {
+        $prefix === 'ADU' => $this->wrap('pengaduan', \App\Models\Pengaduan::where('kode_tiket', $kodeTiket)->first()),
+        $prefix === 'JTM' => $this->wrap('janji_temu', \App\Models\JanjiTemu::where('kode_tiket', $kodeTiket)->first()),
+        $prefix === 'WIS' => $this->wrap('wisata', \App\Models\Wisata::where('kode_tiket', $kodeTiket)->first()),
+        $prefix === 'UMK' => $this->wrap('umkm', \App\Models\Umkm::where('kode_tiket', $kodeTiket)->first()),
+        in_array($prefix, ['SKT', 'SKU', 'DOM', 'LHR', 'NKH', 'AHW', 'SKC', 'SRT']) =>
+            $this->wrap('layanan_surat', \App\Models\LayananSurat::where('kode_tiket', $kodeTiket)->first()),
+        default => null,
+    };
+}
 
     protected function wrap(string $jenis, $data): ?array
     {

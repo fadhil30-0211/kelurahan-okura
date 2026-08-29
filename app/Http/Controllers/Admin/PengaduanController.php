@@ -15,13 +15,19 @@ class PengaduanController extends Controller
     public function index(Request $request)
     {
         $pengaduans = Pengaduan::query()
-            ->status($request->status)
+            ->when($request->status, fn ($q) => $q->where('status', $request->status))
             ->when($request->kategori, fn ($q) => $q->where('kategori', $request->kategori))
             ->when($request->search, function ($q) use ($request) {
                 $q->where(function ($sub) use ($request) {
                     $sub->where('kode_tiket', 'like', "%{$request->search}%")
                         ->orWhere('nama_pelapor', 'like', "%{$request->search}%")
                         ->orWhere('judul_aduan', 'like', "%{$request->search}%");
+
+                    // Memastikan jika pencarian "anonim", data anonim tetap ketemu
+                    if (strtolower($request->search) === 'anonim') {
+                        $sub->orWhere('is_anonim', true)
+                            ->orWhereNull('nama_pelapor');
+                    }
                 });
             })
             ->latest()
@@ -38,7 +44,7 @@ class PengaduanController extends Controller
         return view('admin.pengaduan.index', compact('pengaduans', 'summary'));
     }
 
-        public function show(Pengaduan $pengaduan)
+    public function show(Pengaduan $pengaduan)
     {
         return view('admin.pengaduan.show', compact('pengaduan'));
     }
@@ -46,8 +52,8 @@ class PengaduanController extends Controller
     public function update(Request $request, Pengaduan $pengaduan)
     {
         $validated = $request->validate([
-            'status'           => 'required|in:diterima,diproses,selesai,ditolak',
-            'tanggapan_admin'  => 'nullable|string',
+            'status'          => 'required|in:diterima,diproses,selesai,ditolak',
+            'tanggapan_admin' => 'nullable|string',
         ]);
 
         $validated['ditangani_oleh'] = Auth::id();
@@ -64,12 +70,12 @@ class PengaduanController extends Controller
     }
 
     public function exportExcel(Request $request)
-{
-    return Excel::download(
-        new PengaduanExport($request->status, $request->tanggal_mulai, $request->tanggal_selesai),
-        'rekap-pengaduan-' . now()->format('Ymd-His') . '.xlsx'
-    );
-}
+    {
+        return Excel::download(
+            new PengaduanExport($request->status, $request->tanggal_mulai, $request->tanggal_selesai),
+            'rekap-pengaduan-' . now()->format('Ymd-His') . '.xlsx'
+        );
+    }
 
     public function exportPdf(Request $request)
     {
@@ -83,7 +89,7 @@ class PengaduanController extends Controller
 
         $pdf = Pdf::loadView('admin.pengaduan.export-pdf', [
             'pengaduans' => $pengaduans,
-            'periode' => $request->tanggal_mulai && $request->tanggal_selesai
+            'periode'    => $request->tanggal_mulai && $request->tanggal_selesai
                 ? \Carbon\Carbon::parse($request->tanggal_mulai)->translatedFormat('d M Y') . ' - ' . \Carbon\Carbon::parse($request->tanggal_selesai)->translatedFormat('d M Y')
                 : 'Semua Periode',
         ])->setPaper('a4', 'landscape');
@@ -92,45 +98,51 @@ class PengaduanController extends Controller
     }
 
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'nama_pelapor' => 'required_if:is_anonim,0|nullable|string|max:255',
-        'nik'          => 'nullable|string|max:20',
-        'no_hp'        => 'required|string|max:20', // tetap wajib untuk keperluan lacak status
-        'email'        => 'nullable|email|max:255',
-        'is_anonim'    => 'boolean',
-        'kategori'     => 'required|in:infrastruktur,sosial,keamanan,lingkungan,lainnya',
-        'judul_aduan'  => 'required|string|max:255',
-        'isi_aduan'    => 'required|string|min:20',
-        'lampiran'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
+    {
+        // Paksa konversiis_anonim ke nilai boolean murni sebelum validasi
+        $isAnonim = $request->boolean('is_anonim');
 
-    $validated['is_anonim'] = $request->boolean('is_anonim');
-    if ($validated['is_anonim']) {
-        $validated['nama_pelapor'] = 'Anonim';
+        $validated = $request->validate([
+            'nama_pelapor' => $isAnonim ? 'nullable|string|max:255' : 'required|string|max:255',
+            'nik'          => 'nullable|string|max:20',
+            'no_hp'        => 'required|string|max:20',
+            'email'        => 'nullable|email|max:255',
+            'is_anonim'    => 'nullable|boolean',
+            'kategori'     => 'required|in:infrastruktur,sosial,keamanan,lingkungan,lainnya',
+            'judul_aduan'  => 'required|string|max:255',
+            'isi_aduan'    => 'required|string|min:20',
+            'lampiran'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $validated['is_anonim'] = $isAnonim;
+
+        if ($isAnonim) {
+            $validated['nama_pelapor'] = 'Anonim';
+            $validated['nik']          = null;
+            $validated['email']        = null;
+        }
+
+        $validated['kode_tiket'] = Pengaduan::generateKodeTiket();
+        $validated['status']     = 'diterima';
+
+        if ($request->hasFile('lampiran')) {
+            $validated['lampiran'] = $request->file('lampiran')->store('pengaduan', 'public');
+        }
+
+        $pengaduan = Pengaduan::create($validated);
+
+        return redirect()->route('resi.show', $pengaduan->kode_tiket);
     }
 
-    $validated['kode_tiket'] = Pengaduan::generateKodeTiket();
-    $validated['status'] = 'diterima';
+    public function destroy(Pengaduan $pengaduan)
+    {
+        if ($pengaduan->lampiran) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($pengaduan->lampiran);
+        }
 
-    if ($request->hasFile('lampiran')) {
-        $validated['lampiran'] = $request->file('lampiran')->store('pengaduan', 'public');
+        $pengaduan->delete();
+
+        return redirect()->route('admin.pengaduan.index')
+            ->with('success', 'Data pengaduan berhasil dihapus.');
     }
-
-    $pengaduan = Pengaduan::create($validated);
-
-    return redirect()->route('resi.show', $pengaduan->kode_tiket);
-}
-
-public function destroy(Pengaduan $pengaduan)
-{
-    if ($pengaduan->lampiran) {
-        \Illuminate\Support\Facades\Storage::disk('public')->delete($pengaduan->lampiran);
-    }
-
-    $pengaduan->delete();
-
-    return redirect()->route('admin.pengaduan.index')
-        ->with('success', 'Data pengaduan berhasil dihapus.');
-}
 }

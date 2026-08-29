@@ -1,4 +1,3 @@
-
 {{-- resources/views/frontend/berita/index.blade.php --}}
 @extends('layouts.frontend')
 @section('title', 'Berita Kelurahan')
@@ -19,16 +18,25 @@
             @forelse ($beritas as $berita)
                 <a href="{{ route('berita.show', $berita->slug) }}"
                    class="group rounded-2xl overflow-hidden bg-white shadow-md hover:shadow-xl transition-all duration-300 border border-slate-100">
-                    <div class="h-44 overflow-hidden">
-                        <img src="{{ asset('storage/'.$berita->thumbnail) }}"
-                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                             alt="{{ $berita->judul }}"
-                             loading="lazy">
+                    <div class="h-44 overflow-hidden bg-slate-100 relative">
+                        @if ($berita->thumbnail)
+                            <img src="{{ \Illuminate\Support\Facades\Storage::url($berita->thumbnail) }}"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                 alt="{{ $berita->judul }}"
+                                 loading="lazy"
+                                 onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/475569?text=Berita';">
+                        @else
+                            <img src="https://placehold.co/600x400/e2e8f0/475569?text=Berita"
+                                 class="w-full h-full object-cover"
+                                 alt="Gambar Default">
+                        @endif
                      </div>
                     <div class="p-5">
                         <span class="text-xs text-emerald-600 font-medium capitalize">{{ $berita->kategori }}</span>
                         <h3 class="font-semibold text-slate-800 mt-1 line-clamp-2">{{ $berita->judul }}</h3>
-                        <p class="text-xs text-slate-400 mt-2">{{ $berita->published_at->translatedFormat('d F Y') }}</p>
+                        <p class="text-xs text-slate-400 mt-2">
+                            {{ $berita->published_at ? $berita->published_at->translatedFormat('d F Y') : $berita->created_at->translatedFormat('d F Y') }}
+                        </p>
                     </div>
                 </a>
             @empty

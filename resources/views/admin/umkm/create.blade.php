@@ -75,10 +75,19 @@
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">Foto <span class="text-red-500">*</span></label>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Foto Utama <span class="text-red-500">*</span></label>
             <input type="file" name="foto" accept="image/*" required
                    class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-emerald-50 file:text-emerald-700 file:font-medium hover:file:bg-emerald-100">
             @error('foto') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        {{-- INPUT MULTIPLE GALERI FOTO --}}
+        <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Galeri Foto Produk / Pendukung (Bisa Pilih Banyak)</label>
+            <input type="file" name="galleries[]" accept="image/*" multiple
+                   class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-emerald-50 file:text-emerald-700 file:font-medium hover:file:bg-emerald-100">
+            <p class="text-xs text-slate-400 mt-1">Gunakan tombol Ctrl / Shift untuk memilih lebih dari 1 foto sekaligus (opsional).</p>
+            @error('galleries.*') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
         </div>
 
         <div class="flex items-center gap-3 pt-2">
@@ -109,7 +118,6 @@
             marker = L.marker([initialLat, initialLng]).addTo(map);
         }
 
-        // 1. Klik pada peta -> Update input
         map.on('click', function (e) {
             latInput.value = e.latlng.lat.toFixed(7);
             lngInput.value = e.latlng.lng.toFixed(7);
@@ -118,7 +126,6 @@
             marker = L.marker(e.latlng).addTo(map);
         });
 
-        // 2. Ketik manual -> Pindahkan marker
         function updateMapFromInput() {
             const lat = parseFloat(latInput.value);
             const lng = parseFloat(lngInput.value);

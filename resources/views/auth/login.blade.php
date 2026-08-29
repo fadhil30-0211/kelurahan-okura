@@ -9,14 +9,12 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style> body { font-family: 'Plus Jakarta Sans', sans-serif; } </style>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-[#0B1F3A] px-4">
+<body class="min-h-screen flex items-center justify-center bg-[#0B1F3A] px-4 py-10 overflow-y-auto">
 
-    <div class="w-full max-w-md">
+    <div class="w-full max-w-md my-auto">
         {{-- Logo --}}
         <div class="text-center mb-8">
-            <div class="w-14 h-14 rounded-2xl bg-emerald-600 flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
-                TO
-            </div>
+            <img src="{{ asset('images/logo.png') }}" alt="Logo Kelurahan Tebing Tinggi Okura" class="w-14 h-14 object-contain rounded-2xl mx-auto mb-4">
             <h1 class="text-white font-bold text-lg">Kelurahan Tebing Tinggi Okura</h1>
             <p class="text-slate-400 text-sm mt-1">Portal Administrasi</p>
         </div>
@@ -46,7 +44,7 @@
                     <div class="relative">
                         <input :type="show ? 'text' : 'password'" name="password" required
                                class="w-full px-4 py-2.5 pr-11 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
-                        <button type="button" @click="show = !show" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                        <button type="button" @click="show = !show" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                             <svg x-show="!show" class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -59,20 +57,20 @@
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <label class="flex items-center gap-2 text-sm text-slate-600">
+                    <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
                         <input type="checkbox" name="remember" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
                         Ingat saya
                     </label>
                 </div>
 
                 <button type="submit"
-                        class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition">
+                        class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition shadow-sm">
                     Masuk
                 </button>
             </form>
         </div>
 
-        <p class="text-center text-slate-500 text-xs mt-6">
+        <p class="text-center text-slate-400 text-xs mt-6">
             <a href="{{ route('home') }}" class="hover:text-white transition">← Kembali ke halaman utama</a>
         </p>
     </div>

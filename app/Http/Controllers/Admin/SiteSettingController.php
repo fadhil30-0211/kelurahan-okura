@@ -10,19 +10,30 @@ class SiteSettingController extends Controller
 {
     public function index()
     {
-        $jumlahPenduduk = SiteSetting::get('jumlah_penduduk', 0);
+        // PERBAIKAN: Ambil SELURUH data setting dari DB dalam format array ['key' => 'value']
+        $settings = SiteSetting::pluck('value', 'key')->toArray();
 
-        return view('admin.pengaturan.index', compact('jumlahPenduduk'));
+        // Lempar array $settings ke view admin
+        return view('admin.pengaturan.index', compact('settings'));
     }
 
     public function update(Request $request)
     {
-        $validated = $request->validate([
-            'jumlah_penduduk' => 'required|integer|min:0',
+        $data = $request->validate([
+            'jumlah_penduduk'       => 'required|numeric|min:0',
+            'google_maps_embed_url' => 'nullable|string',
+            'latitude'              => 'nullable|string',
+            'longitude'             => 'nullable|string',
+            'map_zoom'              => 'nullable|numeric',
         ]);
 
-        SiteSetting::set('jumlah_penduduk', $validated['jumlah_penduduk']);
+        foreach ($data as $key => $value) {
+            SiteSetting::updateOrCreate(
+                ['key' => $key],
+                ['value' => $value]
+            );
+        }
 
-        return redirect()->route('admin.pengaturan.index')->with('success', 'Pengaturan berhasil disimpan.');
+        return back()->with('success', 'Pengaturan berhasil diperbarui.');
     }
 }

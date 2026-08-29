@@ -17,6 +17,7 @@ use App\Http\Controllers\Frontend\PendaftaranController;
 use App\Http\Controllers\Frontend\PengumumanController as FrontendPengumumanController;
 use App\Http\Controllers\Frontend\GaleriController as FrontendGaleriController;
 use App\Http\Controllers\Frontend\AgendaController as FrontendAgendaController;
+use App\Http\Controllers\Frontend\PengajuanController;
 
 // Import Controllers - Auth
 use App\Http\Controllers\Auth\LoginController;
@@ -28,7 +29,7 @@ use App\Http\Controllers\Admin\PengumumanController;
 use App\Http\Controllers\Admin\PegawaiController;
 use App\Http\Controllers\Admin\WisataController as AdminWisataController;
 use App\Http\Controllers\Admin\UmkmController as AdminUmkmController;
-use App\Http\Controllers\Admin\AdminPengaduanController; // Pastikan menggunakan AdminPengaduanController
+use App\Http\Controllers\Admin\AdminPengaduanController;
 use App\Http\Controllers\Admin\LayananSuratController as AdminLayananSuratController;
 use App\Http\Controllers\Admin\GaleriController;
 use App\Http\Controllers\Admin\AgendaController;
@@ -37,6 +38,7 @@ use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HeroBannerController;
 use App\Http\Controllers\Admin\EmergencyContactController;
 use App\Http\Controllers\Admin\SocialPostController;
+use App\Http\Controllers\Admin\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +70,10 @@ Route::get('/resi/{kodeTiket}', [ResiController::class, 'show'])->name('resi.sho
 Route::get('/resi/{kodeTiket}/download', [ResiController::class, 'download'])->name('resi.download');
 Route::post('/lacak', [UniversalTrackingController::class, 'track'])->name('tracking.universal');
 
+// Direct Tracking Routes
+Route::get('/lacak-pengaduan', [PengaduanController::class, 'lacak'])->name('pengaduan.lacak');
+Route::get('/lacak-pengajuan', [PengajuanController::class, 'lacak'])->name('pengajuan.lacak');
+
 // Wisata
 Route::prefix('wisata')->name('wisata.')->group(function () {
     Route::get('/', [WisataController::class, 'index'])->name('index');
@@ -80,7 +86,7 @@ Route::prefix('umkm')->name('umkm.')->group(function () {
     Route::get('/{id}', [UmkmController::class, 'show'])->name('show');
 });
 
-// Berita
+// Berita Frontend
 Route::prefix('berita')->name('berita.')->group(function () {
     Route::get('/', [FrontendBeritaController::class, 'index'])->name('index');
     Route::get('/{slug}', [FrontendBeritaController::class, 'show'])->name('show');
@@ -99,8 +105,8 @@ Route::prefix('layanan')->name('layanan.')->group(function () {
 Route::prefix('pengaduan')->name('pengaduan.')->group(function () {
     Route::get('/', [PengaduanController::class, 'create'])->name('create');
     Route::post('/', [PengaduanController::class, 'store'])->name('store');
-    Route::get('/lacak', [PengaduanController::class, 'trackForm'])->name('track.form');
-    Route::post('/lacak', [PengaduanController::class, 'track'])->name('track');
+    Route::get('/lacak', [PengaduanController::class, 'lacak'])->name('track.form');
+    Route::post('/lacak', [PengaduanController::class, 'lacak'])->name('track');
 });
 
 // Pendaftaran
@@ -132,14 +138,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::resource('emergency-contact', EmergencyContactController::class)->except(['create', 'edit', 'show']);
     Route::put('/emergency-contact/{emergencyContact}/toggle', [EmergencyContactController::class, 'toggle'])->name('emergency-contact.toggle');
 
+    // Custom Gallery Delete Route
+    Route::delete('/umkm/gallery/{gallery}', [AdminUmkmController::class, 'deleteGallery'])->name('umkm.gallery.destroy');
+
     // Konten harian
-    Route::resource('berita', BeritaController::class);
+    Route::resource('berita', BeritaController::class)->parameters(['berita' => 'berita']);
     Route::resource('pengumuman', PengumumanController::class);
-    Route::resource('wisata', AdminWisataController::class);
+    Route::resource('wisata', AdminWisataController::class)->parameters(['wisata' => 'wisata']);
     Route::resource('umkm', AdminUmkmController::class);
     Route::resource('galeri', GaleriController::class)->except(['show', 'edit', 'update']);
     Route::resource('agenda', AgendaController::class)->except(['show']);
     Route::resource('hero-banner', HeroBannerController::class)->except(['show']);
+
     Route::post('/hero-banner-reorder', [HeroBannerController::class, 'reorder'])->name('hero-banner.reorder');
 
     // Social Post
@@ -191,7 +201,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // Data sensitif — khusus super_admin
     Route::middleware('super_admin')->group(function () {
         Route::resource('pegawai', PegawaiController::class);
-        Route::get('/pengaturan', [\App\Http\Controllers\Admin\SiteSettingController::class, 'index'])->name('pengaturan.index');
-        Route::put('/pengaturan', [\App\Http\Controllers\Admin\SiteSettingController::class, 'update'])->name('pengaturan.update');
-    });
+
+        // Pengaturan Website (Footer, Kontak, Deskripsi)
+        Route::get('/pengaturan', [SettingController::class, 'index'])->name('pengaturan.index');
+        Route::put('/pengaturan', [SettingController::class, 'update'])->name('pengaturan.update');
+
+        });
 });

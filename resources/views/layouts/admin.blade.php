@@ -9,7 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style> body { font-family: 'Plus Jakarta Sans', sans-serif; } </style>
 
-    {{-- TAMBAHKAN STACK STYLES DI SINI --}}
+    {{-- STACK STYLES --}}
     @stack('styles')
 </head>
 <body class="bg-slate-50 text-slate-800" x-data="{ sidebarOpen: false }">
@@ -19,8 +19,10 @@
         {{-- ============ SIDEBAR ============ --}}
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
                class="fixed lg:static inset-y-0 left-0 z-30 w-64 bg-[#0B1F3A] text-slate-300 transition-transform duration-300 flex flex-col">
+
+            {{-- HEADER SIDEBAR: LOGO + NAMA --}}
             <div class="flex items-center gap-2.5 px-6 h-16 border-b border-white/10">
-                <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-xs">TO</div>
+                <img src="{{ asset('images/logo.png') }}" alt="Logo Admin" class="w-8 h-8 object-contain rounded-lg">
                 <span class="font-bold text-white text-sm">Admin Okura</span>
             </div>
 
@@ -29,8 +31,8 @@
                     $userRole = auth()->user()->role ?? 'staf';
 
                     $menus = collect([
-                        ['label' => 'Kontak Darurat', 'route' => 'admin.emergency-contact.index', 'icon' => 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z', 'roles' => ['super_admin', 'staf']],
                         ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', 'roles' => ['super_admin', 'lurah', 'staf']],
+                        ['label' => 'Kontak Darurat', 'route' => 'admin.emergency-contact.index', 'icon' => 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z', 'roles' => ['super_admin', 'staf']],
                         ['label' => 'Berita', 'route' => 'admin.berita.index', 'icon' => 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z', 'roles' => ['super_admin', 'staf']],
                         ['label' => 'Pengumuman', 'route' => 'admin.pengumuman.index', 'icon' => 'M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z', 'roles' => ['super_admin', 'staf']],
                         ['label' => 'Pegawai', 'route' => 'admin.pegawai.index', 'icon' => 'M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z', 'roles' => ['super_admin']],

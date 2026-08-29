@@ -19,6 +19,7 @@ class Umkm extends Model
         'latitude',
         'longitude',
         'no_hp',
+        'pesan_wa', // <-- Ditambahkan di sini
         'foto',
         'nama_pengaju',
         'no_hp_pengaju',
