@@ -18,29 +18,41 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
-        // Validasi input (Ditambahkan nama_website_footer)
+        // Validasi input
         $request->validate([
-            'nama_website'        => 'nullable|string|max:255',
-            'nama_website_footer' => 'nullable|string|max:255', // <-- Ditambahkan
-            'nama_instansi'       => 'nullable|string|max:255',
-            'email'               => 'nullable|email',
-            'telepon'             => 'nullable|string',
-            'whatsapp'            => 'nullable|string',
-            'pesan_wa'            => 'nullable|string',
-            'alamat'              => 'nullable|string',
-            'deskripsi'           => 'nullable|string',
-            'deskripsi_footer'    => 'nullable|string',
-            'jumlah_penduduk'     => 'nullable|numeric',
-            'link_map'            => 'nullable|string',
-            'latitude'            => 'nullable|string',
-            'longitude'           => 'nullable|string',
-            'logo'                => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'nama_website'           => 'nullable|string|max:255',
+            'nama_website_footer'    => 'nullable|string|max:255',
+            'nama_instansi'          => 'nullable|string|max:255',
+            'email'                  => 'nullable|email',
+            'telepon'                => 'nullable|string',
+            'whatsapp'               => 'nullable|string',
+            'pesan_wa'               => 'nullable|string',
+            'alamat'                 => 'nullable|string',
+            'deskripsi'              => 'nullable|string',
+            'deskripsi_footer'       => 'nullable|string',
+
+            // Jam Pelayanan (Baru)
+            'jam_kerja_senin_kamis'  => 'nullable|string|max:255',
+            'jam_kerja_jumat'        => 'nullable|string|max:255',
+            'jam_kerja_sabtu_minggu' => 'nullable|string|max:255',
+
+            // Media Sosial (Baru)
+            'facebook_url'           => 'nullable|url|max:255',
+            'instagram_url'          => 'nullable|url|max:255',
+            'youtube_url'            => 'nullable|url|max:255',
+            'tiktok_url'             => 'nullable|url|max:255',
+
+            'jumlah_penduduk'        => 'nullable|numeric',
+            'link_map'               => 'nullable|string',
+            'latitude'               => 'nullable|string',
+            'longitude'              => 'nullable|string',
+            'logo'                   => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
-        // Ambil data dari form (Ditambahkan nama_website_footer)
+        // Ambil data dari form
         $data = $request->only([
             'nama_website',
-            'nama_website_footer', // <-- Ditambahkan
+            'nama_website_footer',
             'nama_instansi',
             'email',
             'telepon',
@@ -49,6 +61,13 @@ class SettingController extends Controller
             'alamat',
             'deskripsi',
             'deskripsi_footer',
+            'jam_kerja_senin_kamis',
+            'jam_kerja_jumat',
+            'jam_kerja_sabtu_minggu',
+            'facebook_url',
+            'instagram_url',
+            'youtube_url',
+            'tiktok_url',
             'jumlah_penduduk',
             'link_map',
             'latitude',

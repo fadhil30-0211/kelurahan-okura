@@ -33,7 +33,17 @@
                         <tr class="hover:bg-slate-50">
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center gap-3">
-                                    <img src="{{ asset('storage/'.$pegawai->foto) }}" class="w-10 h-10 rounded-full object-cover flex-shrink-0" alt="">
+                                    {{-- Cek Foto dan Fallback Inisial --}}
+                                    @if($pegawai->foto && file_exists(public_path('storage/' . $pegawai->foto)))
+                                        <img src="{{ asset('storage/' . $pegawai->foto) }}"
+                                             alt="{{ $pegawai->nama }}"
+                                             class="w-10 h-10 aspect-square rounded-full object-cover shrink-0 border border-slate-100">
+                                    @else
+                                        <div class="w-10 h-10 aspect-square rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center shrink-0 border border-emerald-200 text-xs">
+                                            {{ strtoupper(substr($pegawai->nama, 0, 1)) }}
+                                        </div>
+                                    @endif
+
                                     <div class="min-w-0">
                                         <p class="font-medium text-slate-800 truncate">{{ $pegawai->nama }}</p>
                                         <p class="text-xs text-slate-400">{{ $pegawai->nip ?? '-' }}</p>

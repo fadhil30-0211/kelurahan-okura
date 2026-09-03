@@ -46,6 +46,34 @@
             </div>
         @endif
 
+     {{-- Ganti bagian petunjuk dengan versi yang disempurnakan ini --}}
+<div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5 mb-6">
+    <h4 class="font-semibold text-slate-800 text-sm mb-3 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        Sebelum mengirim pengaduan
+    </h4>
+    <div class="space-y-2 text-xs sm:text-sm text-slate-600">
+        <div class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>Pastikan <strong>lokasi kejadian</strong> ditulis secara spesifik.</span>
+        </div>
+        <div class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>Sertakan <strong>foto pendukung</strong> untuk mempercepat penanganan.</span>
+        </div>
+        <div class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>Simpan <strong>kode tiket</strong> untuk melacak perkembangan aduan.</span>
+        </div>
+    </div>
+</div>
+
         <form action="{{ route('pengaduan.store') }}" method="POST" enctype="multipart/form-data"
               x-data="{ anonim: {{ old('is_anonim') ? 'true' : 'false' }} }"
               class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 sm:p-8 space-y-5">

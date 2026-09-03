@@ -21,6 +21,17 @@
         $defaultEmail  = data_get($activeSettings, 'email') ?? 'kelurahan.okura@pekanbaru.go.id';
         $defaultAlamat = data_get($activeSettings, 'alamat') ?? data_get($activeSettings, 'address') ?? 'Jl. Kelurahan Okura, Rumbai Timur, Pekanbaru';
 
+        // Jam Pelayanan Dinamis
+        $jamSeninKamis = data_get($activeSettings, 'jam_kerja_senin_kamis') ?? '08:00 - 16:00 WIB';
+        $jamJumat      = data_get($activeSettings, 'jam_kerja_jumat') ?? '08:00 - 16:30 WIB';
+        $jamSabtuMinggu= data_get($activeSettings, 'jam_kerja_sabtu_minggu') ?? 'Libur';
+
+        // Media Sosial Dinamis
+        $fbUrl = data_get($activeSettings, 'facebook_url');
+        $igUrl = data_get($activeSettings, 'instagram_url');
+        $ytUrl = data_get($activeSettings, 'youtube_url');
+        $ttUrl = data_get($activeSettings, 'tiktok_url');
+
         // Format WhatsApp Dinamis (Mengubah 08xx menjadi 628xx)
         $rawWa = data_get($activeSettings, 'whatsapp')
               ?? data_get($activeSettings, 'no_wa')
@@ -54,6 +65,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    {{-- FontAwesome Icons untuk Sosmed --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     {{-- Tailwind & AlpineJS (build via Vite) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -69,7 +83,6 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         [x-cloak] { display: none !important; }
 
-        /* Fix z-index Leaflet agar tidak melepasi Navbar Fixed */
         .leaflet-pane { z-index: 10 !important; }
         .leaflet-top, .leaflet-bottom { z-index: 11 !important; }
 
@@ -153,7 +166,6 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="flex items-center justify-between h-14 sm:h-16">
 
-                <!-- Menggunakan $namaHeader -->
                 <a href="{{ Route::has('home') ? route('home') : url('/') }}" class="flex items-center gap-2.5 shrink-0">
                     <img src="{{ $faviconUrl }}"
                          alt="Logo {{ $namaHeader }}"
@@ -164,10 +176,9 @@
                     </span>
                 </a>
 
-                {{-- Navigation Links (Desktop Horizontal) --}}
+                {{-- Navigation Links --}}
                 <nav class="hidden lg:flex items-center gap-6 xl:gap-8 h-full">
 
-                    {{-- Profil --}}
                     @if (Route::has('profil'))
                         @php $activeProfil = Route::is('profil*'); @endphp
                         <a href="{{ route('profil') }}"
@@ -179,7 +190,6 @@
                         </a>
                     @endif
 
-                    {{-- Layanan --}}
                     @if (Route::has('layanan.index'))
                         @php $activeLayanan = Route::is('layanan*'); @endphp
                         <a href="{{ route('layanan.index') }}"
@@ -191,7 +201,6 @@
                         </a>
                     @endif
 
-                    {{-- Dropdown Informasi --}}
                     @php
                         $activeInfo = Route::is('berita*', 'agenda*', 'pengumuman*');
                     @endphp
@@ -240,7 +249,6 @@
                         </div>
                     </div>
 
-                    {{-- Wisata --}}
                     @if (Route::has('wisata.index'))
                         @php $activeWisata = Route::is('wisata*'); @endphp
                         <a href="{{ route('wisata.index') }}"
@@ -252,7 +260,6 @@
                         </a>
                     @endif
 
-                    {{-- UMKM --}}
                     @if (Route::has('umkm.index'))
                         @php $activeUmkm = Route::is('umkm*'); @endphp
                         <a href="{{ route('umkm.index') }}"
@@ -264,7 +271,6 @@
                         </a>
                     @endif
 
-                    {{-- Galeri --}}
                     @if (Route::has('galeri.index'))
                         @php $activeGaleri = Route::is('galeri*'); @endphp
                         <a href="{{ route('galeri.index') }}"
@@ -319,7 +325,6 @@
                     </a>
                 @endif
 
-                {{-- Group Informasi di Mobile --}}
                 <div class="py-1 px-3">
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Informasi</p>
                     <div class="pl-2 border-l-2 border-slate-200 space-y-1">
@@ -426,17 +431,46 @@
 <footer class="bg-[#0B1F3A] text-slate-300 pt-16 pb-8 overflow-x-hidden">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-10 border-b border-white/10">
+
+            {{-- Kolom 1 & 2: Identitas & Deskripsi --}}
             <div class="md:col-span-2">
-                <!-- Menggunakan $namaFooter -->
                 <div class="flex items-center gap-2.5 mb-4">
                     <img src="{{ $faviconUrl }}"
                          alt="Logo Footer" class="w-9 h-9 object-contain rounded-lg">
-                    <span class="font-bold text-white">{{ $namaFooter }}</span>
+                    <span class="font-bold text-white text-lg">{{ $namaFooter }}</span>
                 </div>
-                <p class="text-sm text-slate-400 max-w-sm leading-relaxed">
+                <p class="text-sm text-slate-400 max-w-sm leading-relaxed mb-6">
                     {{ $defaultDesc }}
                 </p>
+
+                {{-- Link Media Sosial --}}
+                @if($fbUrl || $igUrl || $ytUrl || $ttUrl)
+                    <div class="flex items-center gap-3">
+                        @if($fbUrl)
+                            <a href="{{ $fbUrl }}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-emerald-600 text-white flex items-center justify-center transition">
+                                <i class="fab fa-facebook-f text-sm"></i>
+                            </a>
+                        @endif
+                        @if($igUrl)
+                            <a href="{{ $igUrl }}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-emerald-600 text-white flex items-center justify-center transition">
+                                <i class="fab fa-instagram text-sm"></i>
+                            </a>
+                        @endif
+                        @if($ytUrl)
+                            <a href="{{ $ytUrl }}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-emerald-600 text-white flex items-center justify-center transition">
+                                <i class="fab fa-youtube text-sm"></i>
+                            </a>
+                        @endif
+                        @if($ttUrl)
+                            <a href="{{ $ttUrl }}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-emerald-600 text-white flex items-center justify-center transition">
+                                <i class="fab fa-tiktok text-sm"></i>
+                            </a>
+                        @endif
+                    </div>
+                @endif
             </div>
+
+            {{-- Kolom 3: Tautan Cepat --}}
             <div>
                 <h4 class="text-white font-semibold text-sm mb-4">Tautan Cepat</h4>
                 <ul class="space-y-2.5 text-sm text-slate-400">
@@ -461,18 +495,41 @@
                     @if (Route::has('umkm.index'))
                         <li><a href="{{ route('umkm.index') }}" class="hover:text-amber-300 transition">Direktori UMKM</a></li>
                     @endif
+                    @if (Route::has('berita.index'))
+                        <li><a href="{{ route('berita.index') }}" class="hover:text-amber-300 transition">Berita & Kegiatan</a></li>
+                    @endif
                 </ul>
             </div>
+
+            {{-- Kolom 4: Kontak & Jam Pelayanan --}}
             <div>
-                <h4 class="text-white font-semibold text-sm mb-4">Kontak</h4>
-                <ul class="space-y-2.5 text-sm text-slate-400">
-                    <li>{{ $defaultAlamat }}</li>
-                    <li>{{ $defaultEmail }}</li>
-                    <li>{{ $defaultTelp }}</li>
+                <h4 class="text-white font-semibold text-sm mb-4">Kontak & Jam Kerja</h4>
+                <ul class="space-y-2.5 text-sm text-slate-400 mb-4">
+                    <li class="flex items-start gap-2">
+                        <span>📍</span>
+                        <span>{{ $defaultAlamat }}</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span>✉️</span>
+                        <span>{{ $defaultEmail }}</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span>📞</span>
+                        <span>{{ $defaultTelp }}</span>
+                    </li>
                 </ul>
+
+                <h5 class="text-white font-semibold text-xs uppercase tracking-wider mb-2">Jam Pelayanan</h5>
+                <div class="text-xs text-slate-400 space-y-1 bg-slate-900/50 p-3 rounded-xl border border-white/5">
+                    <p><span class="font-medium text-slate-200">Senin - Kamis:</span> {{ $jamSeninKamis }}</p>
+                    <p><span class="font-medium text-slate-200">Jum'at:</span> {{ $jamJumat }}</p>
+                    <p><span class="font-medium text-slate-200">Sabtu - Minggu:</span> {{ $jamSabtuMinggu }}</p>
+                </div>
             </div>
+
         </div>
-        <!-- Menggunakan $namaFooter pada Copyright -->
+
+        {{-- Copyright --}}
         <p class="text-center text-xs text-slate-500 pt-6">
             &copy; {{ date('Y') }} {{ $namaFooter }} — Persembahan dari KKN Kelompok 10 GOKURA USTI 2026. Seluruh Hak Dilindungi.
         </p>

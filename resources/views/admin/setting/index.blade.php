@@ -9,7 +9,7 @@
     <div class="header-section">
         <div>
             <h2 class="header-title">Pengaturan Website</h2>
-            <p class="header-subtitle">Kelola identitas instansi, logo, kontak WhatsApp, data kependudukan, dan lokasi peta.</p>
+            <p class="header-subtitle">Kelola identitas instansi, logo, kontak WhatsApp, jam kerja, media sosial, data kependudukan, dan peta.</p>
         </div>
     </div>
 
@@ -28,10 +28,13 @@
 
         <div class="setting-card">
 
-            <!-- Navigation Tabs (JS Custom) -->
+            <!-- Navigation Tabs -->
             <div class="tab-header">
                 <button type="button" class="tab-btn active" id="btn-tab-umum" onclick="switchTab(event, 'tab-umum')">
                     Informasi Umum & Logo
+                </button>
+                <button type="button" class="tab-btn" id="btn-tab-layanan" onclick="switchTab(event, 'tab-layanan')">
+                    Jam Pelayanan & Sosmed
                 </button>
                 <button type="button" class="tab-btn" id="btn-tab-penduduk" onclick="switchTab(event, 'tab-penduduk')">
                     Data Kependudukan
@@ -126,7 +129,58 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: DATA KEPENDUDUKAN -->
+                <!-- TAB 2: JAM PELAYANAN & MEDIA SOSIAL -->
+                <div id="tab-layanan" class="tab-pane-custom">
+                    <h4 class="section-title">Jam Pelayanan Kantor</h4>
+                    <div class="form-grid mb-6">
+                        <div class="form-group col-4">
+                            <label>Senin - Kamis</label>
+                            <input type="text" name="jam_kerja_senin_kamis" class="input-field @error('jam_kerja_senin_kamis') is-invalid @enderror" value="{{ old('jam_kerja_senin_kamis', $setting->jam_kerja_senin_kamis ?? '08:00 - 16:00 WIB') }}" placeholder="08:00 - 16:00 WIB">
+                            @error('jam_kerja_senin_kamis') <span class="error-msg">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="form-group col-4">
+                            <label>Jum'at</label>
+                            <input type="text" name="jam_kerja_jumat" class="input-field @error('jam_kerja_jumat') is-invalid @enderror" value="{{ old('jam_kerja_jumat', $setting->jam_kerja_jumat ?? '08:00 - 16:30 WIB') }}" placeholder="08:00 - 16:30 WIB">
+                            @error('jam_kerja_jumat') <span class="error-msg">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="form-group col-4">
+                            <label>Sabtu - Minggu / Libur</label>
+                            <input type="text" name="jam_kerja_sabtu_minggu" class="input-field @error('jam_kerja_sabtu_minggu') is-invalid @enderror" value="{{ old('jam_kerja_sabtu_minggu', $setting->jam_kerja_sabtu_minggu ?? 'Libur') }}" placeholder="Libur">
+                            @error('jam_kerja_sabtu_minggu') <span class="error-msg">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
+                    <h4 class="section-title">Media Sosial Resmi</h4>
+                    <div class="form-grid">
+                        <div class="form-group col-6">
+                            <label>Facebook URL</label>
+                            <input type="url" name="facebook_url" class="input-field @error('facebook_url') is-invalid @enderror" value="{{ old('facebook_url', $setting->facebook_url ?? '') }}" placeholder="https://facebook.com/namapage">
+                            @error('facebook_url') <span class="error-msg">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label>Instagram URL</label>
+                            <input type="url" name="instagram_url" class="input-field @error('instagram_url') is-invalid @enderror" value="{{ old('instagram_url', $setting->instagram_url ?? '') }}" placeholder="https://instagram.com/username">
+                            @error('instagram_url') <span class="error-msg">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label>YouTube Channel URL</label>
+                            <input type="url" name="youtube_url" class="input-field @error('youtube_url') is-invalid @enderror" value="{{ old('youtube_url', $setting->youtube_url ?? '') }}" placeholder="https://youtube.com/@channelname">
+                            @error('youtube_url') <span class="error-msg">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label>TikTok URL</label>
+                            <input type="url" name="tiktok_url" class="input-field @error('tiktok_url') is-invalid @enderror" value="{{ old('tiktok_url', $setting->tiktok_url ?? '') }}" placeholder="https://tiktok.com/@username">
+                            @error('tiktok_url') <span class="error-msg">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: DATA KEPENDUDUKAN -->
                 <div id="tab-penduduk" class="tab-pane-custom">
                     <h4 class="section-title">Statistik Kependudukan</h4>
 
@@ -138,7 +192,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 3: PETA & LOKASI -->
+                <!-- TAB 4: PETA & LOKASI -->
                 <div id="tab-map" class="tab-pane-custom">
                     <h4 class="section-title">Integrasi Google Maps</h4>
 
@@ -235,6 +289,7 @@
         padding: 16px 20px 0 20px;
         border-bottom: 1px solid #e2e8f0;
         background: #ffffff;
+        overflow-x: auto;
     }
 
     .tab-btn {
@@ -247,6 +302,7 @@
         border-radius: 8px 8px 0 0;
         cursor: pointer;
         transition: all 0.2s ease;
+        white-space: nowrap;
     }
 
     .tab-btn.active {
@@ -288,8 +344,13 @@
         box-sizing: border-box;
     }
 
+    .col-4 { width: calc(33.333% - 11px); }
     .col-6 { width: calc(50% - 8px); }
     .col-12 { width: 100%; }
+
+    .mb-6 {
+        margin-bottom: 24px;
+    }
 
     .form-group label {
         font-size: 13px;
@@ -432,7 +493,7 @@
     }
 
     @media (max-width: 768px) {
-        .col-6 { width: 100%; }
+        .col-4, .col-6 { width: 100%; }
         .card-footer-action { flex-direction: column; gap: 12px; }
     }
 </style>
@@ -472,9 +533,11 @@
         }
     }
 
-    // Pindah tab otomatis jika terjadi error validasi pada tab 2 atau tab 3
+    // Auto switch tab saat terjadi validasi error
     document.addEventListener("DOMContentLoaded", function() {
-        @if ($errors->has('jumlah_penduduk'))
+        @if ($errors->has('jam_kerja_senin_kamis') || $errors->has('jam_kerja_jumat') || $errors->has('jam_kerja_sabtu_minggu') || $errors->has('facebook_url') || $errors->has('instagram_url') || $errors->has('youtube_url') || $errors->has('tiktok_url'))
+            document.getElementById('btn-tab-layanan').click();
+        @elseif ($errors->has('jumlah_penduduk'))
             document.getElementById('btn-tab-penduduk').click();
         @elseif ($errors->has('link_map') || $errors->has('latitude') || $errors->has('longitude'))
             document.getElementById('btn-tab-map').click();

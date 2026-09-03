@@ -25,5 +25,14 @@ class Setting extends Model
         'latitude',
         'longitude',
         'link_map',
+        // Jam Pelayanan Tambahan
+        'jam_kerja_senin_kamis',
+        'jam_kerja_jumat',
+        'jam_kerja_sabtu_minggu',
+        // Media Sosial Tambahan
+        'facebook_url',
+        'instagram_url',
+        'youtube_url',
+        'tiktok_url',
     ];
 }

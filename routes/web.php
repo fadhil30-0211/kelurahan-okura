@@ -39,6 +39,7 @@ use App\Http\Controllers\Admin\HeroBannerController;
 use App\Http\Controllers\Admin\EmergencyContactController;
 use App\Http\Controllers\Admin\SocialPostController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\TentangKknController; // <-- Added Import
 
 /*
 |--------------------------------------------------------------------------
@@ -134,6 +135,9 @@ Route::post('/admin/logout', [LoginController::class, 'logout'])->name('admin.lo
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Tentang KKN
+    Route::get('/tentang-kkn', [TentangKknController::class, 'index'])->name('tentang-kkn.index');
+
     // Emergency Contact
     Route::resource('emergency-contact', EmergencyContactController::class)->except(['create', 'edit', 'show']);
     Route::put('/emergency-contact/{emergencyContact}/toggle', [EmergencyContactController::class, 'toggle'])->name('emergency-contact.toggle');
@@ -205,6 +209,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         // Pengaturan Website (Footer, Kontak, Deskripsi)
         Route::get('/pengaturan', [SettingController::class, 'index'])->name('pengaturan.index');
         Route::put('/pengaturan', [SettingController::class, 'update'])->name('pengaturan.update');
-
-        });
+    });
 });
