@@ -230,24 +230,50 @@
 <section class="relative z-20 -mt-10 px-4 sm:px-6">
     <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
         @php
-            $quickLinks = [
-                ['icon' => '📄', 'label' => 'Layanan Surat', 'desc' => 'Ajukan & lacak', 'route' => 'layanan.index', 'color' => 'bg-emerald-50 text-emerald-700'],
-                ['icon' => '📢', 'label' => 'Lapor Pengaduan', 'desc' => 'Sampaikan keluhan', 'route' => 'pengaduan.create', 'color' => 'bg-amber-50 text-amber-700'],
-                ['icon' => '🏞️', 'label' => 'Wisata Okura', 'desc' => 'Jelajahi destinasi', 'route' => 'wisata.index', 'color' => 'bg-sky-50 text-sky-700'],
-                ['icon' => '🛍️', 'label' => 'UMKM Warga', 'desc' => 'Dukung usaha lokal', 'route' => 'umkm.index', 'color' => 'bg-rose-50 text-rose-700'],
-            ];
-        @endphp
+        $quickLinks = [
+            [
+                'svg' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
+                'label' => 'Layanan Surat',
+                'desc' => 'Ajukan & lacak',
+                'route' => 'layanan.index',
+                'color' => 'bg-emerald-50 text-emerald-600'
+            ],
+            [
+                'svg' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>',
+                'label' => 'Lapor Pengaduan',
+                'desc' => 'Sampaikan keluhan',
+                'route' => 'pengaduan.create',
+                'color' => 'bg-amber-50 text-amber-600'
+            ],
+            [
+                'svg' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>',
+                'label' => 'Wisata Okura',
+                'desc' => 'Jelajahi destinasi',
+                'route' => 'wisata.index',
+                'color' => 'bg-sky-50 text-sky-600'
+            ],
+            [
+                'svg' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>',
+                'label' => 'UMKM Warga',
+                'desc' => 'Dukung usaha lokal',
+                'route' => 'umkm.index',
+                'color' => 'bg-rose-50 text-rose-600'
+            ],
+        ];
+    @endphp
 
-        @foreach ($quickLinks as $link)
-            <a href="{{ route($link['route']) }}"
-               class="group bg-white rounded-2xl shadow-md hover:shadow-xl p-5 transition-all duration-300 hover:-translate-y-1 border border-slate-100">
-                <div class="w-12 h-12 rounded-xl {{ $link['color'] }} flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform">
-                    {{ $link['icon'] }}
-                </div>
-                <h3 class="font-semibold text-slate-800 text-sm sm:text-base group-hover:text-emerald-600 transition-colors">{{ $link['label'] }}</h3>
-                <p class="text-xs text-slate-500 mt-1">{{ $link['desc'] }}</p>
-            </a>
-        @endforeach
+    @foreach ($quickLinks as $link)
+        <a href="{{ route($link['route']) }}"
+        class="group bg-white rounded-2xl shadow-md hover:shadow-xl p-5 transition-all duration-300 hover:-translate-y-1 border border-slate-100">
+            <div class="w-12 h-12 rounded-xl {{ $link['color'] }} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {!! $link['svg'] !!}
+                </svg>
+            </div>
+            <h3 class="font-semibold text-slate-800 text-sm sm:text-base group-hover:text-emerald-600 transition-colors">{{ $link['label'] }}</h3>
+            <p class="text-xs text-slate-500 mt-1">{{ $link['desc'] }}</p>
+        </a>
+    @endforeach
     </div>
 </section>
 
@@ -265,7 +291,11 @@
         <div class="md:col-span-2 md:row-span-2 bg-white rounded-2xl shadow-md p-6 border border-slate-100 flex flex-col justify-between">
             <div>
                 <h3 class="font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                    <span>📍</span> Peta Wilayah
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Peta Wilayah
                 </h3>
                 <div class="w-full h-64 md:h-80 rounded-xl overflow-hidden border border-slate-100 bg-slate-50 shadow-inner">
                     <iframe
@@ -289,7 +319,10 @@
         <div class="md:col-span-2 bg-[#0B1F3A] rounded-2xl shadow-md p-6 text-white flex flex-col justify-between relative overflow-hidden">
             <div class="relative z-10">
                 <h3 class="font-semibold mb-2 flex items-center gap-2 text-amber-300">
-                    <span>🎯</span> Visi Kelurahan
+                    <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Visi Kelurahan
                 </h3>
                 <p class="text-sm text-slate-200 leading-relaxed">
                     Terwujudnya Kelurahan Tebing Tinggi Okura sebagai Pusat Pariwisata, Pertanian, Perikanan dan Pusat Kebudayaan Melayu di Kota Pekanbaru.
@@ -307,7 +340,10 @@
         <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100 flex flex-col justify-between">
             <div>
                 <h3 class="font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                    <span>📢</span> Pengumuman Terbaru
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+                    </svg>
+                    Pengumuman Terbaru
                 </h3>
                 <div class="space-y-2">
                     @forelse ($pengumumanTerbaru ?? [] as $item)
@@ -330,7 +366,10 @@
         <div class="bg-amber-50/80 rounded-2xl shadow-md p-6 border border-amber-100 flex flex-col justify-between">
             <div>
                 <h3 class="font-semibold text-amber-900 mb-2 flex items-center gap-2">
-                    <span>📊</span> Transparansi Anggaran {{ date('Y') }}
+                    <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    Transparansi Anggaran {{ date('Y') }}
                 </h3>
                 @php
                     $anggaranList = isset($anggaranTahunIni) && is_iterable($anggaranTahunIni) ? collect($anggaranTahunIni) : collect();

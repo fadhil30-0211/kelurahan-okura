@@ -33,8 +33,11 @@ class HeroBannerController extends Controller
         ]);
 
         $validated['is_active'] = $request->boolean('is_active');
-        $validated['urutan'] = $validated['urutan'] ?? (HeroBanner::max('urutan') + 1);
-        $validated['gambar'] = $request->file('gambar')->store('hero-banners', 'public');
+        $validated['urutan']    = $validated['urutan'] ?? (HeroBanner::max('urutan') + 1);
+
+        // Simpan gambar dan pastikan path bersih dari garis miring di awal
+        $path = $request->file('gambar')->store('hero-banners', 'public');
+        $validated['gambar'] = ltrim($path, '/');
 
         HeroBanner::create($validated);
 
@@ -61,8 +64,13 @@ class HeroBannerController extends Controller
         $validated['is_active'] = $request->boolean('is_active');
 
         if ($request->hasFile('gambar')) {
-            Storage::disk('public')->delete($heroBanner->gambar);
-            $validated['gambar'] = $request->file('gambar')->store('hero-banners', 'public');
+            // Hapus gambar lama jika filenya ada di storage
+            if ($heroBanner->gambar && Storage::disk('public')->exists($heroBanner->gambar)) {
+                Storage::disk('public')->delete($heroBanner->gambar);
+            }
+
+            $path = $request->file('gambar')->store('hero-banners', 'public');
+            $validated['gambar'] = ltrim($path, '/');
         }
 
         $heroBanner->update($validated);
@@ -72,14 +80,18 @@ class HeroBannerController extends Controller
 
     public function destroy(HeroBanner $heroBanner)
     {
-        Storage::disk('public')->delete($heroBanner->gambar);
+        // Hapus file dari storage jika ada
+        if ($heroBanner->gambar && Storage::disk('public')->exists($heroBanner->gambar)) {
+            Storage::disk('public')->delete($heroBanner->gambar);
+        }
+
         $heroBanner->delete();
 
         return redirect()->route('admin.hero-banner.index')->with('success', 'Banner berhasil dihapus.');
     }
 
     /**
-     * Update urutan banner via drag-and-drop (dipanggil lewat AJAX/fetch dari JS).
+     * Update urutan banner via drag-and-drop.
      */
     public function reorder(Request $request)
     {

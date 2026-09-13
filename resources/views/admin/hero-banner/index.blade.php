@@ -19,7 +19,7 @@
                 <svg class="w-5 h-5 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
                 </svg>
-                <img src="{{ asset('storage/'.$banner->gambar) }}" class="w-24 h-14 rounded-lg object-cover flex-shrink-0" alt="">
+                <img src="{{ Storage::url($banner->gambar) }}" class="w-24 h-14 rounded-lg object-cover flex-shrink-0" alt="">
                 <div class="flex-1 min-w-0">
                     <p class="font-medium text-slate-800 truncate">{{ $banner->judul ?? '(Tanpa judul)' }}</p>
                     <p class="text-xs text-slate-400 truncate">{{ $banner->subjudul }}</p>

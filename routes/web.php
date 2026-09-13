@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\UmkmController as AdminUmkmController;
 use App\Http\Controllers\Admin\AdminPengaduanController;
 use App\Http\Controllers\Admin\LayananSuratController as AdminLayananSuratController;
 use App\Http\Controllers\Admin\GaleriController;
+use App\Http\Controllers\Admin\JanjiTemuController as AdminJanjiTemuController;
 use App\Http\Controllers\Admin\AgendaController;
 use App\Http\Controllers\Admin\AnggaranController;
 use App\Http\Controllers\Admin\GalleryController;
@@ -39,7 +40,7 @@ use App\Http\Controllers\Admin\HeroBannerController;
 use App\Http\Controllers\Admin\EmergencyContactController;
 use App\Http\Controllers\Admin\SocialPostController;
 use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\TentangKknController; // <-- Added Import
+use App\Http\Controllers\Admin\TentangKknController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,9 +63,12 @@ Route::prefix('pengumuman')->name('pengumuman.')->group(function () {
 Route::get('/galeri', [FrontendGaleriController::class, 'index'])->name('galeri.index');
 Route::get('/agenda', [FrontendAgendaController::class, 'index'])->name('agenda.index');
 
-// Janji Temu
-Route::get('/janji-temu', [JanjiTemuController::class, 'create'])->name('janji-temu.create');
-Route::post('/janji-temu', [JanjiTemuController::class, 'store'])->name('janji-temu.store');
+// Janji Temu Frontend (FIXED)
+Route::prefix('janji-temu')->name('janji-temu.')->group(function () {
+    Route::get('/', [JanjiTemuController::class, 'create'])->name('index'); // Mengarahkan GET /janji-temu ke form create
+    Route::get('/create', [JanjiTemuController::class, 'create'])->name('create');
+    Route::post('/', [JanjiTemuController::class, 'store'])->name('store');
+});
 
 // Resi & Tracking
 Route::get('/resi/{kodeTiket}', [ResiController::class, 'show'])->name('resi.show');
@@ -167,6 +171,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::post('/', [GalleryController::class, 'store'])->name('store');
     });
     Route::delete('/gallery/{gallery}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
+
+    // Inbox Janji Temu Admin
+    Route::get('/janji-temu', [AdminJanjiTemuController::class, 'index'])->name('janji-temu.index');
+    Route::get('/janji-temu/{janjiTemu}', [AdminJanjiTemuController::class, 'show'])->name('janji-temu.show');
+    Route::put('/janji-temu/{janjiTemu}', [AdminJanjiTemuController::class, 'update'])->name('janji-temu.update');
+    Route::delete('/janji-temu/{janjiTemu}', [AdminJanjiTemuController::class, 'destroy'])->name('janji-temu.destroy');
 
     // Anggaran
     Route::get('/anggaran', [AnggaranController::class, 'index'])->name('anggaran.index');

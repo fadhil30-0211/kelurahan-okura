@@ -65,7 +65,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    {{-- FontAwesome Icons untuk Sosmed --}}
+    {{-- FontAwesome Icons untuk Media Sosial --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     {{-- Tailwind & AlpineJS (build via Vite) --}}
@@ -117,7 +117,10 @@
 
             <div class="flex items-center gap-1.5 flex-shrink-0 font-bold z-10 pr-2"
                  :class="(scrolled || !isHome) ? 'text-emerald-700' : 'text-amber-400'">
-                <span class="animate-pulse">🚨</span>
+                {{-- Lucide: Siren / Alert-Circle --}}
+                <svg class="w-4 h-4 animate-pulse shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
                 <span class="hidden sm:inline">Kontak Darurat:</span>
             </div>
 
@@ -132,7 +135,11 @@
                             <a href="tel:{{ $contactNo }}"
                                :class="(scrolled || !isHome) ? 'text-slate-600 hover:text-emerald-600' : 'text-slate-200 hover:text-amber-300'"
                                class="inline-flex items-center gap-1.5 transition">
-                                📞 <span class="font-semibold">{{ $contactNama }}</span>:
+                                {{-- Lucide: PhoneCall --}}
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/><path d="M14 2a6 6 0 0 1 6 6"/><path d="M14 6a2 2 0 0 1 2 2"/>
+                                </svg>
+                                <span class="font-semibold">{{ $contactNama }}</span>:
                                 <span class="font-mono font-bold" :class="(scrolled || !isHome) ? 'text-emerald-600' : 'text-amber-300'">
                                     {{ $contactNo }}
                                 </span>
@@ -141,16 +148,24 @@
                     </div>
                 @else
                     <div class="whitespace-nowrap animate-marquee flex items-center gap-8 w-max">
-                        <span :class="(scrolled || !isHome) ? 'text-slate-600' : 'text-slate-200'">
-                            📞 Kantor Kelurahan: <span class="font-mono font-bold text-amber-400">{{ $defaultTelp }}</span>
+                        <span :class="(scrolled || !isHome) ? 'text-slate-600' : 'text-slate-200'" class="inline-flex items-center gap-1.5">
+                            {{-- Lucide: Building-2 --}}
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>
+                            </svg>
+                            Kantor Kelurahan: <span class="font-mono font-bold text-amber-400">{{ $defaultTelp }}</span>
                         </span>
                     </div>
                 @endif
             </div>
 
             @if (isset($pengumumanDarurat) && $pengumumanDarurat)
-                <div class="hidden lg:block flex-shrink-0 text-amber-500 font-medium text-[11px] pl-2">
-                    ⚠️ {{ Str::limit(data_get($pengumumanDarurat, 'judul'), 35) }}
+                <div class="hidden lg:flex items-center gap-1 flex-shrink-0 text-amber-500 font-medium text-[11px] pl-2">
+                    {{-- Lucide: Megaphone --}}
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>
+                    </svg>
+                    <span>{{ Str::limit(data_get($pengumumanDarurat, 'judul'), 35) }}</span>
                 </div>
             @endif
 
@@ -202,7 +217,7 @@
                     @endif
 
                     @php
-                        $activeInfo = Route::is('berita*', 'agenda*', 'pengumuman*');
+                        $activeInfo = Route::is('berita*', 'agenda*', 'pengumuman*', 'janji-temu*');
                     @endphp
                     <div class="relative flex items-center h-full" x-data="{ dropOpen: false }" @mouseleave="dropOpen = false">
                         <button @click="dropOpen = !dropOpen"
@@ -213,8 +228,9 @@
                                     : '{{ $activeInfo ? 'text-amber-300 font-bold' : 'text-slate-100 hover:text-amber-300' }}'"
                                 class="flex items-center gap-1.5 text-sm font-medium transition-colors focus:outline-none cursor-pointer h-full">
                             <span>Informasi</span>
-                            <svg class="w-4 h-4 transition-transform duration-200 shrink-0" :class="{ 'rotate-180': dropOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            {{-- Lucide: ChevronDown --}}
+                            <svg class="w-4 h-4 transition-transform duration-200 shrink-0" :class="{ 'rotate-180': dropOpen }" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <path d="m6 9 6 6 6-6"/>
                             </svg>
                         </button>
 
@@ -230,20 +246,42 @@
 
                             @if (Route::has('berita.index'))
                                 <a href="{{ route('berita.index') }}"
-                                   class="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('berita*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
-                                    📰 Berita
+                                   class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('berita*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                                    {{-- Lucide: Newspaper --}}
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                        <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
+                                    </svg>
+                                    Berita
                                 </a>
                             @endif
                             @if (Route::has('agenda.index'))
                                 <a href="{{ route('agenda.index') }}"
-                                   class="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('agenda*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
-                                    📅 Agenda
+                                   class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('agenda*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                                    {{-- Lucide: CalendarDays --}}
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/>
+                                    </svg>
+                                    Agenda
                                 </a>
                             @endif
                             @if (Route::has('pengumuman.index'))
                                 <a href="{{ route('pengumuman.index') }}"
-                                   class="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('pengumuman*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
-                                    📢 Pengumuman
+                                   class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('pengumuman*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                                    {{-- Lucide: BellRing --}}
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="M4 2C2.8 3.7 2 5.7 2 8"/><path d="M22 8c0-2.3-.8-4.3-2-6"/>
+                                    </svg>
+                                    Pengumuman
+                                </a>
+                            @endif
+                            @if (Route::has('janji-temu.index'))
+                                <a href="{{ route('janji-temu.index') }}"
+                                   class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('janji-temu*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                                    {{-- Lucide: CalendarClock --}}
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                        <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/>
+                                    </svg>
+                                    Janji Temu
                                 </a>
                             @endif
                         </div>
@@ -286,8 +324,12 @@
 
                 @if (Route::has('pengaduan.create'))
                     <a href="{{ route('pengaduan.create') }}"
-                       class="hidden lg:inline-flex items-center px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-semibold transition shadow-sm shrink-0">
-                        Lapor Sekarang
+                       class="hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-semibold transition shadow-sm shrink-0">
+                        {{-- Lucide: MessageSquarePlus --}}
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="8" x2="12" y2="14"/><line x1="9" y1="11" x2="15" y2="11"/>
+                        </svg>
+                        <span>Lapor Sekarang</span>
                     </a>
                 @endif
 
@@ -296,9 +338,9 @@
                         :aria-expanded="open"
                         class="lg:hidden p-2 rounded-lg transition"
                         :class="(scrolled || !isHome) ? 'text-slate-700' : 'text-white'">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path x-show="!open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        <path x-show="open" x-cloak stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path x-show="!open" d="M4 6h16M4 12h16M4 18h16"/>
+                        <path x-show="open" x-cloak d="M18 6L6 18M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
@@ -330,20 +372,30 @@
                     <div class="pl-2 border-l-2 border-slate-200 space-y-1">
                         @if (Route::has('berita.index'))
                             <a href="{{ route('berita.index') }}"
-                               class="block py-1.5 px-2 rounded text-sm {{ Route::is('berita*') ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-600 hover:text-emerald-600' }}">
-                                📰 Berita
+                               class="flex items-center gap-2 py-1.5 px-2 rounded text-sm {{ Route::is('berita*') ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-600 hover:text-emerald-600' }}">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+                                Berita
                             </a>
                         @endif
                         @if (Route::has('agenda.index'))
                             <a href="{{ route('agenda.index') }}"
-                               class="block py-1.5 px-2 rounded text-sm {{ Route::is('agenda*') ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-600 hover:text-emerald-600' }}">
-                                📅 Agenda
+                               class="flex items-center gap-2 py-1.5 px-2 rounded text-sm {{ Route::is('agenda*') ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-600 hover:text-emerald-600' }}">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+                                Agenda
                             </a>
                         @endif
                         @if (Route::has('pengumuman.index'))
                             <a href="{{ route('pengumuman.index') }}"
-                               class="block py-1.5 px-2 rounded text-sm {{ Route::is('pengumuman*') ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-600 hover:text-emerald-600' }}">
-                                📢 Pengumuman
+                               class="flex items-center gap-2 py-1.5 px-2 rounded text-sm {{ Route::is('pengumuman*') ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-600 hover:text-emerald-600' }}">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="M4 2C2.8 3.7 2 5.7 2 8"/><path d="M22 8c0-2.3-.8-4.3-2-6"/></svg>
+                                Pengumuman
+                            </a>
+                        @endif
+                        @if (Route::has('janji-temu.index'))
+                            <a href="{{ route('janji-temu.index') }}"
+                               class="flex items-center gap-2 py-1.5 px-2 rounded text-sm {{ Route::is('janji-temu*') ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-600 hover:text-emerald-600' }}">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/></svg>
+                                Janji Temu
                             </a>
                         @endif
                     </div>
@@ -372,8 +424,9 @@
 
                 @if (Route::has('pengaduan.create'))
                     <a href="{{ route('pengaduan.create') }}"
-                       class="block px-3 py-2.5 rounded-lg text-sm font-semibold bg-amber-500 text-white text-center mt-2">
-                        Lapor Pengaduan
+                       class="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold bg-amber-500 text-white text-center mt-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="8" x2="12" y2="14"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+                        <span>Lapor Pengaduan</span>
                     </a>
                 @endif
             </div>
@@ -386,7 +439,11 @@
     @if (session('success'))
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition x-cloak
              class="bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center justify-between gap-3">
-            <span>{{ session('success') }}</span>
+            <div class="flex items-center gap-2">
+                {{-- Lucide: CheckCircle2 --}}
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                <span>{{ session('success') }}</span>
+            </div>
             <button @click="show = false" class="text-white/80 hover:text-white">&times;</button>
         </div>
     @endif
@@ -394,7 +451,11 @@
     @if (session('info'))
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition x-cloak
              class="bg-sky-600 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center justify-between gap-3">
-            <span>{{ session('info') }}</span>
+            <div class="flex items-center gap-2">
+                {{-- Lucide: Info --}}
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <span>{{ session('info') }}</span>
+            </div>
             <button @click="show = false" class="text-white/80 hover:text-white">&times;</button>
         </div>
     @endif
@@ -402,7 +463,11 @@
     @if (session('error'))
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition x-cloak
              class="bg-rose-600 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center justify-between gap-3">
-            <span>{{ session('error') }}</span>
+            <div class="flex items-center gap-2">
+                {{-- Lucide: AlertTriangle --}}
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span>{{ session('error') }}</span>
+            </div>
             <button @click="show = false" class="text-white/80 hover:text-white">&times;</button>
         </div>
     @endif
@@ -476,27 +541,62 @@
                 <ul class="space-y-2.5 text-sm text-slate-400">
                     <li>
                         @if (Route::has('pengajuan.lacak'))
-                            <a href="{{ route('pengajuan.lacak') }}" class="hover:text-amber-300 transition">Lacak Pengajuan</a>
+                            <a href="{{ route('pengajuan.lacak') }}" class="hover:text-amber-300 transition flex items-center gap-1.5">
+                                {{-- Lucide: ChevronRight --}}
+                                <svg class="w-3.5 h-3.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                                Lacak Pengajuan
+                            </a>
                         @elseif (Route::has('pengaduan.lacak'))
-                            <a href="{{ route('pengaduan.lacak') }}" class="hover:text-amber-300 transition">Lacak Pengaduan</a>
+                            <a href="{{ route('pengaduan.lacak') }}" class="hover:text-amber-300 transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                                Lacak Pengaduan
+                            </a>
                         @else
-                            <a href="{{ url('/') }}#lacak" class="hover:text-amber-300 transition">Lacak Pengajuan</a>
+                            <a href="{{ url('/') }}#lacak" class="hover:text-amber-300 transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                                Lacak Pengajuan
+                            </a>
                         @endif
                     </li>
                     @if (Route::has('pengumuman.index'))
-                        <li><a href="{{ route('pengumuman.index') }}" class="hover:text-amber-300 transition">Pengumuman</a></li>
+                        <li>
+                            <a href="{{ route('pengumuman.index') }}" class="hover:text-amber-300 transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                                Pengumuman
+                            </a>
+                        </li>
                     @endif
                     @if (Route::has('galeri.index'))
-                        <li><a href="{{ route('galeri.index') }}" class="hover:text-amber-300 transition">Galeri Kegiatan</a></li>
+                        <li>
+                            <a href="{{ route('galeri.index') }}" class="hover:text-amber-300 transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                                Galeri Kegiatan
+                            </a>
+                        </li>
                     @endif
                     @if (Route::has('wisata.index'))
-                        <li><a href="{{ route('wisata.index') }}" class="hover:text-amber-300 transition">Wisata Okura</a></li>
+                        <li>
+                            <a href="{{ route('wisata.index') }}" class="hover:text-amber-300 transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                                Wisata Okura
+                            </a>
+                        </li>
                     @endif
                     @if (Route::has('umkm.index'))
-                        <li><a href="{{ route('umkm.index') }}" class="hover:text-amber-300 transition">Direktori UMKM</a></li>
+                        <li>
+                            <a href="{{ route('umkm.index') }}" class="hover:text-amber-300 transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                                Direktori UMKM
+                            </a>
+                        </li>
                     @endif
                     @if (Route::has('berita.index'))
-                        <li><a href="{{ route('berita.index') }}" class="hover:text-amber-300 transition">Berita & Kegiatan</a></li>
+                        <li>
+                            <a href="{{ route('berita.index') }}" class="hover:text-amber-300 transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                                Berita & Kegiatan
+                            </a>
+                        </li>
                     @endif
                 </ul>
             </div>
@@ -505,21 +605,28 @@
             <div>
                 <h4 class="text-white font-semibold text-sm mb-4">Kontak & Jam Kerja</h4>
                 <ul class="space-y-2.5 text-sm text-slate-400 mb-4">
-                    <li class="flex items-start gap-2">
-                        <span>📍</span>
+                    <li class="flex items-start gap-2.5">
+                        {{-- Lucide: MapPin --}}
+                        <svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                         <span>{{ $defaultAlamat }}</span>
                     </li>
-                    <li class="flex items-center gap-2">
-                        <span>✉️</span>
+                    <li class="flex items-center gap-2.5">
+                        {{-- Lucide: Mail --}}
+                        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                         <span>{{ $defaultEmail }}</span>
                     </li>
-                    <li class="flex items-center gap-2">
-                        <span>📞</span>
+                    <li class="flex items-center gap-2.5">
+                        {{-- Lucide: Phone --}}
+                        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                         <span>{{ $defaultTelp }}</span>
                     </li>
                 </ul>
 
-                <h5 class="text-white font-semibold text-xs uppercase tracking-wider mb-2">Jam Pelayanan</h5>
+                <h5 class="text-white font-semibold text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    {{-- Lucide: Clock --}}
+                    <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>Jam Pelayanan</span>
+                </h5>
                 <div class="text-xs text-slate-400 space-y-1 bg-slate-900/50 p-3 rounded-xl border border-white/5">
                     <p><span class="font-medium text-slate-200">Senin - Kamis:</span> {{ $jamSeninKamis }}</p>
                     <p><span class="font-medium text-slate-200">Jum'at:</span> {{ $jamJumat }}</p>
