@@ -9,7 +9,7 @@ class Pengumuman extends Model
 {
     use HasFactory;
 
-    protected $table = 'pengumumans'; // <- tambahkan baris ini
+    protected $table = 'pengumumans';
 
     protected $fillable = [
         'judul',
@@ -20,6 +20,12 @@ class Pengumuman extends Model
         'tanggal_selesai',
         'user_id',
         'status',
+        'views', // <- Tambahkan ini
+    ];
+
+    // Mengatur nilai awal views agar tidak null
+    protected $attributes = [
+        'views' => 0,
     ];
 
     protected function casts(): array
@@ -42,5 +48,11 @@ class Pengumuman extends Model
                 $q->whereNull('tanggal_selesai')
                   ->orWhere('tanggal_selesai', '>=', now());
             });
+    }
+
+    // Helper method untuk menambah jumlah tayangan
+    public function incrementViews(): void
+    {
+        $this->increment('views');
     }
 }

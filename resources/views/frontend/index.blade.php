@@ -316,7 +316,7 @@
         </div>
 
         {{-- Visi Misi --}}
-        <div class="md:col-span-2 bg-[#0B1F3A] rounded-2xl shadow-md p-6 text-white flex flex-col justify-between relative overflow-hidden">
+        <div class="md:col-span-2 bg-[#009B3A] rounded-2xl shadow-md p-6 text-white flex flex-col justify-between relative overflow-hidden">
             <div class="relative z-10">
                 <h3 class="font-semibold mb-2 flex items-center gap-2 text-amber-300">
                     <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

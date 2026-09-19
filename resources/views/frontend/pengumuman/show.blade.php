@@ -21,12 +21,24 @@
             <h1 class="text-2xl font-bold text-[#0B1F3A] mb-2" style="font-family: 'Plus Jakarta Sans', sans-serif;">
                 {{ $pengumuman->judul }}
             </h1>
-            <p class="text-xs text-slate-400 mb-6">
-                Berlaku sejak {{ $pengumuman->tanggal_mulai->translatedFormat('d F Y') }}
-                @if ($pengumuman->tanggal_selesai)
-                    hingga {{ $pengumuman->tanggal_selesai->translatedFormat('d F Y') }}
-                @endif
-            </p>
+
+            {{-- Metadata Tanggal & Jumlah Tayangan --}}
+            <div class="flex flex-wrap items-center gap-3 text-xs text-slate-400 mb-6 border-b border-slate-100 pb-4">
+                <span>
+                    Berlaku sejak {{ $pengumuman->tanggal_mulai->translatedFormat('d F Y') }}
+                    @if ($pengumuman->tanggal_selesai)
+                        hingga {{ $pengumuman->tanggal_selesai->translatedFormat('d F Y') }}
+                    @endif
+                </span>
+                <span>·</span>
+                <span class="inline-flex items-center gap-1 text-slate-500 font-medium">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    {{ number_format($pengumuman->views ?? 0) }} kali dilihat
+                </span>
+            </div>
 
             <div class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
                 {{ $pengumuman->isi }}

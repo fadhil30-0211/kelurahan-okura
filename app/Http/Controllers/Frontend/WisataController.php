@@ -14,16 +14,24 @@ class WisataController extends Controller
     }
 
     public function show(string $slug)
-{
-    $wisata = Wisata::active()->where('slug', $slug)->firstOrFail();
-    $wisataLainnya = Wisata::active()->where('id', '!=', $wisata->id)->latest()->take(3)->get();
+    {
+        $wisata = Wisata::active()->where('slug', $slug)->firstOrFail();
 
-    return view('frontend.wisata.show', [
-        'wisata' => $wisata,
-        'wisataLainnya' => $wisataLainnya,
-        'seoTitle' => $wisata->nama . ' — Wisata Okura',
-        'seoDescription' => \Illuminate\Support\Str::limit(strip_tags($wisata->deskripsi), 160),
-        'seoImage' => $wisata->thumbnail ? asset('storage/' . $wisata->thumbnail) : asset('images/placeholder.jpg'),
-    ]);
-}
+        // 1. TAMBAHKAN PENAMBAH VIEWS DENGAN PROTEKSI SESSION
+        $sessionKey = 'wisata_viewed_' . $wisata->id;
+        if (!session()->has($sessionKey)) {
+            $wisata->increment('views');
+            session()->put($sessionKey, true);
+        }
+
+        $wisataLainnya = Wisata::active()->where('id', '!=', $wisata->id)->latest()->take(3)->get();
+
+        return view('frontend.wisata.show', [
+            'wisata' => $wisata,
+            'wisataLainnya' => $wisataLainnya,
+            'seoTitle' => $wisata->nama . ' — Wisata Okura',
+            'seoDescription' => \Illuminate\Support\Str::limit(strip_tags($wisata->deskripsi), 160),
+            'seoImage' => $wisata->thumbnail ? asset('storage/' . $wisata->thumbnail) : asset('images/placeholder.jpg'),
+        ]);
+    }
 }

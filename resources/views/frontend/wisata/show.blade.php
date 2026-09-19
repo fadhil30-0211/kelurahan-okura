@@ -14,7 +14,19 @@
                 <h1 class="text-2xl sm:text-4xl font-bold text-white" style="font-family: 'Plus Jakarta Sans', sans-serif;">
                     {{ $wisata->nama }}
                 </h1>
-                <p class="text-sm text-slate-200 mt-2">📍 {{ $wisata->alamat }}</p>
+
+                <div class="flex flex-wrap items-center gap-4 text-sm text-slate-200 mt-2">
+                    <p>📍 {{ $wisata->alamat }}</p>
+
+                    {{-- Indikator Views --}}
+                    <div class="flex items-center gap-1.5 bg-black/30 backdrop-blur-md px-3 py-1 rounded-full text-xs text-emerald-300 border border-white/10">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>{{ number_format($wisata->views ?? 0) }} kali dilihat</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -30,7 +42,7 @@
                 </div>
 
                 {{-- Galeri Foto --}}
-                @if ($wisata->galleries->count())
+                @if ($wisata->galleries && $wisata->galleries->count())
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6" x-data="{ open: false, activeIndex: 0, photos: {{ $wisata->galleries->pluck('path')->map(fn($p) => asset('storage/'.$p))->toJson() }} }">
                         <h2 class="font-semibold text-slate-800 mb-3">Galeri Foto ({{ $wisata->galleries->count() }})</h2>
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -101,12 +113,17 @@
                     @endif
                 </div>
 
-                @if ($wisataLainnya->count())
+                {{-- Wisata Terkait --}}
+                @php
+                    $rekomendasiWisata = $wisataLainnya ?? $wisataTerkait ?? collect();
+                @endphp
+
+                @if ($rekomendasiWisata->count())
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
                         <h3 class="font-semibold text-slate-800 text-sm mb-3">Wisata Lainnya</h3>
                         <div class="space-y-3">
-                            @foreach ($wisataLainnya as $item)
-                                <a href="{{ route('wisata.show', $item->slug) }}" class="flex gap-3 group">
+                            @foreach ($rekomendasiWisata as $item)
+                                <a href="{{ route('wisata.show', $item->slug ?? $item) }}" class="flex gap-3 group">
                                     <img src="{{ $item->thumbnail ? asset('storage/'.$item->thumbnail) : asset('images/placeholder.jpg') }}"
                                          class="w-14 h-14 rounded-lg object-cover flex-shrink-0" alt="">
                                     <div class="min-w-0">

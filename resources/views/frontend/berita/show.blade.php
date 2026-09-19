@@ -13,12 +13,19 @@
             {{ $berita->judul }}
         </h1>
 
-        <div class="flex items-center gap-3 text-xs text-slate-400 mt-4 mb-6">
-            <span>{{ $berita->user->name ?? 'Admin' }}</span>
+        {{-- Metadata Artikel: Penulis, Tanggal, & Total Views --}}
+        <div class="flex flex-wrap items-center gap-3 text-xs text-slate-400 mt-4 mb-6">
+            <span class="font-medium text-slate-600">{{ $berita->user->name ?? 'Admin' }}</span>
             <span>·</span>
             <span>{{ $berita->published_at ? $berita->published_at->translatedFormat('d F Y') : $berita->created_at->translatedFormat('d F Y') }}</span>
             <span>·</span>
-            <span>{{ $berita->views }} kali dilihat</span>
+            <span class="inline-flex items-center gap-1 text-slate-500 font-medium">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                {{ number_format($berita->views ?? 0) }} kali dilihat
+            </span>
         </div>
 
         {{-- Gambar Utama --}}
@@ -62,20 +69,32 @@
                 <h2 class="font-semibold text-slate-800 mb-4">Berita Lainnya</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     @foreach ($beritaLainnya as $item)
-                        <a href="{{ route('berita.show', $item->slug) }}" class="group">
-                            <div class="w-full h-32 rounded-xl overflow-hidden bg-slate-100 mb-2">
-                                @if ($item->thumbnail)
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($item->thumbnail) }}"
-                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                         alt="{{ $item->judul }}"
-                                         onerror="this.onerror=null;this.src='https://placehold.co/400x300/e2e8f0/475569?text=Berita';">
-                                @else
-                                    <img src="https://placehold.co/400x300/e2e8f0/475569?text=Berita"
-                                         class="w-full h-full object-cover"
-                                         alt="Gambar Default">
-                                @endif
+                        <a href="{{ route('berita.show', $item->slug) }}" class="group flex flex-col justify-between">
+                            <div>
+                                <div class="w-full h-32 rounded-xl overflow-hidden bg-slate-100 mb-2">
+                                    @if ($item->thumbnail)
+                                        <img src="{{ \Illuminate\Support\Facades\Storage::url($item->thumbnail) }}"
+                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                             alt="{{ $item->judul }}"
+                                             onerror="this.onerror=null;this.src='https://placehold.co/400x300/e2e8f0/475569?text=Berita';">
+                                    @else
+                                        <img src="https://placehold.co/400x300/e2e8f0/475569?text=Berita"
+                                             class="w-full h-full object-cover"
+                                             alt="Gambar Default">
+                                    @endif
+                                </div>
+                                <p class="text-xs font-medium text-slate-700 group-hover:text-emerald-600 line-clamp-2 leading-snug">{{ $item->judul }}</p>
                             </div>
-                            <p class="text-xs font-medium text-slate-700 group-hover:text-emerald-600 line-clamp-2">{{ $item->judul }}</p>
+                            <div class="flex items-center justify-between text-[11px] text-slate-400 mt-2">
+                                <span>{{ $item->published_at ? $item->published_at->translatedFormat('d M Y') : $item->created_at->translatedFormat('d M Y') }}</span>
+                                <span class="flex items-center gap-1">
+                                    <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    {{ number_format($item->views ?? 0) }}
+                                </span>
+                            </div>
                         </a>
                     @endforeach
                 </div>

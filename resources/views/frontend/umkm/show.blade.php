@@ -6,13 +6,27 @@
 <section class="pt-28 pb-16">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
         <div class="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden">
-            <img src="{{ $umkm->foto ? asset('storage/'.$umkm->foto) : asset('images/placeholder.jpg') }}"
-                 class="w-full h-64 sm:h-80 object-cover" alt="{{ $umkm->nama_usaha }}">
+            <div class="relative">
+                <img src="{{ $umkm->foto ? asset('storage/'.$umkm->foto) : asset('images/placeholder.jpg') }}"
+                     class="w-full h-64 sm:h-80 object-cover" alt="{{ $umkm->nama_usaha }}">
+            </div>
 
             <div class="p-6 sm:p-8">
-                <span class="inline-block px-3 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-semibold mb-3 capitalize">
-                    {{ $umkm->kategori }}
-                </span>
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                    <span class="inline-block px-3 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-semibold capitalize">
+                        {{ $umkm->kategori }}
+                    </span>
+
+                    {{-- Indikator Views --}}
+                    <div class="flex items-center gap-1.5 text-xs text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span class="font-medium">{{ number_format($umkm->views ?? 0) }} kali dilihat</span>
+                    </div>
+                </div>
+
                 <h1 class="text-2xl font-bold text-[#0B1F3A]" style="font-family: 'Plus Jakarta Sans', sans-serif;">
                     {{ $umkm->nama_usaha }}
                 </h1>

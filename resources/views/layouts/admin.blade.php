@@ -5,11 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dashboard Admin') | Kelurahan Okura</title>
+
+    {{-- Fonts --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    {{-- Alpine.js CDN (Tambahan jika belum di-import di app.js) --}}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
+    {{-- Asset Bundler --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
@@ -17,23 +19,30 @@
         [x-cloak] { display: none !important; }
     </style>
 
-    {{-- STACK STYLES --}}
     @stack('styles')
 </head>
-<body class="bg-slate-50 text-slate-800" x-data="{ sidebarOpen: false }">
+<body class="bg-slate-50 text-slate-800"
+      x-data="{ sidebarOpen: false }"
+      @keydown.window.escape="sidebarOpen = false">
 
     <div class="flex min-h-screen">
 
         {{-- ============ SIDEBAR ============ --}}
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-               class="fixed lg:static inset-y-0 left-0 z-30 w-64 bg-[#0B1F3A] text-slate-300 transition-transform duration-300 flex flex-col">
+               class="fixed lg:static inset-y-0 left-0 z-30 w-64 bg-[#0B1F3A] text-slate-300 transition-transform duration-300 ease-in-out flex flex-col shrink-0">
 
-            {{-- HEADER SIDEBAR: LOGO + NAMA --}}
-            <div class="flex items-center gap-2.5 px-6 h-16 border-b border-white/10">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo Admin" class="w-8 h-8 object-contain rounded-lg">
-                <span class="font-bold text-white text-sm">Admin Okura</span>
+            {{-- HEADER SIDEBAR --}}
+            <div class="flex items-center gap-3 px-5 h-16 border-b border-white/10 shrink-0">
+                <img src="{{ asset('images/logo.png') }}"
+                    alt="Logo Admin"
+                    class="w-8 h-8 object-contain shrink-0">
+                <div class="flex flex-col min-w-0">
+                    <span class="font-bold text-white text-sm leading-tight truncate">Kelurahan Okura</span>
+                    <span class="text-[10px] text-slate-400 font-medium tracking-wide uppercase">Panel Admin</span>
+                </div>
             </div>
 
+            {{-- NAVIGATION --}}
             <nav class="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
                 @php
                     $userRole = auth()->user()->role ?? 'staf';
@@ -53,15 +62,28 @@
                         ['label' => 'Galeri', 'route' => 'admin.galeri.index', 'icon' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'roles' => ['super_admin', 'staf']],
                         ['label' => 'Agenda', 'route' => 'admin.agenda.index', 'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', 'roles' => ['super_admin', 'staf']],
                         ['label' => 'Anggaran', 'route' => 'admin.anggaran.index', 'icon' => 'M9 7h6m0 10v-3m-3 3v-6m-3 6v-9m-2 9h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z', 'roles' => ['super_admin', 'lurah']],
+                        ['label' => 'Reset Password', 'route' => 'admin.password-reset.index', 'icon' => 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z', 'roles' => ['super_admin']],
+                        ['label' => 'Manajemen Pengguna', 'route' => 'admin.users.index', 'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z', 'roles' => ['super_admin']],
                         ['label' => 'Pengaturan', 'route' => 'admin.pengaturan.index', 'icon' => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z', 'roles' => ['super_admin']],
                         ['label' => 'Tentang KKN', 'route' => 'admin.tentang-kkn.index', 'icon' => 'M12 14l9-5-9-5-9 5 9 5zm0 0v6m0-6L3.16 9m8.84 5L20.84 9', 'roles' => ['super_admin', 'staf', 'lurah']],
-                        ])->filter(fn ($menu) => in_array($userRole, $menu['roles']));
+                    ])->filter(fn ($menu) => in_array($userRole, $menu['roles']));
                 @endphp
 
                 @foreach ($menus as $menu)
-                    <a href="{{ route($menu['route']) }}"
+                    @php
+                        $hasRoute = Route::has($menu['route']);
+                        $routeUrl = $hasRoute ? route($menu['route']) : '#';
+                        $pattern = str_contains($menu['route'], '.index')
+                            ? str_replace('.index', '*', $menu['route'])
+                            : $menu['route'];
+                        $isActive = request()->routeIs($pattern);
+                    @endphp
+
+                    <a href="{{ $routeUrl }}"
                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors
-                       {{ request()->routeIs(str_replace('.index', '*', $menu['route'])) ? 'bg-emerald-600 text-white' : 'hover:bg-white/5 hover:text-white' }}">
+                       {{ $isActive ? 'bg-emerald-600 text-white' : 'hover:bg-white/5 hover:text-white' }}
+                       {{ !$hasRoute ? 'opacity-50 cursor-not-allowed' : '' }}"
+                       @if(!$hasRoute) title="Route belum dikonfigurasi" @endif>
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $menu['icon'] }}"/>
                         </svg>
@@ -70,10 +92,11 @@
                 @endforeach
             </nav>
 
-            <div class="px-3 py-4 border-t border-white/10">
+            {{-- FOOTER SIDEBAR / LOGOUT --}}
+            <div class="px-3 py-4 border-t border-white/10 shrink-0">
                 <form action="{{ route('admin.logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-red-500/10 hover:text-red-400 transition">
+                    <button type="submit" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-red-500/10 hover:text-red-400 transition cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                         </svg>
@@ -84,34 +107,47 @@
         </aside>
 
         {{-- Overlay mobile --}}
-        <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" class="fixed inset-0 bg-black/40 z-20 lg:hidden"></div>
+        <div x-show="sidebarOpen"
+             x-cloak
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="sidebarOpen = false"
+             class="fixed inset-0 bg-black/40 z-20 lg:hidden"></div>
 
         {{-- ============ MAIN CONTENT ============ --}}
         <div class="flex-1 flex flex-col min-w-0">
-            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-10">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20 shadow-sm">
                 <div class="flex items-center gap-3">
-                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden p-2 text-slate-600">
+                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
                     </button>
-                    <h1 class="font-semibold text-slate-800">@yield('page-title', 'Dashboard')</h1>
+                    <h1 class="font-semibold text-slate-800 text-base">@yield('page-title', 'Dashboard')</h1>
                 </div>
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-xs font-bold">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-xs font-bold select-none">
                         {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
                     </div>
                     <span class="text-sm font-medium text-slate-600 hidden sm:block">{{ auth()->user()->name ?? 'Admin' }}</span>
                 </div>
             </header>
 
+            {{-- Flash Notification --}}
             @if (session('success'))
-                <div class="mx-4 sm:mx-6 mt-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-3 rounded-xl">
-                    {{ session('success') }}
+                <div x-data="{ show: true }"
+                     x-show="show"
+                     class="mx-4 sm:mx-6 mt-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-3 rounded-xl flex items-center justify-between shadow-sm">
+                    <span>{{ session('success') }}</span>
+                    <button @click="show = false" class="text-emerald-500 hover:text-emerald-700 font-bold ml-3">&times;</button>
                 </div>
             @endif
 
-            <main class="flex-1 p-4 sm:p-6">
+            <main class="flex-1 p-4 sm:p-6 relative z-0">
                 @yield('content')
             </main>
         </div>

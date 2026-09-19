@@ -18,9 +18,11 @@ use App\Http\Controllers\Frontend\PengumumanController as FrontendPengumumanCont
 use App\Http\Controllers\Frontend\GaleriController as FrontendGaleriController;
 use App\Http\Controllers\Frontend\AgendaController as FrontendAgendaController;
 use App\Http\Controllers\Frontend\PengajuanController;
+use App\Http\Controllers\Frontend\ProfilController;
 
 // Import Controllers - Auth
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 
 // Import Controllers - Admin
 use App\Http\Controllers\Admin\DashboardController;
@@ -41,6 +43,8 @@ use App\Http\Controllers\Admin\EmergencyContactController;
 use App\Http\Controllers\Admin\SocialPostController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TentangKknController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AdminPasswordResetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,7 +54,7 @@ use App\Http\Controllers\Admin\TentangKknController;
 
 // Home & General
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/profil', [HomeController::class, 'profil'])->name('profil');
+Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
 Route::get('/cari', [SearchController::class, 'index'])->name('search');
 
 // Pengumuman
@@ -63,9 +67,9 @@ Route::prefix('pengumuman')->name('pengumuman.')->group(function () {
 Route::get('/galeri', [FrontendGaleriController::class, 'index'])->name('galeri.index');
 Route::get('/agenda', [FrontendAgendaController::class, 'index'])->name('agenda.index');
 
-// Janji Temu Frontend (FIXED)
+// Janji Temu Frontend
 Route::prefix('janji-temu')->name('janji-temu.')->group(function () {
-    Route::get('/', [JanjiTemuController::class, 'create'])->name('index'); // Mengarahkan GET /janji-temu ke form create
+    Route::get('/', [JanjiTemuController::class, 'create'])->name('index');
     Route::get('/create', [JanjiTemuController::class, 'create'])->name('create');
     Route::post('/', [JanjiTemuController::class, 'store'])->name('store');
 });
@@ -127,9 +131,20 @@ Route::prefix('daftar')->name('pendaftaran.')->group(function () {
 | AUTH ROUTES
 |--------------------------------------------------------------------------
 */
-Route::get('/admin/login', [LoginController::class, 'showLoginForm'])->name('admin.login');
+
+// Login & Logout
+Route::get('/admin/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/admin/login', [LoginController::class, 'login'])->name('admin.login.submit');
 Route::post('/admin/logout', [LoginController::class, 'logout'])->name('admin.logout');
+
+// Alias Login Admin
+Route::get('/admin/login', [LoginController::class, 'showLoginForm'])->name('admin.login');
+
+// Forgot & Reset Password
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
 
 /*
 |--------------------------------------------------------------------------
@@ -137,7 +152,25 @@ Route::post('/admin/logout', [LoginController::class, 'logout'])->name('admin.lo
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    // Dashboard Utama
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Persetujuan Reset Password Admin
+Route::prefix('password-reset-requests')->name('password-reset.')->group(function () {
+    Route::get('/', [AdminPasswordResetController::class, 'index'])->name('index');
+    Route::post('/{id}/approve', [AdminPasswordResetController::class, 'approve'])->name('approve');
+    Route::post('/{id}/reject', [AdminPasswordResetController::class, 'reject'])->name('reject');
+    Route::delete('/{id}', [AdminPasswordResetController::class, 'destroy'])->name('destroy'); // Tambahkan baris ini
+});
+
+    // Action Profil & Pegawai (langsung dari Dashboard)
+    Route::post('/profile/update', [DashboardController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/pegawai/store', [DashboardController::class, 'storePegawai'])->name('pegawai.store');
+    Route::delete('/pegawai/{id}', [DashboardController::class, 'destroyPegawai'])->name('pegawai.destroy');
+
+    // Pengaturan SiteSetting
+    Route::get('/pengaturan-site', [DashboardController::class, 'pengaturan'])->name('pengaturan.site');
+    Route::post('/pengaturan-site', [DashboardController::class, 'updatePengaturan'])->name('pengaturan.site.update');
 
     // Tentang KKN
     Route::get('/tentang-kkn', [TentangKknController::class, 'index'])->name('tentang-kkn.index');
@@ -215,6 +248,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // Data sensitif — khusus super_admin
     Route::middleware('super_admin')->group(function () {
         Route::resource('pegawai', PegawaiController::class);
+        Route::resource('users', UserController::class);
 
         // Pengaturan Website (Footer, Kontak, Deskripsi)
         Route::get('/pengaturan', [SettingController::class, 'index'])->name('pengaturan.index');

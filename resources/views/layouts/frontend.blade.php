@@ -602,37 +602,36 @@
             </div>
 
             {{-- Kolom 4: Kontak & Jam Pelayanan --}}
-            <div>
+            <div class="w-full min-w-0">
                 <h4 class="text-white font-semibold text-sm mb-4">Kontak & Jam Kerja</h4>
-                <ul class="space-y-2.5 text-sm text-slate-400 mb-4">
-                    <li class="flex items-start gap-2.5">
-                        {{-- Lucide: MapPin --}}
+                <ul class="space-y-2.5 text-sm text-slate-400 mb-4 w-full min-w-0">
+                    {{-- Alamat --}}
+                    <li class="flex items-start gap-2.5 w-full min-w-0">
                         <svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                        <span>{{ $defaultAlamat }}</span>
+                        <span class="break-words leading-relaxed flex-1 min-w-0">{{ $defaultAlamat }}</span>
                     </li>
-                    <li class="flex items-center gap-2.5">
-                        {{-- Lucide: Mail --}}
-                        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                        <span>{{ $defaultEmail }}</span>
+                    {{-- Email (Diperbaiki di sini) --}}
+                    <li class="flex items-start gap-2.5 w-full min-w-0">
+                        <svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                        <span class="break-all leading-normal flex-1 min-w-0 text-slate-300" style="word-break: break-all;">{{ $defaultEmail }}</span>
                     </li>
-                    <li class="flex items-center gap-2.5">
-                        {{-- Lucide: Phone --}}
+                    {{-- Telepon --}}
+                    <li class="flex items-center gap-2.5 w-full min-w-0">
                         <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                        <span>{{ $defaultTelp }}</span>
+                        <span class="break-all flex-1 min-w-0">{{ $defaultTelp }}</span>
                     </li>
                 </ul>
 
-                <h5 class="text-white font-semibold text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    {{-- Lucide: Clock --}}
-                    <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span>Jam Pelayanan</span>
-                </h5>
-                <div class="text-xs text-slate-400 space-y-1 bg-slate-900/50 p-3 rounded-xl border border-white/5">
-                    <p><span class="font-medium text-slate-200">Senin - Kamis:</span> {{ $jamSeninKamis }}</p>
-                    <p><span class="font-medium text-slate-200">Jum'at:</span> {{ $jamJumat }}</p>
-                    <p><span class="font-medium text-slate-200">Sabtu - Minggu:</span> {{ $jamSabtuMinggu }}</p>
-                </div>
+            <h5 class="text-white font-semibold text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Jam Pelayanan</span>
+            </h5>
+            <div class="text-xs text-slate-400 space-y-1 bg-slate-900/50 p-3 rounded-xl border border-white/5 w-full">
+                <p><span class="font-medium text-slate-200">Senin - Kamis:</span> {{ $jamSeninKamis }}</p>
+                <p><span class="font-medium text-slate-200">Jum'at:</span> {{ $jamJumat }}</p>
+                <p><span class="font-medium text-slate-200">Sabtu - Minggu:</span> {{ $jamSabtuMinggu }}</p>
             </div>
+        </div>
 
         </div>
 

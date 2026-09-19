@@ -1,37 +1,32 @@
-{{-- resources/views/frontend/profil.blade.php --}}
 @extends('layouts.frontend')
-@section('title', 'Profil Kelurahan')
+@section('title', 'Profil Kelurahan - ' . ($profil->nama_kelurahan ?? 'Tebing Tinggi Okura'))
 
 @section('content')
-<section class="pt-28 pb-16">
+<section class="pt-28 pb-16 bg-[#FAFBFB]">
     <div class="max-w-5xl mx-auto px-4 sm:px-6">
 
-        {{-- Visi Misi Header --}}
+        {{-- Header Profil --}}
         <div class="text-center mb-12">
-            <span class="inline-flex items-center px-4 py-1.5 rounded-full
-                        bg-[#009B3A]/10
-                        text-[#009B3A]
-                        text-xs sm:text-sm font-semibold mb-4">
+            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-[#009B3A]/10 text-[#009B3A] text-xs sm:text-sm font-semibold mb-4">
                 Profil Kelurahan
             </span>
 
-            <h1 class="text-4xl sm:text-5xl font-bold text-[#151515] tracking-tight"
-                style="font-family: 'Plus Jakarta Sans', sans-serif;">
-                Tebing Tinggi Okura
+            <h1 class="text-4xl sm:text-5xl font-bold text-[#151515] tracking-tight" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                {{ $profil->nama_kelurahan ?? 'Tebing Tinggi Okura' }}
             </h1>
 
             <p class="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-slate-500 leading-relaxed">
-                Mengenal sejarah, visi, misi, kondisi geografis, dan struktur pemerintahan Kelurahan Tebing Tinggi Okura.
+                Mengenal sejarah, visi, misi, kondisi geografis, dan struktur pemerintahan Kelurahan {{ $profil->nama_kelurahan ?? 'Tebing Tinggi Okura' }}.
             </p>
         </div>
 
         {{-- Visi & Misi --}}
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-14">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-14 items-stretch">
 
             {{-- Visi --}}
-            <div class="lg:col-span-2 relative overflow-hidden rounded-3xl bg-[#009B3A] p-8 sm:p-10 text-white shadow-lg">
-                <div class="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-white/10"></div>
-                <div class="absolute -bottom-20 -left-16 w-48 h-48 rounded-full bg-[#FFE600]/10"></div>
+            <div class="lg:col-span-2 relative overflow-hidden rounded-3xl bg-[#009B3A] p-8 sm:p-10 text-white shadow-lg flex flex-col justify-between">
+                <div class="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-white/10 pointer-events-none"></div>
+                <div class="absolute -bottom-20 -left-16 w-48 h-48 rounded-full bg-[#FFE600]/10 pointer-events-none"></div>
 
                 <div class="relative z-10">
                     <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-white/80">
@@ -39,12 +34,19 @@
                         Visi Kelurahan
                     </span>
 
-                    <h2 class="mt-5 text-2xl sm:text-3xl font-bold leading-tight">
-                        Terwujudnya Kelurahan Tebing Tinggi Okura sebagai Pusat Pariwisata, Pertanian, Perikanan dan Pusat Kebudayaan Melayu di Kota Pekanbaru.
+                    <h2 class="mt-6 text-2xl sm:text-3xl font-bold leading-tight">
+                        {{ $profil->visi ?? 'Terwujudnya Kelurahan Tebing Tinggi Okura sebagai Pusat Pariwisata, Pertanian, Perikanan dan Pusat Kebudayaan Melayu di Kota Pekanbaru.' }}
                     </h2>
-                    <h2 class="mt-5 text-2xl sm:text-3xl font-bold leading-tight">
-                        Menuju masyarakat sejahtera berdasarkan iman dan taqwa.
-                    </h2>
+
+                    @if(!empty($profil->sub_visi))
+                        <h2 class="mt-4 text-2xl sm:text-3xl font-bold leading-tight">
+                            {{ $profil->sub_visi }}
+                        </h2>
+                    @else
+                        <h2 class="mt-4 text-2xl sm:text-3xl font-bold leading-tight">
+                            Menuju masyarakat sejahtera berdasarkan iman dan taqwa.
+                        </h2>
+                    @endif
                 </div>
             </div>
 
@@ -58,51 +60,82 @@
                     Langkah Menuju Visi
                 </h2>
 
-                <div class="mt-7 space-y-5">
-                    {{-- Misi 01 --}}
-                    <div class="flex gap-4">
-                        <span class="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-[#009B3A]/10 text-[#009B3A] font-bold text-sm">
-                            01
-                        </span>
-                        <div>
-                            <h3 class="font-semibold text-slate-800">
-                                Meningkatkan Kualitas Sumber Daya Manusia
-                            </h3>
-                            <p class="mt-1 text-sm text-slate-500 leading-relaxed">
-                                Meningkatkan kualitas sumber daya manusia melalui pembangunan sektor pendidikan, kesehatan, pariwisata, pertanian, perikanan dan kebudayaan.
-                            </p>
-                        </div>
-                    </div>
+                <div class="mt-7 space-y-6">
+                    @php
+                        $misiItems = [];
+                        if (!empty($profil->misi)) {
+                            if (is_array($profil->misi)) {
+                                $misiItems = $profil->misi;
+                            } elseif (is_string($profil->misi)) {
+                                $misiItems = array_filter(explode("\n", str_replace("\r", '', $profil->misi)));
+                            }
+                        } else {
+                            $misiItems = [
+                                [
+                                    'title' => 'Meningkatkan Kualitas Sumber Daya Manusia',
+                                    'desc'  => 'Meningkatkan kualitas sumber daya manusia melalui pembangunan sektor pendidikan, kesehatan, pariwisata, pertanian, perikanan dan kebudayaan.'
+                                ],
+                                [
+                                    'title' => 'Meningkatkan Taraf Hidup Masyarakat',
+                                    'desc'  => 'Meningkatkan taraf hidup masyarakat melalui program pemberdayaan masyarakat dan pengembangan ekonomi kreatif.'
+                                ],
+                                [
+                                    'title' => 'Meningkatkan Infrastruktur',
+                                    'desc'  => 'Meningkatkan infrastruktur melalui peningkatan sarana dan prasarana.'
+                                ]
+                            ];
+                        }
 
-                    {{-- Misi 02 --}}
-                    <div class="flex gap-4">
-                        <span class="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-[#FFE600]/20 text-[#8A7600] font-bold text-sm">
-                            02
-                        </span>
-                        <div>
-                            <h3 class="font-semibold text-slate-800">
-                                Meningkatkan Taraf Hidup Masyarakat
-                            </h3>
-                            <p class="mt-1 text-sm text-slate-500 leading-relaxed">
-                                Meningkatkan taraf hidup masyarakat melalui program pemberdayaan masyarakat dan pengembangan ekonomi kreatif.
-                            </p>
-                        </div>
-                    </div>
+                        $badgeStyles = [
+                            ['bg' => 'bg-[#009B3A]/10', 'text' => 'text-[#009B3A]'],
+                            ['bg' => 'bg-[#FFE600]/20', 'text' => 'text-[#8A7600]'],
+                            ['bg' => 'bg-[#E31E24]/10', 'text' => 'text-[#E31E24]'],
+                        ];
+                    @endphp
 
-                    {{-- Misi 03 --}}
-                    <div class="flex gap-4">
-                        <span class="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-[#E31E24]/10 text-[#E31E24] font-bold text-sm">
-                            03
-                        </span>
-                        <div>
-                            <h3 class="font-semibold text-slate-800">
-                                Meningkatkan Infrastruktur
-                            </h3>
-                            <p class="mt-1 text-sm text-slate-500 leading-relaxed">
-                                Meningkatkan infrastruktur melalui peningkatan sarana dan prasarana.
-                            </p>
+                    @php $index = 0; @endphp
+                    @foreach($misiItems as $item)
+                        @php
+                            if (is_array($item)) {
+                                $title = $item['title'] ?? ($item['judul'] ?? ($item[0] ?? ''));
+                                $desc  = $item['desc'] ?? ($item['keterangan'] ?? ($item[1] ?? ''));
+                            } else {
+                                if (str_contains($item, ':')) {
+                                    $parts = explode(':', $item, 2);
+                                    $title = trim($parts[0]);
+                                    $desc  = trim($parts[1]);
+                                } elseif (str_contains($item, ' - ')) {
+                                    $parts = explode(' - ', $item, 2);
+                                    $title = trim($parts[0]);
+                                    $desc  = trim($parts[1]);
+                                } else {
+                                    $title = trim($item);
+                                    $desc  = '';
+                                }
+                            }
+
+                            $style = $badgeStyles[$index % count($badgeStyles)];
+                            $index++;
+                        @endphp
+
+                        <div class="flex gap-4">
+                            <span class="shrink-0 flex items-center justify-center w-9 h-9 rounded-full {{ $style['bg'] }} {{ $style['text'] }} font-bold text-sm">
+                                {{ sprintf('%02d', $index) }}
+                            </span>
+
+                            <div>
+                                <h3 class="font-semibold text-slate-800">
+                                    {{ $title }}
+                                </h3>
+
+                                @if(!empty($desc))
+                                    <p class="mt-1 text-sm text-slate-500 leading-relaxed">
+                                        {{ $desc }}
+                                    </p>
+                                @endif
+                            </div>
                         </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
 
@@ -114,56 +147,72 @@
                 <span class="text-[#009B3A] text-xs sm:text-sm font-semibold uppercase tracking-wider">
                     Informasi Wilayah
                 </span>
+
                 <h2 class="mt-2 text-3xl font-bold text-[#151515]">
                     Sejarah & Geografis
                 </h2>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
 
                 {{-- Informasi --}}
-                <div class="bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 shadow-sm">
-                    <h3 class="text-xl font-bold text-[#151515]">
-                        Tentang Tebing Tinggi Okura
-                    </h3>
-                    <p class="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed">
-                        Kelurahan Tebing Tinggi Okura merupakan salah satu kelurahan di Kecamatan Rumbai Timur, Kota Pekanbaru, yang terletak di tepian Sungai Siak dengan potensi alam dan budaya yang khas.
-                    </p>
+                <div class="bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-[#151515]">
+                            Tentang {{ $profil->nama_kelurahan ?? 'Tebing Tinggi Okura' }}
+                        </h3>
+
+                        <p class="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed whitespace-pre-line">
+                            {{ $profil->deskripsi_sejarah ?? 'Kelurahan Tebing Tinggi Okura merupakan salah satu kelurahan di Kecamatan Rumbai Timur, Kota Pekanbaru, yang terletak di tepian Sungai Siak dengan potensi alam dan budaya yang khas.' }}
+                        </p>
+                    </div>
 
                     <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="rounded-2xl bg-[#009B3A]/10 p-5">
                             <p class="text-xs text-slate-500">Kecamatan</p>
-                            <p class="mt-1 font-semibold text-[#009B3A]">Rumbai Timur</p>
+                            <p class="mt-1 font-semibold text-[#009B3A]">
+                                {{ $profil->kecamatan ?? 'Rumbai Timur' }}
+                            </p>
                         </div>
+
                         <div class="rounded-2xl bg-[#FFE600]/15 p-5">
-                            <p class="text-xs text-slate-500">Kota</p>
-                            <p class="mt-1 font-semibold text-[#8A7600]">Pekanbaru</p>
+                            <p class="text-xs text-slate-500">Kota/kabupaten</p>
+                            <p class="mt-1 font-semibold text-[#8A7600]">
+                                {{ $profil->kota ?? 'Pekanbaru' }}
+                            </p>
                         </div>
+
                         <div class="rounded-2xl bg-[#009B3A]/10 p-5">
                             <p class="text-xs text-slate-500">Karakter Wilayah</p>
-                            <p class="mt-1 font-semibold text-slate-800">Tepian Sungai</p>
+                            <p class="mt-1 font-semibold text-slate-800">
+                                {{ $profil->karakter_wilayah ?? 'Tepian Sungai' }}
+                            </p>
                         </div>
+
                         <div class="rounded-2xl bg-[#E31E24]/10 p-5">
                             <p class="text-xs text-slate-500">Potensi</p>
-                            <p class="mt-1 font-semibold text-[#E31E24]">Alam & Budaya</p>
+                            <p class="mt-1 font-semibold text-[#E31E24]">
+                                {{ $profil->potensi ?? 'Alam & Budaya' }}
+                            </p>
                         </div>
                     </div>
                 </div>
 
                 {{-- Peta --}}
-                <div class="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm">
+                <div class="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm flex flex-col justify-between">
                     <div class="flex items-center justify-between px-4 pt-3 pb-4">
                         <div>
                             <p class="text-xs text-[#009B3A] font-semibold uppercase tracking-wider">
                                 Lokasi
                             </p>
+
                             <h3 class="mt-1 text-lg font-bold text-[#151515]">
-                                Peta Wilayah Tebing Tinggi Okura
+                                Peta Wilayah
                             </h3>
                         </div>
                     </div>
 
-                    <div id="peta-profil" class="w-full h-[360px] rounded-2xl overflow-hidden bg-slate-100 z-10"></div>
+                    <div id="peta-profil" class="w-full h-[360px] rounded-2xl overflow-hidden bg-slate-100 border border-slate-100"></div>
                 </div>
 
             </div>
@@ -175,11 +224,13 @@
                 <span class="text-[#009B3A] text-xs sm:text-sm font-semibold uppercase tracking-wider">
                     Pemerintahan Kelurahan
                 </span>
+
                 <h2 class="mt-2 text-3xl font-bold text-[#151515]">
                     Struktur Organisasi
                 </h2>
+
                 <p class="mt-3 max-w-2xl mx-auto text-sm text-slate-500 leading-relaxed">
-                    Struktur perangkat Kelurahan Tebing Tinggi Okura dalam mendukung pelayanan dan penyelenggaraan pemerintahan kepada masyarakat.
+                    Struktur perangkat Kelurahan {{ $profil->nama_kelurahan ?? 'Tebing Tinggi Okura' }} dalam mendukung pelayanan dan penyelenggaraan pemerintahan kepada masyarakat.
                 </p>
             </div>
 
@@ -188,13 +239,18 @@
                     <div class="group bg-white rounded-3xl border border-slate-200 p-5 text-center shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                         <div class="relative w-24 h-24 mx-auto mb-4">
                             <div class="absolute inset-0 rounded-full bg-[#009B3A]/10 scale-110 group-hover:scale-125 transition-transform duration-300"></div>
-                            <img src="{{ $pegawai->foto ? asset('storage/'.$pegawai->foto) : asset('images/avatar-placeholder.jpg') }}"
-                                 alt="{{ $pegawai->nama }}"
-                                 class="relative z-10 w-24 h-24 rounded-full object-cover border-4 border-white shadow-md">
+
+                            <img
+                                src="{{ $pegawai->foto ? asset('storage/'.$pegawai->foto) : asset('images/avatar-placeholder.jpg') }}"
+                                alt="{{ $pegawai->nama }}"
+                                class="relative z-10 w-24 h-24 rounded-full object-cover border-4 border-white shadow-md"
+                            >
                         </div>
+
                         <h3 class="text-sm sm:text-base font-semibold text-slate-800">
                             {{ $pegawai->nama }}
                         </h3>
+
                         <p class="mt-1 text-xs sm:text-sm text-[#009B3A] font-medium">
                             {{ $pegawai->jabatan }}
                         </p>
@@ -208,76 +264,56 @@
                 @endforelse
             </div>
         </div>
+
     </div>
 </section>
 @endsection
 
 @push('scripts')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const mapElement = document.getElementById('peta-profil');
         if (!mapElement) return;
 
-        // Koordinat Kantor Lurah Tebing Tinggi Okura
-        const kantorLurah = [0.5712465050879031, 101.53889059635989];
+        const lat = {{ $profil->latitude ?? 0.5712465050879031 }};
+        const lng = {{ $profil->longitude ?? 101.53889059635989 }};
+        const kantorLurah = [lat, lng];
 
-        // Inisialisasi Peta
-        const map = L.map('peta-profil').setView(kantorLurah, 13);
+        const map = L.map('peta-profil').setView(kantorLurah, 14);
 
-        // OpenStreetMap Tile Layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Marker Kantor Lurah
         L.marker(kantorLurah)
             .addTo(map)
-            .bindPopup('<b>Kantor Lurah Tebing Tinggi Okura</b><br>Pusat Pelayanan Kelurahan.');
+            .bindPopup('<b>Kantor Lurah {{ $profil->nama_kelurahan ?? "Tebing Tinggi Okura" }}</b>');
 
-        // Memuat GeoJSON Batas Presisi Wilayah
-        fetch('{{ asset('geojson/tebing-tinggi-okura.geojson') }}')
-            .then(response => {
-                if (!response.ok) throw new Error('GeoJSON tidak ditemukan');
-                return response.json();
-            })
-            .then(data => {
-                const batasWilayah = L.geoJSON(data, {
-                    style: {
-                        color: '#006622',       // Garis pinggir hijau tua
-                        weight: 3,             // Ketebalan garis
-                        dashArray: '6, 6',      // Garis putus-putus khas peta administrasi
-                        fillColor: '#10B981',   // Hijau arsir
-                        fillOpacity: 0.35       // Transparansi arsir
-                    },
-                    onEachFeature: function (feature, layer) {
-                        // Label Tooltip yang muncul saat mouse berada di atas wilayah
-                        layer.bindTooltip("<b>Wilayah Tebing Tinggi Okura</b><br>Kec. Rumbai Timur", {
-                            permanent: false,
-                            direction: "center"
-                        });
+        setTimeout(() => { map.invalidateSize(); }, 300);
 
-                        // Efek sorot (Highlight) saat kursor menunjuk area
-                        layer.on({
-                            mouseover: function (e) {
-                                var l = e.target;
-                                l.setStyle({
-                                    fillOpacity: 0.55,
-                                    weight: 4
-                                });
-                            },
-                            mouseout: function (e) {
-                                batasWilayah.resetStyle(e.target);
-                            }
-                        });
-                    }
-                }).addTo(map);
+        @if(!empty($profil->geojson_file))
+            fetch('{{ asset("storage/" . $profil->geojson_file) }}')
+                .then(response => {
+                    if (!response.ok) throw new Error('File GeoJSON tidak ditemukan.');
+                    return response.json();
+                })
+                .then(data => {
+                    const batasWilayah = L.geoJSON(data, {
+                        style: {
+                            color: '#059669',
+                            weight: 3,
+                            fillColor: '#10B981',
+                            fillOpacity: 0.12
+                        }
+                    }).addTo(map);
 
-                // Fokuskan tampilan peta ke seluruh cakupan wilayah
-                map.fitBounds(batasWilayah.getBounds(), {
-                    padding: [20, 20]
-                });
-            })
-            .catch(error => console.error('Gagal memuat batas wilayah:', error));
+                    map.fitBounds(batasWilayah.getBounds(), { padding: [20, 20] });
+                })
+                .catch(error => console.error('Peta Error:', error));
+        @endif
     });
 </script>
 @endpush

@@ -25,6 +25,7 @@ class Umkm extends Model
         'no_hp_pengaju',
         'sumber',
         'status',
+        'views', // <- Tambahkan ini
     ];
 
     protected function casts(): array

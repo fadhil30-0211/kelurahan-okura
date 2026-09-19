@@ -26,6 +26,13 @@ class UmkmController extends Controller
         // Cari data UMKM beserta galeri fotonya
         $umkm = Umkm::with('galleries')->findOrFail($id);
 
+        // --- TAMBAHKAN PENAMBAH VIEWS DENGAN PROTEKSI SESSION ---
+        $sessionKey = 'umkm_viewed_' . $umkm->id;
+        if (!session()->has($sessionKey)) {
+            $umkm->increment('views');
+            session()->put($sessionKey, true);
+        }
+
         $umkmLainnya = Umkm::active()
             ->where('id', '!=', $umkm->id)
             ->latest()

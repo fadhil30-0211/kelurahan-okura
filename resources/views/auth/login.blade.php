@@ -63,6 +63,10 @@
                     </label>
                 </div>
 
+                <a href="{{ route('password.request') }}" class="text-xs font-semibold text-emerald-600 hover:underline">
+                    Lupa password?
+                </a>
+
                 <button type="submit"
                         class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition shadow-sm">
                     Masuk

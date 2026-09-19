@@ -21,54 +21,60 @@ class BeritaController extends Controller
     }
 
     public function show(string $slug)
-    {
-        $berita = Berita::where('status', 'published')
-            ->where('slug', $slug)
-            ->firstOrFail();
+{
+    $berita = Berita::where('status', 'published')
+        ->where('slug', $slug)
+        ->firstOrFail();
 
+    // Mencegah penambahan views berulang kali saat di-refresh dalam 1 sesi
+    $sessionKey = 'viewed_berita_' . $berita->id;
+    if (!session()->has($sessionKey)) {
         if (method_exists($berita, 'incrementViews')) {
             $berita->incrementViews();
         } else {
             $berita->increment('views');
         }
 
-        // Ambil galeri foto berita secara fleksibel & aman
-        $galleries = collect();
+        session()->put($sessionKey, true);
+    }
 
-        if (method_exists($berita, 'galleries')) {
-            $galleries = $berita->galleries;
-        } elseif (method_exists($berita, 'images')) {
-            $galleries = $berita->images;
-        } elseif (class_exists(Gallery::class)) {
-            $query = Gallery::query();
+    // Ambil galeri foto berita secara fleksibel & aman
+    $galleries = collect();
 
-            if (Schema::hasColumn('galleries', 'berita_id')) {
-                $query->where('berita_id', $berita->id);
-            } elseif (Schema::hasColumn('galleries', 'imageable_id')) {
-                $query->where('imageable_id', $berita->id);
-            } elseif (Schema::hasColumn('galleries', 'galleryable_id')) {
-                $query->where('galleryable_id', $berita->id);
-            } else {
-                $query->whereRaw('1 = 0');
-            }
+    if (method_exists($berita, 'galleries')) {
+        $galleries = $berita->galleries;
+    } elseif (method_exists($berita, 'images')) {
+        $galleries = $berita->images;
+    } elseif (class_exists(Gallery::class)) {
+        $query = Gallery::query();
 
-            $galleries = $query->get();
+        if (Schema::hasColumn('galleries', 'berita_id')) {
+            $query->where('berita_id', $berita->id);
+        } elseif (Schema::hasColumn('galleries', 'imageable_id')) {
+            $query->where('imageable_id', $berita->id);
+        } elseif (Schema::hasColumn('galleries', 'galleryable_id')) {
+            $query->where('galleryable_id', $berita->id);
+        } else {
+            $query->whereRaw('1 = 0');
         }
 
-        $beritaLainnya = Berita::where('status', 'published')
-            ->where('id', '!=', $berita->id)
-            ->orderBy('published_at', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->take(3)
-            ->get();
-
-        return view('frontend.berita.show', [
-            'berita'         => $berita,
-            'galleries'      => $galleries,
-            'beritaLainnya'  => $beritaLainnya,
-            'seoTitle'       => $berita->judul . ' — Kelurahan Tebing Tinggi Okura',
-            'seoDescription' => Str::limit(strip_tags($berita->ringkasan ?? $berita->isi), 160),
-            'seoImage'       => asset('storage/' . $berita->thumbnail),
-        ]);
+        $galleries = $query->get();
     }
+
+    $beritaLainnya = Berita::where('status', 'published')
+        ->where('id', '!=', $berita->id)
+        ->orderBy('published_at', 'desc')
+        ->orderBy('created_at', 'desc')
+        ->take(3)
+        ->get();
+
+    return view('frontend.berita.show', [
+        'berita'         => $berita,
+        'galleries'      => $galleries,
+        'beritaLainnya'  => $beritaLainnya,
+        'seoTitle'       => $berita->judul . ' — Kelurahan Tebing Tinggi Okura',
+        'seoDescription' => Str::limit(strip_tags($berita->ringkasan ?? $berita->isi), 160),
+        'seoImage'       => asset('storage/' . $berita->thumbnail),
+    ]);
+}
 }

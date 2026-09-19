@@ -32,7 +32,18 @@
                         </span>
                     </div>
                     <p class="text-sm text-slate-500 line-clamp-2">{{ $item->isi }}</p>
-                    <p class="text-xs text-slate-400 mt-3">{{ $item->tanggal_mulai->translatedFormat('d F Y') }}</p>
+
+                    {{-- Tanggal & Total Views --}}
+                    <div class="flex items-center justify-between text-xs text-slate-400 mt-4 pt-3 border-t border-slate-50">
+                        <span>{{ $item->tanggal_mulai->translatedFormat('d F Y') }}</span>
+                        <div class="flex items-center gap-1.5 text-slate-500 font-medium">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <span>{{ number_format($item->views ?? 0) }}</span>
+                        </div>
+                    </div>
                 </a>
             @empty
                 <div class="bg-white rounded-2xl border border-slate-100 p-10 text-center text-slate-400 text-sm">

@@ -24,6 +24,7 @@ class Wisata extends Model
         'jam_operasional',
         'kontak',
         'status',
+        'views', // <- Tambahkan ini
     ];
 
     protected function casts(): array

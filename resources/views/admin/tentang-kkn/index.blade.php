@@ -3,7 +3,8 @@
 <style>
     .kkn-card {
         position: relative;
-        height: 300px;
+        min-height: 320px; /* Gunakan min-height alih-alih height kaku */
+        height: auto;
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 24px;
@@ -169,7 +170,7 @@
 
 @section('content')
 
-<div class="max-w-6xl space-y-8">
+<div class="max-w-6xl space-y-8 mx-auto px-4 sm:px-6">
 
     <div>
         <h1 class="text-2xl font-bold text-slate-800">
@@ -182,21 +183,21 @@
     </div>
 
     {{-- Identitas --}}
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mt-3 mb-3">
-        <div class="flex flex-col lg:flex-row items-center gap-8">
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-6 mt-3 mb-3">
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-6 text-center lg:text-left">
 
-            <div class="flex items-center gap-5">
+            <div class="flex flex-col sm:flex-row items-center gap-5">
                 <img
                     src="{{ asset('storage/logo2.png') }}"
                     alt="Logo Kelurahan"
-                    class="w-24 h-24 object-contain">
+                    class="w-20 h-20 sm:w-24 sm:h-24 object-contain shrink-0">
 
                 <div>
                     <p class="text-xs uppercase tracking-wide text-emerald-600 font-semibold">
                         Lokasi KKN
                     </p>
 
-                    <h2 class="text-2xl font-bold text-slate-800 mt-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mt-1">
                         Kelurahan Tebing Tinggi Okura
                     </h2>
 
@@ -236,17 +237,19 @@
             </p>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-            <h2 class="text-lg font-bold text-slate-800">
-                Sebuah Pertinggalan
-            </h2>
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">
+                    Sebuah Pertinggalan
+                </h2>
 
-            <p class="text-sm leading-relaxed text-slate-500 mt-4">
-                Website ini menjadi salah satu bentuk pertinggalan dari
-                kegiatan KKN kami. Harapannya, website ini dapat terus
-                digunakan, dikembangkan, dan memberikan manfaat bagi
-                Kelurahan Tebing Tinggi Okura.
-            </p>
+                <p class="text-sm leading-relaxed text-slate-500 mt-4">
+                    Website ini menjadi salah satu bentuk pertinggalan dari
+                    kegiatan KKN kami. Harapannya, website ini dapat terus
+                    digunakan, dikembangkan, dan memberikan manfaat bagi
+                    Kelurahan Tebing Tinggi Okura.
+                </p>
+            </div>
 
             <div class="mt-5 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-100">
                 <p class="text-sm text-emerald-800 font-medium">
@@ -259,7 +262,7 @@
     </div>
 
     {{-- Tim --}}
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-3">
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-6 mb-3">
 
         <div class="mb-6">
             <p class="text-xs uppercase tracking-wide text-emerald-600 font-semibold">
@@ -372,7 +375,7 @@
             ];
         @endphp
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
 
         @foreach ($timKkn as $anggota)
 
@@ -441,7 +444,7 @@
                         shadow-sm
                         z-30">
 
-                    <h3 class="font-bold text-lg text-slate-800">
+                    <h3 class="font-bold text-base text-slate-800 leading-snug">
                         {{ $anggota['nama'] }}
                     </h3>
 
@@ -471,60 +474,48 @@
 
     </div>
 
-    {{-- Pengembang --}}
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+   {{-- Pengembang --}}
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-6">
 
-        <div class="grid lg:grid-cols-2 gap-8 items-center">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
 
-            <div>
-
+            <div class="text-center lg:text-left">
                 <p class="text-xs uppercase tracking-wide text-emerald-600 font-semibold">
                     Pengembangan Sistem
                 </p>
 
-                <h2 class="text-2xl font-bold text-slate-800 mt-1">
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mt-1">
                     Pengembang Website
                 </h2>
 
-                <p class="text-slate-500 mt-4 text-sm leading-relaxed">
+                <p class="text-slate-500 mt-3 sm:mt-4 text-xs sm:text-sm leading-relaxed">
                     Website ini dikembangkan sebagai bagian dari program kerja
                     KKN untuk mendukung digitalisasi informasi dan pelayanan
                     di Kelurahan Tebing Tinggi Okura.
                 </p>
-
             </div>
 
-            <div class="flex justify-center lg:justify-end gap-6 items-center">
-
-                <div class="w-28 h-28 rounded-2xl bg-slate-50
-                border border-slate-100 flex items-center justify-center p-4
-                overflow-hidden shrink-0">
-
+            <div class="flex flex-wrap justify-center lg:justify-end gap-3 sm:gap-4 items-center">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-3 sm:p-4 shrink-0">
                     <img
                         src="{{ asset('storage/logo2.png') }}"
                         alt="Logo Kelurahan"
-                        style="width: 72px; height: 72px; max-width: 72px; max-height: 72px; object-fit: contain;"
-                        class="block">
+                        class="w-full h-full object-contain">
                 </div>
 
-                <div class="w-28 h-28 rounded-2xl bg-slate-50
-                            border border-slate-100 flex items-center justify-center p-4 text-center">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-3 sm:p-4 shrink-0">
                     <img
                         src="{{ asset('storage/logo/Logo gokura.png') }}"
                         alt="Logo KKN"
-                        style="width: 72px; height: 72px; max-width: 72px; max-height: 72px; object-fit: contain;"
-                        class="block">
+                        class="w-full h-full object-contain">
                 </div>
 
-                <div class="w-28 h-28 rounded-2xl bg-slate-50
-                            border border-slate-100 flex items-center justify-center p-4 text-center">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-3 sm:p-4 shrink-0">
                     <img
                         src="{{ asset('storage/logo/logo usti.png') }}"
                         alt="Logo Kampus"
-                        style="width: 100px; height: 100px; max-width: 100px; max-height: 100px; object-fit: contain;"
-                        class="block">
+                        class="w-full h-full object-contain">
                 </div>
-
             </div>
 
         </div>
@@ -532,54 +523,44 @@
     </div>
 
     {{-- Penutup --}}
-    <div class="relative overflow-hidden rounded-3xl
-                bg-gradient-to-r from-emerald-50 to-yellow-50
-                border border-emerald-100 p-8">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-50 to-yellow-50 border border-emerald-100 p-6 sm:p-8">
 
         <div class="relative text-center max-w-3xl mx-auto">
 
-            <h2 class="text-2xl sm:text-3xl font-bold text-[#0B1F3A]">
+            <h2 class="text-xl sm:text-3xl font-bold text-[#0B1F3A]">
                 Sebuah Pertinggalan Kecil dari Kami
             </h2>
 
-            <p class="text-sm sm:text-base text-slate-500 leading-relaxed mt-4">
+            <p class="text-xs sm:text-base text-slate-500 leading-relaxed mt-3 sm:mt-4">
                 Terima kasih atas kerja sama, dukungan, dan kesempatan yang
                 diberikan selama kegiatan KKN di Kelurahan Tebing Tinggi Okura.
                 Semoga website ini dapat menjadi bagian kecil dari perjalanan
                 kami yang tetap memberikan manfaat setelah kegiatan KKN selesai.
             </p>
 
-            <div class="flex items-center justify-center gap-3 mt-6">
+            <div class="flex items-center justify-center gap-3 sm:gap-5 mt-6">
                 <img
                     src="{{ asset('storage/logo2.png') }}"
                     alt="Logo Kelurahan"
-                    class="h-14 w-14 object-contain">
+                    class="h-10 w-10 sm:h-14 sm:w-14 object-contain">
 
-                <span class="text-slate-300 text-xl">×</span>
+                <span class="text-slate-300 text-base sm:text-xl">×</span>
 
-                <div class="h-14 w-14 rounded-xl bg-white border border-slate-100
-                            flex items-center justify-center text-[10px] text-slate-400">
-                    <img
-                        src="{{ asset('storage/logo/Logo gokura.png') }}"
-                        alt="Logo KKN"
-                        class="h-14 w-14 object-contain">
-                </div>
+                <img
+                    src="{{ asset('storage/logo/Logo gokura.png') }}"
+                    alt="Logo KKN"
+                    class="h-10 w-10 sm:h-14 sm:w-14 object-contain">
 
-                <span class="text-slate-300 text-xl">×</span>
+                <span class="text-slate-300 text-base sm:text-xl">×</span>
 
-                <div class="h-14 w-14 rounded-xl bg-white border border-slate-100
-                            flex items-center justify-center text-[10px] text-slate-400">
-                    <img
-                        src="{{ asset('storage/logo/logo usti.png') }}"
-                        alt="Logo Kampus"
-                        class="h-20 w-20 object-contain">
-                </div>
+                <img
+                    src="{{ asset('storage/logo/logo usti.png') }}"
+                    alt="Logo Kampus"
+                    class="h-10 w-10 sm:h-14 sm:w-14 object-contain">
             </div>
 
         </div>
 
     </div>
-
-</div>
 
 @endsection
