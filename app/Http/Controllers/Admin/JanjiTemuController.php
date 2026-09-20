@@ -61,4 +61,10 @@ class JanjiTemuController extends Controller
             ->route('admin.janji-temu.show', $janjiTemu)
             ->with('success', 'Status janji temu berhasil diperbarui.');
     }
+
+    public function destroy(JanjiTemu $janjiTemu)
+{
+    $janjiTemu->delete();
+    return back()->with('success', 'Data janji temu berhasil dihapus.');
+}
 }

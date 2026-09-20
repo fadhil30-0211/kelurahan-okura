@@ -11,7 +11,7 @@
         <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
                 {{-- BADGE TANGGAL & JAM REALTIME --}}
-                <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium bg-white/20 backdrop-blur-md text-emerald-50 mb-3 border border-white/10">
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-md text-emerald-50 mb-3 border border-white/10">
                     <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
                     <span>{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM YYYY') }}</span>
                     <span class="text-emerald-200/60">•</span>
@@ -19,7 +19,7 @@
                 </span>
 
                 <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Selamat Datang, Admin 👋</h1>
-                <p class="text-emerald-100 text-sm mt-1 max-w-xl">
+                <p class="text-emerald-100 text-xs sm:text-sm mt-1 max-w-xl">
                     Berikut adalah ringkasan aktivitas pengaduan, permohonan surat, dan data layanan kelurahan hari ini.
                 </p>
             </div>
@@ -419,78 +419,86 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-    // 1. Fungsi Jam Realtime
-    function updateClock() {
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. Fungsi Jam Realtime
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
 
-        const clockElement = document.getElementById('realtime-clock');
-        if (clockElement) {
-            clockElement.textContent = `${hours}:${minutes}:${seconds} WIB`;
-        }
-    }
-
-    updateClock();
-    setInterval(updateClock, 1000);
-
-    // 2. Chart Line (Pengaduan)
-    new Chart(document.getElementById('chartAduan'), {
-        type: 'line',
-        data: {
-            labels: @json($chartLabels ?? []),
-            datasets: [{
-                label: 'Aduan Masuk',
-                data: @json($chartData ?? []),
-                borderColor: '#059669',
-                backgroundColor: (context) => {
-                    const ctx = context.chart.ctx;
-                    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-                    gradient.addColorStop(0, 'rgba(5, 150, 105, 0.25)');
-                    gradient.addColorStop(1, 'rgba(5, 150, 105, 0.0)');
-                    return gradient;
-                },
-                borderWidth: 2.5,
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: '#059669',
-                pointHoverRadius: 6,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { borderDash: [2, 4] } }
+            const clockElement = document.getElementById('realtime-clock');
+            if (clockElement) {
+                clockElement.textContent = `${hours}:${minutes}:${seconds} WIB`;
             }
         }
-    });
 
-    // 3. Chart Doughnut (Kategori)
-    new Chart(document.getElementById('chartKategori'), {
-        type: 'doughnut',
-        data: {
-            labels: @json(isset($kategoriAduan) ?$kategoriAduan->keys() : []),
-            datasets: [{
-                data: @json(isset($kategoriAduan) ?$kategoriAduan->values() : []),
-                backgroundColor: ['#059669', '#D97706', '#0284C7', '#DC2626', '#8B5CF6'],
-                borderWidth: 3,
-                borderColor: '#ffffff',
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { boxWidth: 12, padding: 15, font: { size: 11 } }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // 2. Chart Line (Pengaduan)
+        const canvasAduan = document.getElementById('chartAduan');
+        if (canvasAduan) {
+            new Chart(canvasAduan, {
+                type: 'line',
+                data: {
+                    labels: @json($chartLabels ?? []),
+                    datasets: [{
+                        label: 'Aduan Masuk',
+                        data: @json($chartData ?? []),
+                        borderColor: '#059669',
+                        backgroundColor: (context) => {
+                            const ctx = context.chart.ctx;
+                            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+                            gradient.addColorStop(0, 'rgba(5, 150, 105, 0.25)');
+                            gradient.addColorStop(1, 'rgba(5, 150, 105, 0.0)');
+                            return gradient;
+                        },
+                        borderWidth: 2.5,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#059669',
+                        pointHoverRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { borderDash: [2, 4] } }
+                    }
                 }
-            },
-            cutout: '70%',
+            });
+        }
+
+        // 3. Chart Doughnut (Kategori)
+        const canvasKategori = document.getElementById('chartKategori');
+        if (canvasKategori) {
+            new Chart(canvasKategori, {
+                type: 'doughnut',
+                data: {
+                    labels: @json(isset($kategoriAduan) ?$kategoriAduan->keys() : []),
+                    datasets: [{
+                        data: @json(isset($kategoriAduan) ?$kategoriAduan->values() : []),
+                        backgroundColor: ['#059669', '#D97706', '#0284C7', '#DC2626', '#8B5CF6'],
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, padding: 15, font: { size: 11 } }
+                        }
+                    },
+                    cutout: '70%',
+                }
+            });
         }
     });
 </script>

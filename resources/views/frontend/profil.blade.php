@@ -34,19 +34,22 @@
                         Visi Kelurahan
                     </span>
 
-                    <h2 class="mt-6 text-2xl sm:text-3xl font-bold leading-tight">
-                        {{ $profil->visi ?? 'Terwujudnya Kelurahan Tebing Tinggi Okura sebagai Pusat Pariwisata, Pertanian, Perikanan dan Pusat Kebudayaan Melayu di Kota Pekanbaru.' }}
-                    </h2>
+                    {{-- Menampilkan Visi dengan Penanganan Baris Baru (Enter) --}}
+                    <div class="mt-6 space-y-4">
+                        @php
+                            $defaultVisi = "Terwujudnya Kelurahan Tebing Tinggi Okura sebagai Pusat Pariwisata, Pertanian, Perikanan dan Pusat Kebudayaan Melayu di Kota Pekanbaru.\n\nMenuju masyarakat sejahtera berdasarkan iman dan taqwa.";
+                            $visiText = !empty($profil->visi) ? $profil->visi : $defaultVisi;
+                            $visiParagraphs = array_filter(explode("\n", str_replace("\r", '', $visiText)));
+                        @endphp
 
-                    @if(!empty($profil->sub_visi))
-                        <h2 class="mt-4 text-2xl sm:text-3xl font-bold leading-tight">
-                            {{ $profil->sub_visi }}
-                        </h2>
-                    @else
-                        <h2 class="mt-4 text-2xl sm:text-3xl font-bold leading-tight">
-                            Menuju masyarakat sejahtera berdasarkan iman dan taqwa.
-                        </h2>
-                    @endif
+                        @foreach($visiParagraphs as $paragraph)
+                            @if(trim($paragraph) !== '')
+                                <h2 class="text-xl sm:text-2xl font-bold leading-snug">
+                                    {{ trim($paragraph) }}
+                                </h2>
+                            @endif
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
