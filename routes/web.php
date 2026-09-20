@@ -8,6 +8,7 @@ use App\Http\Controllers\Frontend\WisataController;
 use App\Http\Controllers\Frontend\UmkmController;
 use App\Http\Controllers\Frontend\BeritaController as FrontendBeritaController;
 use App\Http\Controllers\Frontend\PengaduanController;
+use App\Http\Controllers\Frontend\PartisipasiController;
 use App\Http\Controllers\Frontend\LayananSuratController;
 use App\Http\Controllers\Frontend\SearchController;
 use App\Http\Controllers\Frontend\JanjiTemuController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Frontend\AgendaController as FrontendAgendaController;
 use App\Http\Controllers\Frontend\PengajuanController;
 use App\Http\Controllers\Frontend\ProfilController;
 use App\Http\Controllers\Frontend\AnggaranController as FrontendAnggaranController;
+use App\Http\Controllers\Frontend\PenilaianController; // <-- Ditambahkan
 
 // Import Controllers - Auth
 use App\Http\Controllers\Auth\LoginController;
@@ -33,6 +35,7 @@ use App\Http\Controllers\Admin\PegawaiController;
 use App\Http\Controllers\Admin\WisataController as AdminWisataController;
 use App\Http\Controllers\Admin\UmkmController as AdminUmkmController;
 use App\Http\Controllers\Admin\AdminPengaduanController;
+use App\Http\Controllers\Admin\PartisipasiController as AdminPartisipasiController;
 use App\Http\Controllers\Admin\LayananSuratController as AdminLayananSuratController;
 use App\Http\Controllers\Admin\GaleriController as AdminGaleriController;
 use App\Http\Controllers\Admin\JanjiTemuController as AdminJanjiTemuController;
@@ -91,12 +94,14 @@ Route::get('/lacak-pengajuan', [PengajuanController::class, 'lacak'])->name('pen
 // Wisata
 Route::prefix('wisata')->name('wisata.')->group(function () {
     Route::get('/', [WisataController::class, 'index'])->name('index');
+    Route::get('/usul', [PendaftaranController::class, 'createWisata'])->name('usul'); // <-- Submenu Usulan Tempat Wisata
     Route::get('/{slug}', [WisataController::class, 'show'])->name('show');
 });
 
 // UMKM
 Route::prefix('umkm')->name('umkm.')->group(function () {
     Route::get('/', [UmkmController::class, 'index'])->name('index');
+    Route::get('/daftar', [PendaftaranController::class, 'createUmkm'])->name('daftar'); // <-- Submenu Pendaftaran UMKM
     Route::get('/{id}', [UmkmController::class, 'show'])->name('show');
 });
 
@@ -104,6 +109,18 @@ Route::prefix('umkm')->name('umkm.')->group(function () {
 Route::prefix('berita')->name('berita.')->group(function () {
     Route::get('/', [FrontendBeritaController::class, 'index'])->name('index');
     Route::get('/{slug}', [FrontendBeritaController::class, 'show'])->name('show');
+});
+
+    // Partisipasi Warga Frontend
+Route::prefix('partisipasi')->name('partisipasi.')->group(function () {
+    Route::get('/', [PartisipasiController::class, 'index'])->name('index');
+    Route::get('/create', [PartisipasiController::class, 'create'])->name('create');
+    Route::post('/', [PartisipasiController::class, 'store'])->name('store');
+
+    // Pastikan baris ini ada:
+    Route::get('/umkm', [PendaftaranController::class, 'createUmkm'])->name('umkm');
+    Route::get('/wisata', [PendaftaranController::class, 'createWisata'])->name('wisata');
+    Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
 });
 
 // Layanan Surat
@@ -115,12 +132,25 @@ Route::prefix('layanan')->name('layanan.')->group(function () {
     Route::post('/lacak', [LayananSuratController::class, 'track'])->name('track');
 });
 
-// Pengaduan Frontend
+// Pengaduan Frontend (UTUH & TIDAK DIUBAH)
 Route::prefix('pengaduan')->name('pengaduan.')->group(function () {
     Route::get('/', [PengaduanController::class, 'create'])->name('create');
     Route::post('/', [PengaduanController::class, 'store'])->name('store');
     Route::get('/lacak', [PengaduanController::class, 'lacak'])->name('track.form');
     Route::post('/lacak', [PengaduanController::class, 'lacak'])->name('track');
+});
+
+// Partisipasi Warga Frontend
+Route::prefix('partisipasi')->name('partisipasi.')->group(function () {
+    Route::get('/', [PartisipasiController::class, 'index'])->name('index');
+    Route::get('/create', [PartisipasiController::class, 'create'])->name('create');
+    Route::post('/', [PartisipasiController::class, 'store'])->name('store');
+});
+
+// Penilaian Website Frontend
+Route::prefix('penilaian')->name('penilaian.')->group(function () {
+    Route::get('/', [PenilaianController::class, 'index'])->name('index'); // <-- Submenu Penilaian Website
+   Route::post('/', [PenilaianController::class, 'store'])->name('store');
 });
 
 // Pendaftaran
@@ -220,13 +250,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('/anggaran/{anggaran}', [AdminAnggaranController::class, 'update'])->name('anggaran.update');
     Route::delete('/anggaran/{anggaran}', [AdminAnggaranController::class, 'destroy'])->name('anggaran.destroy');
 
-    // Inbox Pengaduan Admin
+    // Inbox Pengaduan Admin (UTUH & TIDAK DIUBAH)
     Route::get('/pengaduan-export/excel', [AdminPengaduanController::class, 'exportExcel'])->name('pengaduan.export.excel');
     Route::get('/pengaduan-export/pdf', [AdminPengaduanController::class, 'exportPdf'])->name('pengaduan.export.pdf');
     Route::get('/pengaduan', [AdminPengaduanController::class, 'index'])->name('pengaduan.index');
     Route::get('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'show'])->name('pengaduan.show');
     Route::put('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'update'])->name('pengaduan.update');
     Route::delete('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'destroy'])->name('pengaduan.destroy');
+
+    // Admin Partisipasi Warga (KHUSUS / TERPISAH)
+    Route::resource('partisipasi', AdminPartisipasiController::class);
 
     // Inbox Layanan Surat Admin
     Route::get('/layanan-surat', [AdminLayananSuratController::class, 'index'])->name('layanan-surat.index');
@@ -258,4 +291,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('/pengaturan', [SettingController::class, 'index'])->name('pengaturan.index');
         Route::put('/pengaturan', [SettingController::class, 'update'])->name('pengaturan.update');
     });
+
+
 });

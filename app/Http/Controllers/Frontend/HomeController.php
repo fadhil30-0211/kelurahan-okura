@@ -8,14 +8,21 @@ use App\Models\Anggaran;
 use App\Models\HeroBanner;
 use App\Models\Pegawai;
 use App\Models\Pengumuman;
-use App\Models\Setting; // Disamakan menggunakan Setting (atau sesuaikan jika nama modelmu SiteSetting)
+use App\Models\Setting;
 use App\Models\Umkm;
 use App\Models\Wisata;
+use App\Models\PageView;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(Request $request) // <--- UBAH DI SINI (Tambahkan Request $request)
     {
+        PageView::create([
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
         $banners = HeroBanner::active()->ordered()->get();
         $wisatas = Wisata::active()->latest()->take(6)->get();
         $umkms = Umkm::active()->latest()->take(8)->get();
@@ -24,7 +31,7 @@ class HomeController extends Controller
 
         // Mengambil data setting
         $siteSetting = Setting::first();
-        $settings = $siteSetting; // Alias agar Blade $settings tidak error!
+        $settings = $siteSetting;
 
         // Data counter
         $jumlahPenduduk = $siteSetting->jumlah_penduduk ?? 0;
@@ -41,7 +48,7 @@ class HomeController extends Controller
             'jumlahWisata',
             'jumlahUmkm',
             'siteSetting',
-            'settings' // Ditambahkan ke compact
+            'settings'
         ));
     }
 
@@ -50,7 +57,6 @@ class HomeController extends Controller
         $pegawais = Pegawai::active()->ordered()->get();
         $agendas = Agenda::upcoming()->take(5)->get();
 
-        // Ambil data setting untuk halaman profil
         $siteSetting = Setting::first();
 
         return view('frontend.profil', compact('pegawais', 'agendas', 'siteSetting'));

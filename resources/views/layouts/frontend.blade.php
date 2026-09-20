@@ -22,9 +22,9 @@
         $defaultAlamat = data_get($activeSettings, 'alamat') ?? data_get($activeSettings, 'address') ?? 'Jl. Kelurahan Okura, Rumbai Timur, Pekanbaru';
 
         // Jam Pelayanan Dinamis
-        $jamSeninKamis = data_get($activeSettings, 'jam_kerja_senin_kamis') ?? '08:00 - 16:00 WIB';
-        $jamJumat      = data_get($activeSettings, 'jam_kerja_jumat') ?? '08:00 - 16:30 WIB';
-        $jamSabtuMinggu= data_get($activeSettings, 'jam_kerja_sabtu_minggu') ?? 'Libur';
+        $jamSeninKamis  = data_get($activeSettings, 'jam_kerja_senin_kamis') ?? '08:00 - 16:00 WIB';
+        $jamJumat       = data_get($activeSettings, 'jam_kerja_jumat') ?? '08:00 - 16:30 WIB';
+        $jamSabtuMinggu = data_get($activeSettings, 'jam_kerja_sabtu_minggu') ?? 'Libur';
 
         // Media Sosial Dinamis
         $fbUrl = data_get($activeSettings, 'facebook_url');
@@ -38,7 +38,7 @@
               ?? data_get($activeSettings, 'nomor_whatsapp')
               ?? '085923287344';
 
-        $cleanWa = preg_replace('/[^0-9]/', '', $rawWa);
+        $cleanWa  = preg_replace('/[^0-9]/', '', $rawWa);
         $waNumber = str_starts_with($cleanWa, '0') ? '62' . substr($cleanWa, 1) : $cleanWa;
 
         $rawWaText = data_get($activeSettings, 'pesan_wa')
@@ -187,7 +187,7 @@
                     </span>
                 </a>
 
-                {{-- Navigation Links --}}
+                {{-- Navigation Links Desktop --}}
                 <nav class="hidden lg:flex items-center gap-5 xl:gap-7 h-full">
 
                     @if (Route::has('profil'))
@@ -213,97 +213,148 @@
                     @endif
 
                     {{-- DROPDOWN INFORMASI --}}
-@php
-    $activeInfo = Route::is('berita*', 'agenda*', 'pengumuman*', 'janji-temu*', 'transparansi*');
-@endphp
+                    @php
+                        $activeInfo = Route::is('berita*', 'agenda*', 'pengumuman*', 'janji-temu*', 'transparansi*');
+                    @endphp
 
-<div class="relative flex items-center h-full"
-     x-data="{ dropOpen: false }"
-     @mouseenter="dropOpen = true"
-     @mouseleave="dropOpen = false"
-     @keydown.escape.window="dropOpen = false">
+                    <div class="relative flex items-center h-full"
+                         x-data="{ dropOpen: false }"
+                         @mouseenter="dropOpen = true"
+                         @mouseleave="dropOpen = false"
+                         @keydown.escape.window="dropOpen = false">
 
-    {{-- Trigger Button --}}
-    <button @click="dropOpen = !dropOpen"
-            type="button"
-            :class="scrolled || !isHome
-                ? '{{ $activeInfo ? 'text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600' }}'
-                : '{{ $activeInfo ? 'text-amber-300 font-bold' : 'text-slate-100 hover:text-amber-300' }}'"
-            class="flex items-center gap-1 text-sm font-medium transition-colors focus:outline-none cursor-pointer h-full">
-        <span>Informasi</span>
-        <svg class="w-4 h-4 transition-transform duration-200 shrink-0"
-             :class="{ 'rotate-180': dropOpen }"
-             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-            <path d="m6 9 6 6 6-6"/>
-        </svg>
-    </button>
+                        <button @click="dropOpen = !dropOpen"
+                                type="button"
+                                :class="scrolled || !isHome
+                                    ? '{{ $activeInfo ? 'text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600' }}'
+                                    : '{{ $activeInfo ? 'text-amber-300 font-bold' : 'text-slate-100 hover:text-amber-300' }}'"
+                                class="flex items-center gap-1 text-sm font-medium transition-colors focus:outline-none cursor-pointer h-full">
+                            <span>Informasi</span>
+                            <svg class="w-4 h-4 transition-transform duration-200 shrink-0"
+                                 :class="{ 'rotate-180': dropOpen }"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <path d="m6 9 6 6 6-6"/>
+                            </svg>
+                        </button>
 
-        {{-- Dropdown Menu Wrapper (Dilengkapi pt-2 sebagai safe zone hover) --}}
-        <div x-show="dropOpen"
-            x-cloak
-            @click.outside="dropOpen = false"
-            x-transition:enter="transition ease-out duration-150"
-            x-transition:enter-start="opacity-0 translate-y-1"
-            x-transition:enter-end="opacity-100 translate-y-0"
-            x-transition:leave="transition ease-in duration-100"
-            x-transition:leave-start="opacity-100 translate-y-0"
-            x-transition:leave-end="opacity-0 translate-y-1"
-            class="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-[99999]">
+                        <div x-show="dropOpen"
+                            x-cloak
+                            @click.outside="dropOpen = false"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 translate-y-1"
+                            class="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-[99999]">
 
-            {{-- Card Container --}}
-            <div class="w-52 rounded-xl bg-white shadow-2xl border border-slate-100 py-2 text-slate-800">
-                @if (Route::has('berita.index'))
-                    <a href="{{ route('berita.index') }}"
-                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('berita*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                            <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
-                        </svg>
-                        Berita
-                    </a>
-                @endif
+                            <div class="w-56 rounded-xl bg-white shadow-2xl border border-slate-100 py-2 text-slate-800">
+                                @if (Route::has('berita.index'))
+                                    <a href="{{ route('berita.index') }}"
+                                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('berita*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+                                        Berita
+                                    </a>
+                                @endif
 
-                @if (Route::has('agenda.index'))
-                    <a href="{{ route('agenda.index') }}"
-                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('agenda*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/>
-                        </svg>
-                        Agenda
-                    </a>
-                @endif
+                                @if (Route::has('agenda.index'))
+                                    <a href="{{ route('agenda.index') }}"
+                                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('agenda*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+                                        Agenda
+                                    </a>
+                                @endif
 
-                @if (Route::has('pengumuman.index'))
-                    <a href="{{ route('pengumuman.index') }}"
-                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('pengumuman*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="M4 2C2.8 3.7 2 5.7 2 8"/><path d="M22 8c0-2.3-.8-4.3-2-6"/>
-                        </svg>
-                        Pengumuman
-                    </a>
-                @endif
+                                @if (Route::has('pengumuman.index'))
+                                    <a href="{{ route('pengumuman.index') }}"
+                                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('pengumuman*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="M4 2C2.8 3.7 2 5.7 2 8"/><path d="M22 8c0-2.3-.8-4.3-2-6"/></svg>
+                                        Pengumuman
+                                    </a>
+                                @endif
 
-                @if (Route::has('transparansi.index'))
-                    <a href="{{ route('transparansi.index') }}"
-                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('transparansi*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                            <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                        </svg>
-                        Transparansi Anggaran
-                    </a>
-                @endif
+                                @if (Route::has('transparansi.index'))
+                                    <a href="{{ route('transparansi.index') }}"
+                                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('transparansi*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                        Transparansi Anggaran
+                                    </a>
+                                @endif
 
-                @if (Route::has('janji-temu.index'))
-                    <a href="{{ route('janji-temu.index') }}"
-                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('janji-temu*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                            <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/>
-                        </svg>
-                        Janji Temu
-                    </a>
-                @endif
-            </div>
-        </div>
-    </div>
+                                @if (Route::has('janji-temu.index'))
+                                    <a href="{{ route('janji-temu.index') }}"
+                                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Route::is('janji-temu*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/></svg>
+                                        Janji Temu
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- DROPDOWN PARTISIPASI WARGA (BARU) --}}
+                    @php
+                        $activePartisipasi = Route::is('partisipasi*');
+                    @endphp
+
+                    <div class="relative flex items-center h-full"
+                         x-data="{ partOpen: false }"
+                         @mouseenter="partOpen = true"
+                         @mouseleave="partOpen = false"
+                         @keydown.escape.window="partOpen = false">
+
+                        <button @click="partOpen = !partOpen"
+                                type="button"
+                                :class="scrolled || !isHome
+                                    ? '{{ $activePartisipasi ? 'text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600' }}'
+                                    : '{{ $activePartisipasi ? 'text-amber-300 font-bold' : 'text-slate-100 hover:text-amber-300' }}'"
+                                class="flex items-center gap-1 text-sm font-medium transition-colors focus:outline-none cursor-pointer h-full">
+                            <span>Partisipasi Warga</span>
+                            <svg class="w-4 h-4 transition-transform duration-200 shrink-0"
+                                 :class="{ 'rotate-180': partOpen }"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <path d="m6 9 6 6 6-6"/>
+                            </svg>
+                        </button>
+
+                        <div x-show="partOpen"
+                            x-cloak
+                            @click.outside="partOpen = false"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 translate-y-1"
+                            class="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-[99999]">
+
+                            <div class="w-56 rounded-xl bg-white shadow-2xl border border-slate-100 py-2 text-slate-800">
+                                @php
+                                    $routeUmkm = Route::has('partisipasi.umkm') ? route('partisipasi.umkm') : url('/partisipasi/umkm');
+                                    $routeWisata = Route::has('partisipasi.wisata') ? route('partisipasi.wisata') : url('/partisipasi/wisata');
+                                    $routePenilaian = Route::has('partisipasi.penilaian') ? route('partisipasi.penilaian') : url('/partisipasi/penilaian');
+                                @endphp
+
+                                <a href="{{ $routeUmkm }}"
+                                   class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Request::is('partisipasi/umkm*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                    Pendaftaran UMKM
+                                </a>
+
+                                <a href="{{ $routeWisata }}"
+                                   class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Request::is('partisipasi/wisata*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    Usulan Tempat Wisata
+                                </a>
+
+                                <a href="{{ $routePenilaian }}"
+                                   class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors {{ Request::is('partisipasi/penilaian*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    Penilaian Website
+                                </a>
+                            </div>
+                        </div>
+                    </div>
 
                     @if (Route::has('wisata.index'))
                         @php $activeWisata = Route::is('wisata*'); @endphp
@@ -340,6 +391,7 @@
 
                 </nav>
 
+                {{-- Tombol Lapor Pengaduan Desktop --}}
                 @if (Route::has('pengaduan.create'))
                     <a href="{{ route('pengaduan.create') }}"
                        class="hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-semibold transition shadow-sm shrink-0">
@@ -350,6 +402,7 @@
                     </a>
                 @endif
 
+                {{-- Tombol Toggle Menu Mobile --}}
                 <button @click="open = !open"
                         aria-label="Toggle Menu"
                         :aria-expanded="open"
@@ -363,12 +416,12 @@
             </div>
         </div>
 
-        {{-- Dropdown Mobile Menu --}}
+        {{-- Dropdown Menu Mobile --}}
         <div x-show="open"
              @click.outside="open = false"
              x-cloak
              x-transition
-             class="lg:hidden bg-white shadow-xl border-t border-slate-100 text-slate-800">
+             class="lg:hidden bg-white shadow-xl border-t border-slate-100 text-slate-800 max-h-[85vh] overflow-y-auto">
             <div class="px-4 py-4 space-y-1">
                 @if (Route::has('profil'))
                     <a href="{{ route('profil') }}"
@@ -380,7 +433,7 @@
                 @if (Route::has('layanan.index'))
                     <a href="{{ route('layanan.index') }}"
                        class="block px-3 py-2.5 rounded-lg text-sm font-medium {{ Route::is('layanan*') ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-slate-700 hover:bg-slate-50' }}">
-                        Layanan Surat
+                        Layanan
                     </a>
                 @endif
 
@@ -425,6 +478,26 @@
                     </div>
                 </div>
 
+                {{-- Partisipasi Warga Mobile Dropdown --}}
+                <div class="py-1 px-3" x-data="{ mobilePart: false }">
+                    <button @click="mobilePart = !mobilePart"
+                            class="flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-medium {{ Route::is('partisipasi*') ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-slate-700 hover:bg-slate-50' }}">
+                        <span>Partisipasi Warga</span>
+                        <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': mobilePart }" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                    <div x-show="mobilePart" x-cloak class="pl-4 border-l-2 border-slate-200 space-y-1 mt-1">
+                        <a href="{{ $routeUmkm }}" class="flex items-center gap-2 py-1.5 px-2 rounded text-sm {{ Request::is('partisipasi/umkm*') ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-600 hover:text-emerald-600' }}">
+                            Pendaftaran UMKM
+                        </a>
+                        <a href="{{ $routeWisata }}" class="flex items-center gap-2 py-1.5 px-2 rounded text-sm {{ Request::is('partisipasi/wisata*') ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-600 hover:text-emerald-600' }}">
+                            Usulan Tempat Wisata
+                        </a>
+                        <a href="{{ $routePenilaian }}" class="flex items-center gap-2 py-1.5 px-2 rounded text-sm {{ Request::is('partisipasi/penilaian*') ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-600 hover:text-emerald-600' }}">
+                            Penilaian Website
+                        </a>
+                    </div>
+                </div>
+
                 @if (Route::has('wisata.index'))
                     <a href="{{ route('wisata.index') }}"
                        class="block px-3 py-2.5 rounded-lg text-sm font-medium {{ Route::is('wisata*') ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-slate-700 hover:bg-slate-50' }}">
@@ -446,6 +519,7 @@
                     </a>
                 @endif
 
+                {{-- Pengaduan Mobile Menu --}}
                 @if (Route::has('pengaduan.create'))
                     <a href="{{ route('pengaduan.create') }}"
                        class="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold bg-amber-500 text-white text-center mt-2">
@@ -507,7 +581,7 @@
        class="flex items-center gap-2.5 bg-[#25D366] hover:bg-[#1EBE57] text-white px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
        aria-label="Hubungi WhatsApp Admin">
         <svg class="w-5 h-5 sm:w-6 sm:h-6 fill-current" viewBox="0 0 24 24">
-            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
         </svg>
         <span class="font-bold text-xs sm:text-sm tracking-wide">Hubungi Kami</span>
     </a>
@@ -639,7 +713,7 @@
                     </li>
                     <li class="flex items-start gap-2.5 w-full min-w-0">
                         <svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                        <span class="break-all leading-normal flex-1 min-w-0 text-slate-300" style="word-break: break-all;">{{ $defaultEmail }}</span>
+                        <span class="break-all leading-normal flex-1 min-w-0 text-slate-300">{{ $defaultEmail }}</span>
                     </li>
                     <li class="flex items-center gap-2.5 w-full min-w-0">
                         <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -660,8 +734,23 @@
 
         </div>
 
+        {{-- Statistik Pengunjung --}}
+        <div class="text-xs pt-4">
+            <div class="flex flex-wrap items-center gap-2 text-slate-400 font-mono text-[11px]">
+                <span class="flex items-center gap-1 font-sans text-slate-300 font-medium">
+                    <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    Kunjungan:
+                </span>
+                <span>Hari ini <strong class="text-emerald-400 font-bold">{{ number_format($todayViews ?? 0, 0, ',', '.') }}</strong></span>
+                <span>Total <strong class="text-amber-400 font-bold">{{ number_format($totalViews ?? 0, 0, ',', '.') }}</strong></span>
+            </div>
+        </div>
+
         {{-- Copyright --}}
-        <p class="text-center text-xs text-slate-500 pt-6">
+        <p class="text-center text-xs text-slate-500 pt-6 border-t border-white/5 mt-4">
             &copy; {{ date('Y') }} {{ $namaFooter }} — Persembahan dari KKN Kelompok 10 GOKURA USTI 2026. Seluruh Hak Dilindungi.
         </p>
     </div>
