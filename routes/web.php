@@ -19,6 +19,7 @@ use App\Http\Controllers\Frontend\GaleriController as FrontendGaleriController;
 use App\Http\Controllers\Frontend\AgendaController as FrontendAgendaController;
 use App\Http\Controllers\Frontend\PengajuanController;
 use App\Http\Controllers\Frontend\ProfilController;
+use App\Http\Controllers\Frontend\AnggaranController as FrontendAnggaranController;
 
 // Import Controllers - Auth
 use App\Http\Controllers\Auth\LoginController;
@@ -26,17 +27,17 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 
 // Import Controllers - Admin
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\BeritaController;
-use App\Http\Controllers\Admin\PengumumanController;
+use App\Http\Controllers\Admin\BeritaController as AdminBeritaController;
+use App\Http\Controllers\Admin\PengumumanController as AdminPengumumanController;
 use App\Http\Controllers\Admin\PegawaiController;
 use App\Http\Controllers\Admin\WisataController as AdminWisataController;
 use App\Http\Controllers\Admin\UmkmController as AdminUmkmController;
 use App\Http\Controllers\Admin\AdminPengaduanController;
 use App\Http\Controllers\Admin\LayananSuratController as AdminLayananSuratController;
-use App\Http\Controllers\Admin\GaleriController;
+use App\Http\Controllers\Admin\GaleriController as AdminGaleriController;
 use App\Http\Controllers\Admin\JanjiTemuController as AdminJanjiTemuController;
-use App\Http\Controllers\Admin\AgendaController;
-use App\Http\Controllers\Admin\AnggaranController;
+use App\Http\Controllers\Admin\AgendaController as AdminAgendaController;
+use App\Http\Controllers\Admin\AnggaranController as AdminAnggaranController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HeroBannerController;
 use App\Http\Controllers\Admin\EmergencyContactController;
@@ -56,6 +57,10 @@ use App\Http\Controllers\Admin\AdminPasswordResetController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
 Route::get('/cari', [SearchController::class, 'index'])->name('search');
+
+// Transparansi Anggaran (Publik)
+Route::get('/transparansi-anggaran', [FrontendAnggaranController::class, 'index'])->name('transparansi.index');
+Route::get('/transparansi-anggaran/download-pdf', [FrontendAnggaranController::class, 'downloadPdf'])->name('transparansi.download-pdf');
 
 // Pengumuman
 Route::prefix('pengumuman')->name('pengumuman.')->group(function () {
@@ -137,9 +142,6 @@ Route::get('/admin/login', [LoginController::class, 'showLoginForm'])->name('log
 Route::post('/admin/login', [LoginController::class, 'login'])->name('admin.login.submit');
 Route::post('/admin/logout', [LoginController::class, 'logout'])->name('admin.logout');
 
-// Alias Login Admin
-Route::get('/admin/login', [LoginController::class, 'showLoginForm'])->name('admin.login');
-
 // Forgot & Reset Password
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
@@ -156,12 +158,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Persetujuan Reset Password Admin
-Route::prefix('password-reset-requests')->name('password-reset.')->group(function () {
-    Route::get('/', [AdminPasswordResetController::class, 'index'])->name('index');
-    Route::post('/{id}/approve', [AdminPasswordResetController::class, 'approve'])->name('approve');
-    Route::post('/{id}/reject', [AdminPasswordResetController::class, 'reject'])->name('reject');
-    Route::delete('/{id}', [AdminPasswordResetController::class, 'destroy'])->name('destroy'); // Tambahkan baris ini
-});
+    Route::prefix('password-reset-requests')->name('password-reset.')->group(function () {
+        Route::get('/', [AdminPasswordResetController::class, 'index'])->name('index');
+        Route::post('/{id}/approve', [AdminPasswordResetController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [AdminPasswordResetController::class, 'reject'])->name('reject');
+        Route::delete('/{id}', [AdminPasswordResetController::class, 'destroy'])->name('destroy');
+    });
 
     // Action Profil & Pegawai (langsung dari Dashboard)
     Route::post('/profile/update', [DashboardController::class, 'updateProfile'])->name('profile.update');
@@ -183,12 +185,12 @@ Route::prefix('password-reset-requests')->name('password-reset.')->group(functio
     Route::delete('/umkm/gallery/{gallery}', [AdminUmkmController::class, 'deleteGallery'])->name('umkm.gallery.destroy');
 
     // Konten harian
-    Route::resource('berita', BeritaController::class)->parameters(['berita' => 'berita']);
-    Route::resource('pengumuman', PengumumanController::class);
+    Route::resource('berita', AdminBeritaController::class)->parameters(['berita' => 'berita']);
+    Route::resource('pengumuman', AdminPengumumanController::class);
     Route::resource('wisata', AdminWisataController::class)->parameters(['wisata' => 'wisata']);
     Route::resource('umkm', AdminUmkmController::class);
-    Route::resource('galeri', GaleriController::class)->except(['show', 'edit', 'update']);
-    Route::resource('agenda', AgendaController::class)->except(['show']);
+    Route::resource('galeri', AdminGaleriController::class)->except(['show', 'edit', 'update']);
+    Route::resource('agenda', AdminAgendaController::class)->except(['show']);
     Route::resource('hero-banner', HeroBannerController::class)->except(['show']);
 
     Route::post('/hero-banner-reorder', [HeroBannerController::class, 'reorder'])->name('hero-banner.reorder');
@@ -211,10 +213,12 @@ Route::prefix('password-reset-requests')->name('password-reset.')->group(functio
     Route::put('/janji-temu/{janjiTemu}', [AdminJanjiTemuController::class, 'update'])->name('janji-temu.update');
     Route::delete('/janji-temu/{janjiTemu}', [AdminJanjiTemuController::class, 'destroy'])->name('janji-temu.destroy');
 
-    // Anggaran
-    Route::get('/anggaran', [AnggaranController::class, 'index'])->name('anggaran.index');
-    Route::post('/anggaran', [AnggaranController::class, 'store'])->name('anggaran.store');
-    Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy'])->name('anggaran.destroy');
+    // Anggaran (Admin Management)
+    Route::get('/anggaran', [AdminAnggaranController::class, 'index'])->name('anggaran.index');
+    Route::post('/anggaran', [AdminAnggaranController::class, 'store'])->name('anggaran.store');
+    Route::get('/anggaran/{anggaran}/edit', [AdminAnggaranController::class, 'edit'])->name('anggaran.edit');
+    Route::put('/anggaran/{anggaran}', [AdminAnggaranController::class, 'update'])->name('anggaran.update');
+    Route::delete('/anggaran/{anggaran}', [AdminAnggaranController::class, 'destroy'])->name('anggaran.destroy');
 
     // Inbox Pengaduan Admin
     Route::get('/pengaduan-export/excel', [AdminPengaduanController::class, 'exportExcel'])->name('pengaduan.export.excel');

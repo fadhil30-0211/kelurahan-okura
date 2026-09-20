@@ -34,9 +34,32 @@ class AnggaranController extends Controller
             ->with('success', 'Data anggaran berhasil ditambahkan.');
     }
 
+    public function edit(Anggaran $anggaran)
+    {
+        return view('admin.anggaran.edit', compact('anggaran'));
+    }
+
+    public function update(Request $request, Anggaran $anggaran)
+    {
+        $validated = $request->validate([
+            'tahun'       => 'required|digits:4|integer|min:2000',
+            'kategori'    => 'required|string|max:100',
+            'jumlah'      => 'required|numeric|min:0',
+            'keterangan'  => 'nullable|string',
+        ]);
+
+        $anggaran->update($validated);
+
+        return redirect()->route('admin.anggaran.index', ['tahun' => $validated['tahun']])
+            ->with('success', 'Data anggaran berhasil diperbarui.');
+    }
+
     public function destroy(Anggaran $anggaran)
     {
+        $tahun = $anggaran->tahun;
         $anggaran->delete();
-        return redirect()->route('admin.anggaran.index')->with('success', 'Data anggaran berhasil dihapus.');
+
+        return redirect()->route('admin.anggaran.index', ['tahun' => $tahun])
+            ->with('success', 'Data anggaran berhasil dihapus.');
     }
 }

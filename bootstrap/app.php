@@ -11,17 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->redirectGuestsTo(fn () => route('admin.login'));
+        // Option A: Jika nama route login Anda adalah 'login' (default)
+        $middleware->redirectGuestsTo(fn () => route('login'));
 
+        // Gabungkan semua alias middleware di sini
         $middleware->alias([
             'super_admin' => \App\Http\Middleware\EnsureIsSuperAdmin::class,
+            'can_approve' => \App\Http\Middleware\EnsureCanApprove::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
-
-    $middleware->alias([
-    'super_admin' => \App\Http\Middleware\EnsureIsSuperAdmin::class,
-    'can_approve' => \App\Http\Middleware\EnsureCanApprove::class,
-]);
