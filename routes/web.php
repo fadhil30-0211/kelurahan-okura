@@ -8,7 +8,7 @@ use App\Http\Controllers\Frontend\WisataController;
 use App\Http\Controllers\Frontend\UmkmController;
 use App\Http\Controllers\Frontend\BeritaController as FrontendBeritaController;
 use App\Http\Controllers\Frontend\PengaduanController;
-use App\Http\Controllers\Frontend\PartisipasiController;
+use App\Http\Controllers\Frontend\PartisipasiController as FrontendPartisipasiController;
 use App\Http\Controllers\Frontend\LayananSuratController;
 use App\Http\Controllers\Frontend\SearchController;
 use App\Http\Controllers\Frontend\JanjiTemuController;
@@ -21,7 +21,7 @@ use App\Http\Controllers\Frontend\AgendaController as FrontendAgendaController;
 use App\Http\Controllers\Frontend\PengajuanController;
 use App\Http\Controllers\Frontend\ProfilController;
 use App\Http\Controllers\Frontend\AnggaranController as FrontendAnggaranController;
-use App\Http\Controllers\Frontend\PenilaianController; // <-- Ditambahkan
+use App\Http\Controllers\Frontend\PenilaianController;
 
 // Import Controllers - Auth
 use App\Http\Controllers\Auth\LoginController;
@@ -49,6 +49,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TentangKknController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdminPasswordResetController;
+use App\Http\Controllers\Admin\AdminPenilaianController;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,14 +95,14 @@ Route::get('/lacak-pengajuan', [PengajuanController::class, 'lacak'])->name('pen
 // Wisata
 Route::prefix('wisata')->name('wisata.')->group(function () {
     Route::get('/', [WisataController::class, 'index'])->name('index');
-    Route::get('/usul', [PendaftaranController::class, 'createWisata'])->name('usul'); // <-- Submenu Usulan Tempat Wisata
+    Route::get('/usul', [PendaftaranController::class, 'createWisata'])->name('usul');
     Route::get('/{slug}', [WisataController::class, 'show'])->name('show');
 });
 
 // UMKM
 Route::prefix('umkm')->name('umkm.')->group(function () {
     Route::get('/', [UmkmController::class, 'index'])->name('index');
-    Route::get('/daftar', [PendaftaranController::class, 'createUmkm'])->name('daftar'); // <-- Submenu Pendaftaran UMKM
+    Route::get('/daftar', [PendaftaranController::class, 'createUmkm'])->name('daftar');
     Route::get('/{id}', [UmkmController::class, 'show'])->name('show');
 });
 
@@ -109,18 +110,6 @@ Route::prefix('umkm')->name('umkm.')->group(function () {
 Route::prefix('berita')->name('berita.')->group(function () {
     Route::get('/', [FrontendBeritaController::class, 'index'])->name('index');
     Route::get('/{slug}', [FrontendBeritaController::class, 'show'])->name('show');
-});
-
-    // Partisipasi Warga Frontend
-Route::prefix('partisipasi')->name('partisipasi.')->group(function () {
-    Route::get('/', [PartisipasiController::class, 'index'])->name('index');
-    Route::get('/create', [PartisipasiController::class, 'create'])->name('create');
-    Route::post('/', [PartisipasiController::class, 'store'])->name('store');
-
-    // Pastikan baris ini ada:
-    Route::get('/umkm', [PendaftaranController::class, 'createUmkm'])->name('umkm');
-    Route::get('/wisata', [PendaftaranController::class, 'createWisata'])->name('wisata');
-    Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
 });
 
 // Layanan Surat
@@ -132,7 +121,7 @@ Route::prefix('layanan')->name('layanan.')->group(function () {
     Route::post('/lacak', [LayananSuratController::class, 'track'])->name('track');
 });
 
-// Pengaduan Frontend (UTUH & TIDAK DIUBAH)
+// Pengaduan Frontend
 Route::prefix('pengaduan')->name('pengaduan.')->group(function () {
     Route::get('/', [PengaduanController::class, 'create'])->name('create');
     Route::post('/', [PengaduanController::class, 'store'])->name('store');
@@ -142,15 +131,18 @@ Route::prefix('pengaduan')->name('pengaduan.')->group(function () {
 
 // Partisipasi Warga Frontend
 Route::prefix('partisipasi')->name('partisipasi.')->group(function () {
-    Route::get('/', [PartisipasiController::class, 'index'])->name('index');
-    Route::get('/create', [PartisipasiController::class, 'create'])->name('create');
-    Route::post('/', [PartisipasiController::class, 'store'])->name('store');
+    Route::get('/', [FrontendPartisipasiController::class, 'index'])->name('index');
+    Route::get('/create', [FrontendPartisipasiController::class, 'create'])->name('create');
+    Route::post('/', [FrontendPartisipasiController::class, 'store'])->name('store');
+    Route::get('/umkm', [PendaftaranController::class, 'createUmkm'])->name('umkm');
+    Route::get('/wisata', [PendaftaranController::class, 'createWisata'])->name('wisata');
+    Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
 });
 
 // Penilaian Website Frontend
 Route::prefix('penilaian')->name('penilaian.')->group(function () {
-    Route::get('/', [PenilaianController::class, 'index'])->name('index'); // <-- Submenu Penilaian Website
-   Route::post('/', [PenilaianController::class, 'store'])->name('store');
+    Route::get('/', [PenilaianController::class, 'index'])->name('index');
+    Route::post('/', [PenilaianController::class, 'store'])->name('store');
 });
 
 // Pendaftaran
@@ -250,7 +242,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('/anggaran/{anggaran}', [AdminAnggaranController::class, 'update'])->name('anggaran.update');
     Route::delete('/anggaran/{anggaran}', [AdminAnggaranController::class, 'destroy'])->name('anggaran.destroy');
 
-    // Inbox Pengaduan Admin (UTUH & TIDAK DIUBAH)
+    // Inbox Pengaduan Admin
     Route::get('/pengaduan-export/excel', [AdminPengaduanController::class, 'exportExcel'])->name('pengaduan.export.excel');
     Route::get('/pengaduan-export/pdf', [AdminPengaduanController::class, 'exportPdf'])->name('pengaduan.export.pdf');
     Route::get('/pengaduan', [AdminPengaduanController::class, 'index'])->name('pengaduan.index');
@@ -258,8 +250,22 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'update'])->name('pengaduan.update');
     Route::delete('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'destroy'])->name('pengaduan.destroy');
 
-    // Admin Partisipasi Warga (KHUSUS / TERPISAH)
+    // Admin Partisipasi Warga (Umum)
     Route::resource('partisipasi', AdminPartisipasiController::class);
+
+    // Admin Partisipasi UMKM
+    Route::get('/partisipasi-umkm', [AdminPartisipasiController::class, 'umkmIndex'])->name('partisipasi-umkm.index');
+    Route::patch('/partisipasi-umkm/{id}/status', [AdminPartisipasiController::class, 'umkmUpdateStatus'])->name('partisipasi-umkm.update-status');
+    Route::delete('/partisipasi-umkm/{id}', [AdminPartisipasiController::class, 'umkmDestroy'])->name('partisipasi-umkm.destroy');
+
+    // Admin Partisipasi Wisata
+    Route::get('/partisipasi-wisata', [AdminPartisipasiController::class, 'wisataIndex'])->name('partisipasi-wisata.index');
+    Route::patch('/partisipasi-wisata/{id}/status', [AdminPartisipasiController::class, 'wisataUpdateStatus'])->name('partisipasi-wisata.update-status');
+    Route::delete('/partisipasi-wisata/{id}', [AdminPartisipasiController::class, 'wisataDestroy'])->name('partisipasi-wisata.destroy');
+
+    // Admin Penilaian & Ulasan Warga
+    Route::get('/penilaian', [AdminPenilaianController::class, 'index'])->name('penilaian.index');
+    Route::delete('/penilaian/{penilaian}', [AdminPenilaianController::class, 'destroy'])->name('penilaian.destroy');
 
     // Inbox Layanan Surat Admin
     Route::get('/layanan-surat', [AdminLayananSuratController::class, 'index'])->name('layanan-surat.index');
@@ -291,6 +297,4 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('/pengaturan', [SettingController::class, 'index'])->name('pengaturan.index');
         Route::put('/pengaturan', [SettingController::class, 'update'])->name('pengaturan.update');
     });
-
-
 });

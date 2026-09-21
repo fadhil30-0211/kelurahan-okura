@@ -48,6 +48,7 @@ class LayananSurat extends Model
         'Surat Pengantar Nikah' => 'NKH',
         'Surat Keterangan Ahli Waris' => 'AHW',
         'Surat Pengantar SKCK' => 'SKC',
+        'wi'
     ];
 
     return self::generateKodeDenganPrefix($prefixMap[$jenisSuratLabel] ?? 'SRT', $tanggal);

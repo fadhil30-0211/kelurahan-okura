@@ -1,4 +1,3 @@
-{{-- resources/views/frontend/pendaftaran/umkm.blade.php --}}
 @extends('layouts.frontend')
 @section('title', 'Daftarkan UMKM Baru')
 
@@ -17,31 +16,40 @@
             </p>
         </div>
 
+        {{-- ALERT SUKSES DENGAN KODE TIKET --}}
+        @if(session('success'))
+            <div class="mb-6 p-5 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-emerald-900 text-sm shadow-sm">
+                <div class="flex items-center gap-2 font-bold text-emerald-800 text-base mb-1">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Pendaftaran Berhasil Dikirim!
+                </div>
+                <p class="text-xs text-emerald-700 mb-3">{{ session('success') }}</p>
+
+                @if(session('kode_tiket'))
+                    <div class="bg-white p-3.5 rounded-xl border border-emerald-200 flex items-center justify-between">
+                        <div>
+                            <span class="block text-[10px] uppercase font-bold text-slate-400">Kode Tiket Anda</span>
+                            <span class="font-mono font-extrabold text-lg text-emerald-700 tracking-wider">
+                                {{ session('kode_tiket') }}
+                            </span>
+                        </div>
+                        <span class="text-[11px] bg-amber-100 text-amber-800 font-medium px-2.5 py-1 rounded-lg">
+                            Simpan/Catat Kode Ini
+                        </span>
+                    </div>
+                @endif
+            </div>
+        @endif
+
         <form action="{{ route('pendaftaran.umkm.store') }}" method="POST" enctype="multipart/form-data"
               class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 sm:p-8 space-y-5">
             @csrf
 
-            <div class="bg-slate-50 rounded-xl p-4">
-                <p class="text-xs font-semibold text-slate-600 mb-3">Data Pengaju</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1.5">Nama Anda <span class="text-red-500">*</span></label>
-                        <input type="text" name="nama_pengaju" value="{{ old('nama_pengaju') }}" required
-                               class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        @error('nama_pengaju') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1.5">No. HP Anda <span class="text-red-500">*</span></label>
-                        <input type="text" name="no_hp_pengaju" value="{{ old('no_hp_pengaju') }}" required
-                               class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        @error('no_hp_pengaju') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                    </div>
-                </div>
-            </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Nama Usaha <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Nama Usaha/UMKM <span class="text-red-500">*</span></label>
                     <input type="text" name="nama_usaha" value="{{ old('nama_usaha') }}" required
                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                     @error('nama_usaha') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
@@ -80,9 +88,10 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">No. HP Usaha <span class="text-slate-400">(jika beda dari nomor Anda)</span></label>
-                <input type="text" name="no_hp" value="{{ old('no_hp') }}"
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">No. HP / WhatsApp <span class="text-red-500">*</span></label>
+                <input type="text" name="no_hp" value="{{ old('no_hp') }}" required
                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                @error('no_hp') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div>
