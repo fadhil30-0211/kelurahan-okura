@@ -3,7 +3,7 @@
 @section('title', 'Lapor Pengaduan')
 
 @section('content')
-<section class="pt-28 pb-16 bg-slate-50 min-h-screen">
+<section class="pt-20 pb-16 bg-slate-50 min-h-screen">
     <div class="max-w-2xl mx-auto px-4 sm:px-6">
         <div class="text-center mb-8">
             <span class="inline-block px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold mb-3">

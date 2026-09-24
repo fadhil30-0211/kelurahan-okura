@@ -2,7 +2,7 @@
 @section('title', 'Profil Kelurahan - ' . ($profil->nama_kelurahan ?? 'Tebing Tinggi Okura'))
 
 @section('content')
-<section class="pt-28 pb-16 bg-[#FAFBFB]">
+<section class="pt-24 pb-16 bg-[#FAFBFB]">
     <div class="max-w-5xl mx-auto px-4 sm:px-6">
 
         {{-- Header Profil --}}

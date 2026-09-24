@@ -3,7 +3,7 @@
 @section('title', 'Ajukan Surat')
 
 @section('content')
-<section class="pt-28 pb-16 bg-slate-50 min-h-screen" x-data="{ selectedJenis: '{{ old('jenis_surat', $jenis) }}', jenisSuratData: @js($jenisSurat) }">
+<section class="pt-20 pb-16 bg-slate-50 min-h-screen" x-data="{ selectedJenis: '{{ old('jenis_surat', $jenis) }}', jenisSuratData: @js($jenisSurat) }">
     <div class="max-w-2xl mx-auto px-4 sm:px-6">
         <div class="text-center mb-8">
             <h1 class="text-2xl sm:text-3xl font-bold text-[#0B1F3A]" style="font-family: 'Plus Jakarta Sans', sans-serif;">

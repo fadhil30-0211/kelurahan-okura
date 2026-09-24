@@ -1,6 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+
+// Import Models
+use App\Models\Pengaduan;
+use App\Models\PartisipasiWisata;
+use App\Models\PartisipasiUmkm;
+use App\Models\LayananSurat;
 
 // Import Controllers - Frontend
 use App\Http\Controllers\Frontend\HomeController;
@@ -13,7 +20,6 @@ use App\Http\Controllers\Frontend\LayananSuratController;
 use App\Http\Controllers\Frontend\SearchController;
 use App\Http\Controllers\Frontend\JanjiTemuController;
 use App\Http\Controllers\Frontend\ResiController;
-use App\Http\Controllers\Frontend\UniversalTrackingController;
 use App\Http\Controllers\Frontend\PendaftaranController;
 use App\Http\Controllers\Frontend\PengumumanController as FrontendPengumumanController;
 use App\Http\Controllers\Frontend\GaleriController as FrontendGaleriController;
@@ -57,12 +63,12 @@ use App\Http\Controllers\Admin\AdminPenilaianController;
 |--------------------------------------------------------------------------
 */
 
-// Home & General
+// Home, Profil & Pencarian
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
 Route::get('/cari', [SearchController::class, 'index'])->name('search');
 
-// Transparansi Anggaran (Publik)
+// Transparansi Anggaran
 Route::get('/transparansi-anggaran', [FrontendAnggaranController::class, 'index'])->name('transparansi.index');
 Route::get('/transparansi-anggaran/download-pdf', [FrontendAnggaranController::class, 'downloadPdf'])->name('transparansi.download-pdf');
 
@@ -83,13 +89,78 @@ Route::prefix('janji-temu')->name('janji-temu.')->group(function () {
     Route::post('/', [JanjiTemuController::class, 'store'])->name('store');
 });
 
-// Resi & Tracking
+// Resi & Tracking Universal (Lacak Pengaduan, Wisata, UMKM, dan Layanan Surat)
 Route::get('/resi/{kodeTiket}', [ResiController::class, 'show'])->name('resi.show');
 Route::get('/resi/{kodeTiket}/download', [ResiController::class, 'download'])->name('resi.download');
-Route::post('/lacak', [UniversalTrackingController::class, 'track'])->name('tracking.universal');
 
-// Direct Tracking Routes
-Route::get('/lacak-pengaduan', [PengaduanController::class, 'lacak'])->name('pengaduan.lacak');
+Route::match(['get', 'post'], '/lacak-pengaduan', function (Request $request) {
+    // Ambil kode dari request (query string ?kode=... saat GET atau input form saat POST)
+    $kode = $request->input('kode') ?? $request->input('kode_tiket');
+
+    // Jika diakses via HTTP GET (halaman dibuka biasa / direct link)
+    if ($request->isMethod('get')) {
+        return view('frontend.tracking-detail', [
+            'kode' => $kode,
+            'data' => null,
+            'type' => null
+        ]);
+    }
+
+    // Jika diakses via HTTP POST (form pencarian di-submit)
+    $request->validate([
+        'kode_tiket' => 'required|string',
+    ], [
+        'kode_tiket.required' => 'Masukkan kode tiket pengaduan atau pendaftaran Anda.',
+    ]);
+
+    $kode = trim($request->kode_tiket);
+    $result = null;
+    $type = null;
+
+    // 1. Cek di tabel Pengaduan
+    $result = Pengaduan::whereRaw('LOWER(kode_tiket) = ?', [strtolower($kode)])->first();
+    if ($result) {
+        $type = 'pengaduan';
+    }
+
+    // 2. Cek di tabel Partisipasi Wisata (WST-XXXXXX)
+    if (!$result) {
+        $result = PartisipasiWisata::whereRaw('LOWER(kode_tiket) = ?', [strtolower($kode)])->first();
+        if ($result) {
+            $type = 'wisata';
+        }
+    }
+
+    // 3. Cek di tabel Partisipasi UMKM (UMKM-XXXXXX)
+    if (!$result) {
+        $result = PartisipasiUmkm::whereRaw('LOWER(kode_tiket) = ?', [strtolower($kode)])->first();
+        if ($result) {
+            $type = 'umkm';
+        }
+    }
+
+    // 4. Cek di tabel Layanan Surat
+    if (!$result && class_exists(LayananSurat::class)) {
+        $result = LayananSurat::whereRaw('LOWER(kode_tiket) = ?', [strtolower($kode)])->first();
+        if ($result) {
+            $type = 'layanan_surat';
+        }
+    }
+
+    // Jika data tidak ditemukan di tabel manapun
+    if (!$result) {
+        return back()->withErrors([
+            'kode_tiket' => "Kode tiket '{$kode}' tidak ditemukan. Mohon periksa kembali kode Anda."
+        ])->withInput();
+    }
+
+    return view('frontend.tracking-detail', [
+        'kode' => $kode,
+        'data' => $result,
+        'type' => $type
+    ]);
+})->name('tracking.universal');
+
 Route::get('/lacak-pengajuan', [PengajuanController::class, 'lacak'])->name('pengajuan.lacak');
 
 // Wisata
@@ -106,7 +177,7 @@ Route::prefix('umkm')->name('umkm.')->group(function () {
     Route::get('/{id}', [UmkmController::class, 'show'])->name('show');
 });
 
-// Berita Frontend
+// Berita
 Route::prefix('berita')->name('berita.')->group(function () {
     Route::get('/', [FrontendBeritaController::class, 'index'])->name('index');
     Route::get('/{slug}', [FrontendBeritaController::class, 'show'])->name('show');
@@ -125,7 +196,7 @@ Route::prefix('layanan')->name('layanan.')->group(function () {
 Route::prefix('pengaduan')->name('pengaduan.')->group(function () {
     Route::get('/', [PengaduanController::class, 'create'])->name('create');
     Route::post('/', [PengaduanController::class, 'store'])->name('store');
-    Route::get('/lacak', [PengaduanController::class, 'lacak'])->name('track.form');
+    Route::get('/lacak', [PengaduanController::class, 'lacakForm'])->name('track.form');
     Route::post('/lacak', [PengaduanController::class, 'lacak'])->name('track');
 });
 
@@ -159,12 +230,10 @@ Route::prefix('daftar')->name('pendaftaran.')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-// Login & Logout
 Route::get('/admin/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/admin/login', [LoginController::class, 'login'])->name('admin.login.submit');
 Route::post('/admin/logout', [LoginController::class, 'logout'])->name('admin.logout');
 
-// Forgot & Reset Password
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
@@ -176,6 +245,7 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+
     // Dashboard Utama
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -187,7 +257,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::delete('/{id}', [AdminPasswordResetController::class, 'destroy'])->name('destroy');
     });
 
-    // Action Profil & Pegawai (langsung dari Dashboard)
+    // Profil Admin & Pegawai Quick Action
     Route::post('/profile/update', [DashboardController::class, 'updateProfile'])->name('profile.update');
     Route::post('/pegawai/store', [DashboardController::class, 'storePegawai'])->name('pegawai.store');
     Route::delete('/pegawai/{id}', [DashboardController::class, 'destroyPegawai'])->name('pegawai.destroy');
@@ -203,10 +273,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::resource('emergency-contact', EmergencyContactController::class)->except(['create', 'edit', 'show']);
     Route::put('/emergency-contact/{emergencyContact}/toggle', [EmergencyContactController::class, 'toggle'])->name('emergency-contact.toggle');
 
-    // Custom Gallery Delete Route
+    // Custom Gallery Delete
     Route::delete('/umkm/gallery/{gallery}', [AdminUmkmController::class, 'deleteGallery'])->name('umkm.gallery.destroy');
 
-    // Konten harian
+    // Konten & Resi / Master Data
     Route::resource('berita', AdminBeritaController::class)->parameters(['berita' => 'berita']);
     Route::resource('pengumuman', AdminPengumumanController::class);
     Route::resource('wisata', AdminWisataController::class)->parameters(['wisata' => 'wisata']);
@@ -222,7 +292,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/social-post', [SocialPostController::class, 'store'])->name('social-post.store');
     Route::delete('/social-post/{socialPost}', [SocialPostController::class, 'destroy'])->name('social-post.destroy');
 
-    // Multi-photo Gallery
+    // Multi-photo Gallery Generic
     Route::prefix('gallery/{type}/{id}')->name('gallery.')->group(function () {
         Route::get('/', [GalleryController::class, 'index'])->name('index');
         Route::post('/', [GalleryController::class, 'store'])->name('store');
@@ -230,70 +300,60 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::delete('/gallery/{gallery}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
 
     // Inbox Janji Temu Admin
-    Route::get('/janji-temu', [AdminJanjiTemuController::class, 'index'])->name('janji-temu.index');
-    Route::get('/janji-temu/{janjiTemu}', [AdminJanjiTemuController::class, 'show'])->name('janji-temu.show');
-    Route::put('/janji-temu/{janjiTemu}', [AdminJanjiTemuController::class, 'update'])->name('janji-temu.update');
-    Route::delete('/janji-temu/{janjiTemu}', [AdminJanjiTemuController::class, 'destroy'])->name('janji-temu.destroy');
+    Route::resource('janji-temu', AdminJanjiTemuController::class)->only(['index', 'show', 'update', 'destroy']);
 
     // Anggaran (Admin Management)
-    Route::get('/anggaran', [AdminAnggaranController::class, 'index'])->name('anggaran.index');
-    Route::post('/anggaran', [AdminAnggaranController::class, 'store'])->name('anggaran.store');
-    Route::get('/anggaran/{anggaran}/edit', [AdminAnggaranController::class, 'edit'])->name('anggaran.edit');
-    Route::put('/anggaran/{anggaran}', [AdminAnggaranController::class, 'update'])->name('anggaran.update');
-    Route::delete('/anggaran/{anggaran}', [AdminAnggaranController::class, 'destroy'])->name('anggaran.destroy');
+    Route::resource('anggaran', AdminAnggaranController::class)->except(['create', 'show']);
 
-    // Inbox Pengaduan Admin
-    Route::get('/pengaduan-export/excel', [AdminPengaduanController::class, 'exportExcel'])->name('pengaduan.export.excel');
-    Route::get('/pengaduan-export/pdf', [AdminPengaduanController::class, 'exportPdf'])->name('pengaduan.export.pdf');
-    Route::get('/pengaduan', [AdminPengaduanController::class, 'index'])->name('pengaduan.index');
-    Route::get('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'show'])->name('pengaduan.show');
-    Route::put('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'update'])->name('pengaduan.update');
-    Route::delete('/pengaduan/{pengaduan}', [AdminPengaduanController::class, 'destroy'])->name('pengaduan.destroy');
+    // Inbox Pengaduan Admin (Pastikan export ditaruh di atas resource)
+    Route::get('/pengaduan/export/excel', [AdminPengaduanController::class, 'exportExcel'])->name('pengaduan.export.excel');
+    Route::get('/pengaduan/export/pdf', [AdminPengaduanController::class, 'exportPdf'])->name('pengaduan.export.pdf');
+    Route::resource('pengaduan', AdminPengaduanController::class)->only(['index', 'show', 'update', 'destroy']);
 
-    // Admin Partisipasi Warga (Umum)
+    // Admin Partisipasi Warga
     Route::resource('partisipasi', AdminPartisipasiController::class);
 
     // Admin Partisipasi UMKM
-    Route::get('/partisipasi-umkm', [AdminPartisipasiController::class, 'umkmIndex'])->name('partisipasi-umkm.index');
-    Route::patch('/partisipasi-umkm/{id}/status', [AdminPartisipasiController::class, 'umkmUpdateStatus'])->name('partisipasi-umkm.update-status');
-    Route::delete('/partisipasi-umkm/{id}', [AdminPartisipasiController::class, 'umkmDestroy'])->name('partisipasi-umkm.destroy');
+    Route::prefix('partisipasi-umkm')->name('partisipasi-umkm.')->group(function () {
+        Route::get('/', [AdminPartisipasiController::class, 'umkmIndex'])->name('index');
+        Route::patch('/{id}/status', [AdminPartisipasiController::class, 'umkmUpdateStatus'])->name('update-status');
+        Route::delete('/{id}', [AdminPartisipasiController::class, 'destroy'])->name('destroy');
+    });
 
     // Admin Partisipasi Wisata
-    Route::get('/partisipasi-wisata', [AdminPartisipasiController::class, 'wisataIndex'])->name('partisipasi-wisata.index');
-    Route::patch('/partisipasi-wisata/{id}/status', [AdminPartisipasiController::class, 'wisataUpdateStatus'])->name('partisipasi-wisata.update-status');
-    Route::delete('/partisipasi-wisata/{id}', [AdminPartisipasiController::class, 'wisataDestroy'])->name('partisipasi-wisata.destroy');
+    Route::prefix('partisipasi-wisata')->name('partisipasi-wisata.')->group(function () {
+        Route::get('/', [AdminPartisipasiController::class, 'wisataIndex'])->name('index');
+        Route::patch('/{id}/status', [AdminPartisipasiController::class, 'wisataUpdateStatus'])->name('update-status');
+        Route::delete('/{id}', [AdminPartisipasiController::class, 'wisataDestroy'])->name('destroy');
+    });
 
-    // Admin Penilaian & Ulasan Warga
+    // Admin Penilaian
     Route::get('/penilaian', [AdminPenilaianController::class, 'index'])->name('penilaian.index');
     Route::delete('/penilaian/{penilaian}', [AdminPenilaianController::class, 'destroy'])->name('penilaian.destroy');
 
     // Inbox Layanan Surat Admin
-    Route::get('/layanan-surat', [AdminLayananSuratController::class, 'index'])->name('layanan-surat.index');
-    Route::get('/layanan-surat/{layananSurat}', [AdminLayananSuratController::class, 'show'])->name('layanan-surat.show');
-    Route::put('/layanan-surat/{layananSurat}', [AdminLayananSuratController::class, 'update'])->name('layanan-surat.update');
-    Route::delete('/layanan-surat/{layananSurat}', [AdminLayananSuratController::class, 'destroy'])->name('layanan-surat.destroy');
+    Route::resource('layanan-surat', AdminLayananSuratController::class)->only(['index', 'show', 'update', 'destroy']);
 
-    // Akses Approval
+    // Akses Approval Wisata & UMKM
     Route::put('/wisata-approve/{wisata}', [AdminWisataController::class, 'approve'])->name('wisata.approve');
     Route::put('/umkm-approve/{umkm}', [AdminUmkmController::class, 'approve'])->name('umkm.approve');
 
     // Mark Notified (AJAX)
-    Route::post('/pengaduan/{pengaduan}/mark-notified', function (\App\Models\Pengaduan $pengaduan) {
+    Route::post('/pengaduan/{pengaduan}/mark-notified', function (Pengaduan $pengaduan) {
         $pengaduan->update(['notif_terakhir_dikirim' => now()]);
         return response()->json(['success' => true]);
     })->name('pengaduan.mark-notified');
 
-    Route::post('/layanan-surat/{layananSurat}/mark-notified', function (\App\Models\LayananSurat $layananSurat) {
+    Route::post('/layanan-surat/{layananSurat}/mark-notified', function (LayananSurat $layananSurat) {
         $layananSurat->update(['notif_terakhir_dikirim' => now()]);
         return response()->json(['success' => true]);
     })->name('layanan-surat.mark-notified');
 
-    // Data sensitif — khusus super_admin
+    // Restricted Area — khusus Super Admin
     Route::middleware('super_admin')->group(function () {
         Route::resource('pegawai', PegawaiController::class);
         Route::resource('users', UserController::class);
 
-        // Pengaturan Website (Footer, Kontak, Deskripsi)
         Route::get('/pengaturan', [SettingController::class, 'index'])->name('pengaturan.index');
         Route::put('/pengaturan', [SettingController::class, 'update'])->name('pengaturan.update');
     });

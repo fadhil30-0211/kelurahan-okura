@@ -3,7 +3,7 @@
 @section('title', 'Hasil Pencarian: ' . $keyword)
 
 @section('content')
-<section class="pt-28 pb-16">
+<section class="pt-20 pb-16">
     <div class="max-w-5xl mx-auto px-4 sm:px-6">
         <h1 class="text-2xl font-bold text-[#0B1F3A] mb-1" style="font-family: 'Plus Jakarta Sans', sans-serif;">
             Hasil Pencarian

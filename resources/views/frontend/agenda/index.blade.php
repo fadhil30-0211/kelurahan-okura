@@ -3,7 +3,7 @@
 @section('title', 'Agenda Kelurahan')
 
 @section('content')
-<section class="pt-28 pb-16">
+<section class="pt-20 pb-16">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
         <div class="text-center mb-10">
             <span class="inline-block px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold mb-3">

@@ -3,7 +3,7 @@
 @section('title', $pengumuman->judul)
 
 @section('content')
-<section class="pt-28 pb-16">
+<section class="pt-20 pb-16">
     <div class="max-w-2xl mx-auto px-4 sm:px-6">
         @php
             $kategoriColor = match($pengumuman->kategori) {

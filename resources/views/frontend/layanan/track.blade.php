@@ -3,7 +3,7 @@
 @section('title', 'Lacak Layanan Surat')
 
 @section('content')
-<section class="pt-28 pb-16 bg-slate-50 min-h-screen flex items-center">
+<section class="pt-20 pb-16 bg-slate-50 min-h-screen flex items-center">
     <div class="max-w-md mx-auto px-4 sm:px-6 w-full">
         <div class="text-center mb-8">
             <h1 class="text-2xl font-bold text-[#0B1F3A]" style="font-family: 'Plus Jakarta Sans', sans-serif;">

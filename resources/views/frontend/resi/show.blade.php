@@ -1,9 +1,8 @@
-{{-- resources/views/frontend/resi/show.blade.php --}}
 @extends('layouts.frontend')
 @section('title', 'Bukti Pengajuan')
 
 @section('content')
-<section class="pt-28 pb-16 bg-slate-50 min-h-screen">
+<section class="pt-20 pb-16 bg-slate-50 min-h-screen">
     <div class="max-w-lg mx-auto px-4 sm:px-6">
 
         {{-- Success Icon --}}
@@ -58,9 +57,10 @@
                     <div class="flex justify-between"><span class="text-slate-400">Pengaju</span><span class="font-medium text-slate-700">{{ $item->nama_pengaju }}</span></div>
                 @endif
 
+
                 <div class="flex justify-between"><span class="text-slate-400">Tanggal Pengajuan</span><span class="font-medium text-slate-700">{{ $item->created_at->translatedFormat('d F Y, H:i') }}</span></div>
 
-                {{-- Status Badge yang Sudah Diperbarui --}}
+                {{-- Status Badge --}}
                 <div class="flex justify-between items-center">
                     <span class="text-slate-400">Status</span>
                     <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $item->statusBadgeColor() }}">
@@ -68,6 +68,30 @@
                     </span>
                 </div>
             </div>
+
+            {{-- Download File Surat Jadi (HANYA MUNCUL JIKA STATUS SELESAI DAN FILE ADA) --}}
+            @if ($jenis === 'layanan_surat' && $item->status === 'selesai' && $item->file_hasil)
+                <div class="p-6 bg-emerald-50 border-t border-emerald-100 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="p-2 rounded-lg bg-emerald-100 text-emerald-700 flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-emerald-900">Surat Sudah Selesai!</p>
+                            <p class="text-xs text-emerald-700">Dokumen resmi sudah siap diunduh.</p>
+                        </div>
+                    </div>
+                    <a href="{{ asset('storage/'.$item->file_hasil) }}" target="_blank" download
+                       class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors shadow-sm flex-shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Unduh Surat
+                    </a>
+                </div>
+            @endif
         </div>
 
         {{-- Action Buttons --}}
@@ -79,32 +103,27 @@
                 setTimeout(() => this.copied = false, 2000);
             }
         }">
-
-        <div class="mt-6">
-
-        </div>
-
             <a href="{{ route('resi.download', $item->kode_tiket) }}"
-               class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold">
+               class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors">
                 Download PDF
             </a>
             <button onclick="window.print()"
-                    class="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold">
+                    class="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold transition-colors">
                 Cetak Resi
             </button>
             <button @click="copyCode()"
-                    class="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold">
+                    class="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold transition-colors">
                 <span x-show="!copied">Salin Kode</span>
                 <span x-show="copied" x-cloak class="text-emerald-600">Tersalin!</span>
             </button>
             <a href="https://wa.me/?text={{ urlencode('Cek status pengajuan saya di Kelurahan Tebing Tinggi Okura dengan kode: ' . $item->kode_tiket . ' — ' . $trackingUrl) }}"
                target="_blank"
-               class="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold">
+               class="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold transition-colors">
                 Bagikan WA
             </a>
         </div>
 
-        <a href="{{ route('home') }}" class="block text-center text-sm text-slate-400 mt-6 hover:text-emerald-600">
+        <a href="{{ route('home') }}" class="block text-center text-sm text-slate-400 mt-6 hover:text-emerald-600 transition-colors">
             ← Kembali ke Beranda
         </a>
     </div>

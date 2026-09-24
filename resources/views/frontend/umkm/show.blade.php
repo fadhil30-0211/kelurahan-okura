@@ -3,7 +3,7 @@
 @section('title', $umkm->nama_usaha)
 
 @section('content')
-<section class="pt-28 pb-16">
+<section class="pt-20 pb-16">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
         <div class="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden">
             <div class="relative">

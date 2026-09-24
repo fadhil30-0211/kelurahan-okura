@@ -3,7 +3,7 @@
 @section('title', 'Galeri Kegiatan')
 
 @section('content')
-<section class="pt-28 pb-16" x-data="{ open: false, activeIndex: 0, photos: {{ $galeris->pluck('foto')->map(fn($p) => asset('storage/'.$p))->toJson() }} }">
+<section class="pt-20 pb-16" x-data="{ open: false, activeIndex: 0, photos: {{ $galeris->pluck('foto')->map(fn($p) => asset('storage/'.$p))->toJson() }} }">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
         <div class="text-center mb-8">
             <span class="inline-block px-3 py-1 rounded-full bg-sky-50 text-sky-700 text-xs font-semibold mb-3">
